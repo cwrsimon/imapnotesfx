@@ -44,7 +44,6 @@ public class IMAPBackend {
 	}
 
 	public Session getSession() {
-	
 		return this.session;
 	}
 	
@@ -101,7 +100,16 @@ public class IMAPBackend {
 		fp.add("X-Mail-Created-Date");
 		fp.add("X-Universally-Unique-Identifier");
 		this.notesFolder.fetch(msgs, fp);
-		List<Message> messages = new ArrayList<>(Arrays.asList(msgs));
+
+		List<Message> messages = new ArrayList<>();
+		for (Message m : msgs) {
+			System.out.println(m.getSubject());
+			System.out.println(m.isSet(Flag.DELETED));
+			if (m.isSet(Flag.DELETED)) {
+				continue;
+			}
+			messages.add(m);
+		}
 		Collections.sort(messages, new Comparator<Message>() {
 			@Override
 			public int compare(Message o1, Message o2) {

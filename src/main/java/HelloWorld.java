@@ -9,6 +9,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 import de.wesim.imapnotes.IMAPBackend;
+import de.wesim.imapnotes.LoadMessageTask;
 import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -30,6 +31,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.beans.value.ChangeListener;
+import javafx.concurrent.Worker;
 
 // Where to go from here:
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
@@ -49,18 +52,37 @@ public class HelloWorld extends Application {
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 	}
 
-	private void updateMessage() throws MessagingException {
-		this.messages = this.backend.getMessages();	
+
+	private void loadMessages(Message messageToOpen) throws MessagingException {
+		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
 		noteCB.getItems().clear();
-		for (Message m : messages) {
-			noteCB.getItems().add(m);
-		}
+		newLoadTask.stateProperty().addListener(
+				new ChangeListener<Worker.State>() {
+			@Override public void changed(ObservableValue<? extends Worker.State> observableValue, 
+					Worker.State oldState, Worker.State newState) {
+			  if (newState == Worker.State.SUCCEEDED) {
+				System.out.println("This is ok, this thread " + Thread.currentThread() + " is the JavaFX Application thread.");
+				noteCB.setItems(newLoadTask.getValue());
+				if (messageToOpen != null) {
+					noteCB.getSelectionModel().select(messageToOpen);
+				}
+			}
+			}
+		  });
+		  
+		//noteCB.itemsProperty().bind(newLoadTask.valueProperty());
+
+		new Thread(newLoadTask).start();
+
+		//this.messages = this.backend.getMessages();	
+		//noteCB.getItems().clear();
+		//for (Message m : messages) {
+	//		noteCB.getItems().add(m);
+	//	}
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
-//		Button newNote = new Button("New");
-//		Button quit = new Button("Quit");
 		Button update = new Button("Save");
 		Button delete = new Button("Delete");
 		
@@ -95,8 +117,9 @@ public class HelloWorld extends Application {
 			public String toString(Message object) {
 				if (object != null) {
 					try {
-						return object.getSubject();
-					} catch (MessagingException e) {
+						return object.toString();
+						//return object.getSubject();
+					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						return "N/A";
@@ -129,10 +152,12 @@ public class HelloWorld extends Application {
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
 		MenuItem newMenu = new MenuItem("New");
+		MenuItem loadMenu = new MenuItem("Load Messages");
+
 		MenuItem exit = new MenuItem("Exit");
 
 		menuBar.getMenus().add(menu);
-		menu.getItems().addAll(newMenu, new SeparatorMenuItem(), exit);
+		menu.getItems().addAll(newMenu, loadMenu, new SeparatorMenuItem(), exit);
 //		exit.setOnAction(new EventHandler<ActionEvent>() {
 //		    public void handle(ActionEvent t) {
 //		        System.exit(0);
@@ -147,7 +172,24 @@ public class HelloWorld extends Application {
 		myPane.setBottom(hbox);
 		myPane.setTop(menuBar);
 		
+		loadMenu.setOnAction(e-> {
+			try {
+			loadMessages(null);
+			} catch (Exception exception) {
+				Alert alert = new Alert(Alert.AlertType.INFORMATION);
+				alert.setTitle("Laden fehlgeschlagen");
+		//			saveCurrentMessage();
+				alert.showAndWait();
+			}
+		});
+
 		exit.setOnAction (e -> {
+			try {
+				this.backend.destroy();
+			} catch (MessagingException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			primaryStage.fireEvent(
                     new WindowEvent(
                     		primaryStage,
@@ -159,7 +201,7 @@ public class HelloWorld extends Application {
 
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		alert.setTitle("Saving current message");
-//			saveCurrentMessage();
+		saveCurrentMessage();
 		alert.showAndWait();
 
 		});
@@ -186,12 +228,12 @@ public class HelloWorld extends Application {
 		primaryStage.setOnCloseRequest(e -> {
 			System.err.println("Quitting application.");
 		});
-		try {
-			updateMessage();
-		} catch (MessagingException e1) {
+		//try {
+			//loadMessages();
+		//} catch (MessagingException e1) {
 			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		//	e1.printStackTrace();
+		//}
 		myText.setDisable(true);
 		selectFirst();
 	}
@@ -218,12 +260,13 @@ public class HelloWorld extends Application {
 			} else {
 				final Message oldMessage = (Message) currentMessage;
 				newMessage = this.backend.updateMessageContent(oldMessage, newContent);
+				System.out.println("Muss geöffnet werden:" + newMessage.toString());
 			}
-			updateMessage();
-			int indexOfNewMessage = this.noteCB.getItems().indexOf(newMessage);
-			if (indexOfNewMessage != -1) {
-				this.noteCB.getSelectionModel().select(indexOfNewMessage);
-			}
+			loadMessages(newMessage);
+			//int indexOfNewMessage = this.noteCB.getItems().indexOf(newMessage);
+			//if (indexOfNewMessage != -1) {
+			//	this.noteCB.getSelectionModel().select(indexOfNewMessage);
+			//}
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -247,7 +290,7 @@ public class HelloWorld extends Application {
 //			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
 			this.backend.deleteMessage(msgObj);
 			this.currentMessage = null;
-			updateMessage();
+			loadMessages(null);
 //			this.noteCB.getItems().remove(oldIndex);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
@@ -281,7 +324,7 @@ public class HelloWorld extends Application {
 		String fetchFirstMail;
 		this.currentMessage = m;
 		try {
-			System.out.println("Opening " + m.getSubject());
+			System.out.println("Opening " + m.getMessageNumber());
 			clearText();
 			myText.setDisable(true);
 			fetchFirstMail = this.backend.getMessageContent(m);
