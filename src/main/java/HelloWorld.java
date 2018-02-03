@@ -34,6 +34,8 @@ import javafx.util.StringConverter;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker;
 
+// Einarbeiten:
+// http://code.makery.ch/library/javafx-8-tutorial/part2/
 // Where to go from here:
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
 public class HelloWorld extends Application {
@@ -45,31 +47,29 @@ public class HelloWorld extends Application {
 	private IMAPBackend backend;// = new IMAPBackend();
 	private final ComboBox<Message> noteCB = new ComboBox<Message>();
 	private final HTMLEditor myText = new HTMLEditor();
-	
+
 	@Override
 	public void init() throws Exception {
 		super.init();
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 	}
 
-
 	private void loadMessages(Message messageToOpen) throws MessagingException {
 		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
 		noteCB.getItems().clear();
-		newLoadTask.stateProperty().addListener(
-				new ChangeListener<Worker.State>() {
-			@Override public void changed(ObservableValue<? extends Worker.State> observableValue, 
-					Worker.State oldState, Worker.State newState) {
-			  if (newState == Worker.State.SUCCEEDED) {
-				System.out.println("This is ok, this thread " + Thread.currentThread() + " is the JavaFX Application thread.");
-				noteCB.setItems(newLoadTask.getValue());
-				if (messageToOpen != null) {
-					noteCB.getSelectionModel().select(messageToOpen);
+		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
+			@Override
+			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
+					Worker.State newState) {
+				if (newState == Worker.State.SUCCEEDED) {
+					noteCB.setItems(newLoadTask.getValue());
+					if (messageToOpen != null) {
+						noteCB.getSelectionModel().select(messageToOpen);
+					}
 				}
 			}
-			}
-		  });
-		  
+		});
+
 		//noteCB.itemsProperty().bind(newLoadTask.valueProperty());
 
 		new Thread(newLoadTask).start();
@@ -77,24 +77,22 @@ public class HelloWorld extends Application {
 		//this.messages = this.backend.getMessages();	
 		//noteCB.getItems().clear();
 		//for (Message m : messages) {
-	//		noteCB.getItems().add(m);
-	//	}
+		//		noteCB.getItems().add(m);
+		//	}
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
 		Button update = new Button("Save");
 		Button delete = new Button("Delete");
-		
-		
+
 		noteCB.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>() {
 
 			@Override
 			public ListCell<Message> call(ListView<Message> param) {
 				return new ListCell<Message>() {
-					@Override 
-					public void updateItem(Message item, 
-							boolean empty) {
+					@Override
+					public void updateItem(Message item, boolean empty) {
 						super.updateItem(item, empty);
 						if (empty || item == null) {
 							setText(null);
@@ -104,7 +102,7 @@ public class HelloWorld extends Application {
 								setText(item.getSubject());
 							} catch (MessagingException e) {
 								setText("N/A");
-							}					    
+							}
 						}
 
 					}
@@ -112,7 +110,7 @@ public class HelloWorld extends Application {
 			}
 		});
 		noteCB.setConverter(new StringConverter<Message>() {
-			
+
 			@Override
 			public String toString(Message object) {
 				if (object != null) {
@@ -127,7 +125,7 @@ public class HelloWorld extends Application {
 				}
 				return null;
 			}
-			
+
 			@Override
 			public Message fromString(String string) {
 				// TODO Auto-generated method stub
@@ -138,17 +136,19 @@ public class HelloWorld extends Application {
 
 			@Override
 			public void changed(ObservableValue<? extends Message> observable, Message oldValue, Message newValue) {
-//				if (oldValue == null) return;
-				if (newValue == null) return;
-                            try {
-                                //				if (currentMessage != newValue) {
-                                openNote(newValue);
-//				}		
-                            } catch (IOException ex) {
-                                Logger.getLogger(HelloWorld.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+				//				if (oldValue == null) return;
+				if (newValue == null)
+					return;
+				try {
+					//				if (currentMessage != newValue) {
+					openNote(newValue);
+					//				}		
+				} catch (IOException ex) {
+					Logger.getLogger(HelloWorld.class.getName()).log(Level.SEVERE, null, ex);
+				}
 			}
 		});
+		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
 		MenuItem newMenu = new MenuItem("New");
@@ -158,12 +158,12 @@ public class HelloWorld extends Application {
 
 		menuBar.getMenus().add(menu);
 		menu.getItems().addAll(newMenu, loadMenu, new SeparatorMenuItem(), exit);
-//		exit.setOnAction(new EventHandler<ActionEvent>() {
-//		    public void handle(ActionEvent t) {
-//		        System.exit(0);
-//		    }
-//		});
-		
+		//		exit.setOnAction(new EventHandler<ActionEvent>() {
+		//		    public void handle(ActionEvent t) {
+		//		        System.exit(0);
+		//		    }
+		//		});
+
 		//		menu.
 		HBox hbox = new HBox(update, noteCB, delete);
 
@@ -171,38 +171,34 @@ public class HelloWorld extends Application {
 		myPane.setCenter(myText);
 		myPane.setBottom(hbox);
 		myPane.setTop(menuBar);
-		
-		loadMenu.setOnAction(e-> {
+
+		loadMenu.setOnAction(e -> {
 			try {
-			loadMessages(null);
+				loadMessages(null);
 			} catch (Exception exception) {
 				Alert alert = new Alert(Alert.AlertType.INFORMATION);
 				alert.setTitle("Laden fehlgeschlagen");
-		//			saveCurrentMessage();
+				//			saveCurrentMessage();
 				alert.showAndWait();
 			}
 		});
 
-		exit.setOnAction (e -> {
+		exit.setOnAction(e -> {
 			try {
 				this.backend.destroy();
 			} catch (MessagingException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			primaryStage.fireEvent(
-                    new WindowEvent(
-                    		primaryStage,
-                            WindowEvent.WINDOW_CLOSE_REQUEST));
+			primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
 		});
-		
+
 		update.setOnAction(e -> {
 
-
-		Alert alert = new Alert(Alert.AlertType.INFORMATION);
-		alert.setTitle("Saving current message");
-		saveCurrentMessage();
-		alert.showAndWait();
+			Alert alert = new Alert(Alert.AlertType.INFORMATION);
+			alert.setTitle("Saving current message");
+			saveCurrentMessage();
+			alert.showAndWait();
 
 		});
 		newMenu.setOnAction(e -> {
@@ -216,10 +212,10 @@ public class HelloWorld extends Application {
 			Alert alert = new Alert(Alert.AlertType.INFORMATION);
 			alert.setTitle("DELETE");
 			alert.showAndWait();
-			
+
 			//deleteCurrentMessage();
 		});
-		
+
 		Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
 		primaryStage.setWidth(800);
@@ -229,29 +225,29 @@ public class HelloWorld extends Application {
 			System.err.println("Quitting application.");
 		});
 		//try {
-			//loadMessages();
+		//loadMessages();
 		//} catch (MessagingException e1) {
-			// TODO Auto-generated catch block
+		// TODO Auto-generated catch block
 		//	e1.printStackTrace();
 		//}
 		myText.setDisable(true);
 		selectFirst();
 	}
-	
+
 	private void selectFirst() {
 		if (this.noteCB.getItems().size() > 0) {
-			this.noteCB.getSelectionModel().select(0);			
+			this.noteCB.getSelectionModel().select(0);
 		}
 	}
 
 	private void saveCurrentMessage() {
-		if (currentMessage == null) return;
-		
-		
+		if (currentMessage == null)
+			return;
+
 		final String newContent = myText.getHtmlText();
 		this.myText.setDisable(true);
 		clearText();
-		
+
 		try {
 			Message newMessage = null;
 			if (currentMessage instanceof String) {
@@ -272,26 +268,27 @@ public class HelloWorld extends Application {
 			e.printStackTrace();
 		}
 		this.myText.setDisable(false);
-		
+
 	}
-	
+
 	private void deleteCurrentMessage() {
-		if (currentMessage == null) return;
+		if (currentMessage == null)
+			return;
 		myText.setDisable(true);
 		clearText();
 		if (currentMessage instanceof String) {
 			currentMessage = null;
 			this.myText.setDisable(true);
 		}
-		final Message msgObj = (Message ) currentMessage;
+		final Message msgObj = (Message) currentMessage;
 
 		try {
 			System.out.println("Deleting " + msgObj.getSubject());
-//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
+			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
 			this.backend.deleteMessage(msgObj);
 			this.currentMessage = null;
 			loadMessages(null);
-//			this.noteCB.getItems().remove(oldIndex);
+			//			this.noteCB.getItems().remove(oldIndex);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -303,7 +300,7 @@ public class HelloWorld extends Application {
 		// TODO check for unsaved changes ...
 		this.myText.setDisable(true);
 		clearText();
-		
+
 		final String newContent = myText.getHtmlText();
 		Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
@@ -311,15 +308,15 @@ public class HelloWorld extends Application {
 		Optional<String> result = dialog.showAndWait();
 		String entered = "N/A";
 		if (result.isPresent()) {
-		    entered = result.get();
+			entered = result.get();
 		}
 		this.currentMessage = entered;
-//		this.noteCB.getItems().add(this.currentMessage);
-		
+		//		this.noteCB.getItems().add(this.currentMessage);
+
 		this.myText.setDisable(false);
 		this.myText.requestFocus();
 	}
-	
+
 	public void openNote(Message m) throws IOException {
 		String fetchFirstMail;
 		this.currentMessage = m;
@@ -330,14 +327,14 @@ public class HelloWorld extends Application {
 			fetchFirstMail = this.backend.getMessageContent(m);
 			myText.setHtmlText(fetchFirstMail);
 			myText.setDisable(false);
-		}catch (MessagingException e) {
+		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-            // TODO Auto-generated catch block
-            
+		// TODO Auto-generated catch block
+
 	}
-	
+
 	private void clearText() {
 		myText.setHtmlText("");
 	}
