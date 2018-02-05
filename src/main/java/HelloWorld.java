@@ -10,6 +10,7 @@ import javax.mail.MessagingException;
 
 import de.wesim.imapnotes.IMAPBackend;
 import de.wesim.imapnotes.LoadMessageTask;
+import de.wesim.models.Note;
 import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -43,9 +44,9 @@ public class HelloWorld extends Application {
 	private List<Message> messages;
 	// can be either Message or String ...
 	// FIXME 
-	private Object currentMessage;
+	private Note currentMessage;
 	private IMAPBackend backend;// = new IMAPBackend();
-	private final ComboBox<Message> noteCB = new ComboBox<Message>();
+	private final ComboBox<Note> noteCB = new ComboBox<>();
 	private final HTMLEditor myText = new HTMLEditor();
 
 	@Override
@@ -54,7 +55,7 @@ public class HelloWorld extends Application {
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 	}
 
-	private void loadMessages(Message messageToOpen) throws MessagingException {
+	private void loadMessages(Note messageToOpen) throws MessagingException {
 		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
 		noteCB.getItems().clear();
 		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
@@ -86,37 +87,32 @@ public class HelloWorld extends Application {
 		Button update = new Button("Save");
 		Button delete = new Button("Delete");
 
-		noteCB.setCellFactory(new Callback<ListView<Message>, ListCell<Message>>() {
+		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 
 			@Override
-			public ListCell<Message> call(ListView<Message> param) {
-				return new ListCell<Message>() {
+			public ListCell<Note> call(ListView<Note> param) {
+				return new ListCell<Note>() {
 					@Override
-					public void updateItem(Message item, boolean empty) {
+					public void updateItem(Note item, boolean empty) {
 						super.updateItem(item, empty);
 						if (empty || item == null) {
 							setText(null);
 							setGraphic(null);
 						} else {
-							try {
-								setText(item.getSubject());
-							} catch (MessagingException e) {
-								setText("N/A");
-							}
+							setText(item.getSubject());
 						}
 
 					}
 				};
 			}
 		});
-		noteCB.setConverter(new StringConverter<Message>() {
+		noteCB.setConverter(new StringConverter<Note>() {
 
 			@Override
-			public String toString(Message object) {
+			public String toString(Note object) {
 				if (object != null) {
 					try {
-						return object.toString();
-						//return object.getSubject();
+						return object.getSubject();
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -127,15 +123,16 @@ public class HelloWorld extends Application {
 			}
 
 			@Override
-			public Message fromString(String string) {
+			public Note fromString(String string) {
 				// TODO Auto-generated method stub
 				return null;
 			}
 		});
-		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Message>() {
+		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
 
 			@Override
-			public void changed(ObservableValue<? extends Message> observable, Message oldValue, Message newValue) {
+			public void changed(ObservableValue<? extends Note> observable, 
+					Note oldValue, Note newValue) {
 				//				if (oldValue == null) return;
 				if (newValue == null)
 					return;
@@ -195,18 +192,15 @@ public class HelloWorld extends Application {
 
 		update.setOnAction(e -> {
 
-			Alert alert = new Alert(Alert.AlertType.INFORMATION);
-			alert.setTitle("Saving current message");
 			saveCurrentMessage();
-			alert.showAndWait();
 
 		});
 		newMenu.setOnAction(e -> {
-			Alert alert = new Alert(Alert.AlertType.INFORMATION);
-			alert.setTitle("Creating new message");
-			alert.showAndWait();
+//			Alert alert = new Alert(Alert.AlertType.INFORMATION);
+//			alert.setTitle("Creating new message");
+//			alert.showAndWait();
 
-			//createNewMessage();
+			createNewMessage();
 		});
 		delete.setOnAction(e -> {
 			Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -245,20 +239,16 @@ public class HelloWorld extends Application {
 			return;
 
 		final String newContent = myText.getHtmlText();
+		System.out.println(newContent);
 		this.myText.setDisable(true);
-		clearText();
+		//clearText();
 
 		try {
-			Message newMessage = null;
-			if (currentMessage instanceof String) {
-				String subject = (String) currentMessage;
-				newMessage = this.backend.createNewMessage(subject, newContent);
-			} else {
-				final Message oldMessage = (Message) currentMessage;
-				newMessage = this.backend.updateMessageContent(oldMessage, newContent);
-				System.out.println("Muss geöffnet werden:" + newMessage.toString());
-			}
-			loadMessages(newMessage);
+			// TODO Bitte asynchron speichern!
+			this.currentMessage.setContent(newContent);
+			this.currentMessage.update(this.backend);
+
+			//loadMessages(newMessage);
 			//int indexOfNewMessage = this.noteCB.getItems().indexOf(newMessage);
 			//if (indexOfNewMessage != -1) {
 			//	this.noteCB.getSelectionModel().select(indexOfNewMessage);
@@ -271,37 +261,37 @@ public class HelloWorld extends Application {
 
 	}
 
-	private void deleteCurrentMessage() {
-		if (currentMessage == null)
-			return;
-		myText.setDisable(true);
-		clearText();
-		if (currentMessage instanceof String) {
-			currentMessage = null;
-			this.myText.setDisable(true);
-		}
-		final Message msgObj = (Message) currentMessage;
-
-		try {
-			System.out.println("Deleting " + msgObj.getSubject());
-			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
-			this.backend.deleteMessage(msgObj);
-			this.currentMessage = null;
-			loadMessages(null);
-			//			this.noteCB.getItems().remove(oldIndex);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		selectFirst();
-	}
+//	private void deleteCurrentMessage() {
+//		if (currentMessage == null)
+//			return;
+//		myText.setDisable(true);
+//		clearText();
+//		if (currentMessage instanceof String) {
+//			currentMessage = null;
+//			this.myText.setDisable(true);
+//		}
+//		final Message msgObj = (Message) currentMessage;
+//
+//		try {
+//			System.out.println("Deleting " + msgObj.getSubject());
+//			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
+//			this.backend.deleteMessage(msgObj);
+//			this.currentMessage = null;
+//			loadMessages(null);
+//			//			this.noteCB.getItems().remove(oldIndex);
+//		} catch (Exception e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+//		selectFirst();
+//	}
 
 	public void createNewMessage() {
 		// TODO check for unsaved changes ...
 		this.myText.setDisable(true);
 		clearText();
 
-		final String newContent = myText.getHtmlText();
+//		final String newContent = myText.getHtmlText();
 		Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("Enter some text, or use default value.");
@@ -310,29 +300,35 @@ public class HelloWorld extends Application {
 		if (result.isPresent()) {
 			entered = result.get();
 		}
-		this.currentMessage = entered;
+//		this.currentMessage = entered;
 		//		this.noteCB.getItems().add(this.currentMessage);
-
-		this.myText.setDisable(false);
-		this.myText.requestFocus();
-	}
-
-	public void openNote(Message m) throws IOException {
-		String fetchFirstMail;
-		this.currentMessage = m;
+		// TODO bitte asyncrhon
 		try {
-			System.out.println("Opening " + m.getMessageNumber());
-			clearText();
-			myText.setDisable(true);
-			fetchFirstMail = this.backend.getMessageContent(m);
-			myText.setHtmlText(fetchFirstMail);
-			myText.setDisable(false);
+			final Note newNote = Note.createNewNote(this.backend, entered);
+			loadMessages(newNote);
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		// TODO Auto-generated catch block
+		this.myText.setDisable(false);
+		this.myText.requestFocus();
+	}
 
+	public void openNote(Note m) throws IOException {
+		this.currentMessage = m;
+		try {
+			this.currentMessage.load(this.backend);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+			System.out.println("Opening " + m.getUuid());
+			clearText();
+			myText.setDisable(true);
+			// TODO content asyncrhon laden !
+			myText.setHtmlText(m.getContent());
+			myText.setDisable(false);
+		
 	}
 
 	private void clearText() {

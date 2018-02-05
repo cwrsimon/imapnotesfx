@@ -1,33 +1,29 @@
 package de.wesim.imapnotes;
 
-import com.sun.mail.imap.IMAPFolder;
-import com.sun.mail.imap.IMAPMessage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import java.util.UUID;
 
-import javax.mail.Address;
 import javax.mail.FetchProfile;
-import javax.mail.Flags;
+import javax.mail.Flags.Flag;
 import javax.mail.Folder;
 import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.UIDFolder;
-import javax.mail.Flags.Flag;
 import javax.mail.internet.MimeMessage;
+
+import com.sun.mail.imap.IMAPFolder;
+
+import de.wesim.models.Note;
 
 public class IMAPBackend {
 	
@@ -87,7 +83,7 @@ public class IMAPBackend {
 		this.store.close();
 	}
 
-	public List<Message> getMessages() throws MessagingException {
+	public List<Note> getMessages() throws MessagingException {
 		this.startTransaction();
 
 		//int totalMessages =  this.notesFolder.getMessageCount();
@@ -101,26 +97,31 @@ public class IMAPBackend {
 		fp.add("X-Universally-Unique-Identifier");
 		this.notesFolder.fetch(msgs, fp);
 
-		List<Message> messages = new ArrayList<>();
+		List<Note> messages = new ArrayList<>();
 		for (Message m : msgs) {
 			System.out.println(m.getSubject());
 			System.out.println(m.isSet(Flag.DELETED));
 			if (m.isSet(Flag.DELETED)) {
 				continue;
 			}
-			messages.add(m);
+			final String uuid = this.getUUIDForMessage(m);
+			final Note newNote = new Note(uuid);
+			newNote.setSubject(m.getSubject());
+			newNote.setImapMessage(m);
+			messages.add(newNote);
 		}
-		Collections.sort(messages, new Comparator<Message>() {
-			@Override
-			public int compare(Message o1, Message o2) {
-				try {
-					return o1.getReceivedDate().compareTo(o2.getReceivedDate());
-				} catch (MessagingException e) {
-					// TODO passt das?
-					return -1;
-				}
-			}
-		});
+		// TODO Reintegrate me!
+//		Collections.sort(messages, new Comparator<Message>() {
+//			@Override
+//			public int compare(Message o1, Message o2) {
+//				try {
+//					return o1.getReceivedDate().compareTo(o2.getReceivedDate());
+//				} catch (MessagingException e) {
+//					// TODO passt das?
+//					return -1;
+//				}
+//			}
+//		});
 		this.endTransaction();
 		return messages;
 	}
@@ -128,7 +129,7 @@ public class IMAPBackend {
 
 	public String getMessageContent(Message message) throws MessagingException, IOException {
 		startTransaction();
-		String content = (String) message.getContent();
+		final String content = (String) message.getContent();
 		endTransaction();
 		return content;
 	}
@@ -187,9 +188,9 @@ public class IMAPBackend {
 
 	public Message createNewMessage(String subject, String newContent) throws MessagingException {
 		startTransaction();
-		MimeMessage newMsg = createNewMessageObject(subject, newContent, true);
+		final MimeMessage newMsg = createNewMessageObject(subject, newContent, true);
 		newMsg.setFlag(Flag.SEEN, true);
-		Message[] newIMAPMessage = new Message[]{newMsg};
+		final Message[] newIMAPMessage = new Message[]{newMsg};
 		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
 		endTransaction();
 		return resultMessage[0];
@@ -212,6 +213,13 @@ public class IMAPBackend {
 		return newMsg;
 	}
 
+	public String getUUIDForMessage(Message msg) throws MessagingException {
+		this.startTransaction();
+	    final String uuid =  msg.getHeader("X-Universally-Unique-Identifier")[0];	
+	    this.endTransaction();
+	    return uuid;
+	}
+	
 	public long getUidForMessage(Message msg) throws MessagingException {
 		this.startTransaction();
 	    final long uid =  ((UIDFolder) this.getNotesFolder()).getUID(msg);		

@@ -7,15 +7,17 @@ import javafx.collections.FXCollections;
 
 import javax.mail.Message;
 
-public class SaveMessageTask extends Task<ObservableList<Message>> {
+import de.wesim.models.Note;
+
+public class SaveMessageTask extends Task<ObservableList<Note>> {
     private final IMAPBackend backend;
 
     public SaveMessageTask( IMAPBackend backend) {
         this.backend = backend;
     }
 
-    @Override protected ObservableList<Message> call() throws Exception {
-        final List<Message> messages = this.backend.getMessages();	
+    @Override protected ObservableList<Note> call() throws Exception {
+        final List<Note> messages = this.backend.getMessages();	
         return FXCollections.observableArrayList(messages);
 		
     }
