@@ -66,6 +66,8 @@ public class HelloWorld extends Application {
 					noteCB.setItems(newLoadTask.getValue());
 					if (messageToOpen != null) {
 						noteCB.getSelectionModel().select(messageToOpen);
+					} else {
+						noteCB.getSelectionModel().select(0);
 					}
 				}
 			}
@@ -203,11 +205,7 @@ public class HelloWorld extends Application {
 			createNewMessage();
 		});
 		delete.setOnAction(e -> {
-			Alert alert = new Alert(Alert.AlertType.INFORMATION);
-			alert.setTitle("DELETE");
-			alert.showAndWait();
-
-			//deleteCurrentMessage();
+			deleteCurrentMessage();
 		});
 
 		Scene myScene = new Scene(myPane);
@@ -261,30 +259,30 @@ public class HelloWorld extends Application {
 
 	}
 
-//	private void deleteCurrentMessage() {
+	private void deleteCurrentMessage() {
 //		if (currentMessage == null)
 //			return;
-//		myText.setDisable(true);
+		myText.setDisable(true);
 //		clearText();
 //		if (currentMessage instanceof String) {
 //			currentMessage = null;
 //			this.myText.setDisable(true);
 //		}
 //		final Message msgObj = (Message) currentMessage;
-//
-//		try {
-//			System.out.println("Deleting " + msgObj.getSubject());
-//			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
-//			this.backend.deleteMessage(msgObj);
-//			this.currentMessage = null;
-//			loadMessages(null);
-//			//			this.noteCB.getItems().remove(oldIndex);
-//		} catch (Exception e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
-//		selectFirst();
-//	}
+
+		try {
+			System.out.println("Deleting " + msgObj.getSubject());
+			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
+			//this.backend.deleteMessage(msgObj);
+			//this.currentMessage = null;
+			loadMessages(null);
+			//			this.noteCB.getItems().remove(oldIndex);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		selectFirst();
+	}
 
 	public void createNewMessage() {
 		// TODO check for unsaved changes ...

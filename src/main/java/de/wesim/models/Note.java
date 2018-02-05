@@ -69,8 +69,8 @@ public class Note {
 		this.imapMessage = backend.updateMessageContent(this.imapMessage, content);
 	}
 
-	public void delete(IMAPBackend backend) {
-		
+	public void delete(IMAPBackend backend) throws MessagingException {
+		backend.deleteMessage(this.imapMessage);
 	}
 
 	@Override
