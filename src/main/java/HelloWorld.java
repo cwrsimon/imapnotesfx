@@ -8,12 +8,18 @@ import javafx.application.Application;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
+import de.wesim.imapnotes.DeleteMessageTask;
 import de.wesim.imapnotes.IMAPBackend;
 import de.wesim.imapnotes.LoadMessageTask;
+import de.wesim.imapnotes.OpenMessageTask;
+import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
 import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableList;
+
+import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -26,13 +32,14 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Worker;
 
 // Einarbeiten:
@@ -41,23 +48,87 @@ import javafx.concurrent.Worker;
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
 public class HelloWorld extends Application {
 
-	private List<Message> messages;
-	// can be either Message or String ...
 	// FIXME 
 	private Note currentMessage;
 	private IMAPBackend backend;// = new IMAPBackend();
-	private final ComboBox<Note> noteCB = new ComboBox<>();
+	private final ListView<Note> noteCB = new ListView<>();
 	private final HTMLEditor myText = new HTMLEditor();
-
+	private final ProgressBar p1 = new ProgressBar(0);
+		
+	
 	@Override
 	public void init() throws Exception {
 		super.init();
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 	}
+	
+	private void openNote(Note m) {
+			System.out.println("Opening " +m.toString());
+			
+			clearText();
+			myText.setDisable(true);
+						
+			OpenMessageTask newTask = new OpenMessageTask(backend, m);
+			newTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
+				@Override
+				public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
+						Worker.State newState) {
+					if (newState == Worker.State.SUCCEEDED) {						
+						myText.setHtmlText(newTask.getValue());
+						myText.setDisable(false);
+					}
+				}
+			});
+			p1.progressProperty().unbind();
+			p1.progressProperty().bind(newTask.progressProperty());
 
-	private void loadMessages(Note messageToOpen) throws MessagingException {
+			new Thread(newTask).run();
+		
+	}
+
+	
+	private void saveCurrentMessage() {
+		if (currentMessage == null)
+			return;
+
+		final String newContent = myText.getHtmlText();
+		System.out.println(newContent);
+		
+		this.currentMessage.setContent(newContent);
+		SaveMessageTask saveMessageTask = new SaveMessageTask(backend, this.currentMessage);
+		p1.progressProperty().unbind();
+		p1.progressProperty().bind(saveMessageTask.progressProperty());
+		new Thread(saveMessageTask).run();
+	}
+
+	// TODO einen Thread-Executor einführen???
+	private void deleteCurrentMessage() {
+		myText.setDisable(true);
+		
+		System.out.println("Deleting " + currentMessage);
+	
+
+		DeleteMessageTask newLoadTask = new DeleteMessageTask(backend, this.currentMessage);
+		//noteCB.getItems().clear();
+		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
+			@Override
+			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
+					Worker.State newState) {
+				if (newState == Worker.State.SUCCEEDED) {
+					noteCB.setItems(newLoadTask.getValue());
+					noteCB.getSelectionModel().select(0);
+					myText.setDisable(false);
+				}
+			}
+		});
+
+		new Thread(newLoadTask).start();
+	}
+	
+	
+	private void loadMessages(Note messageToOpen) {
 		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
-		noteCB.getItems().clear();
+		//noteCB.getItems().clear();
 		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			@Override
 			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
@@ -72,22 +143,11 @@ public class HelloWorld extends Application {
 				}
 			}
 		});
-
-		//noteCB.itemsProperty().bind(newLoadTask.valueProperty());
-
 		new Thread(newLoadTask).start();
-
-		//this.messages = this.backend.getMessages();	
-		//noteCB.getItems().clear();
-		//for (Message m : messages) {
-		//		noteCB.getItems().add(m);
-		//	}
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
-		Button update = new Button("Save");
-		Button delete = new Button("Delete");
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 
@@ -108,69 +168,51 @@ public class HelloWorld extends Application {
 				};
 			}
 		});
-		noteCB.setConverter(new StringConverter<Note>() {
 
-			@Override
-			public String toString(Note object) {
-				if (object != null) {
-					try {
-						return object.getSubject();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-						return "N/A";
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public Note fromString(String string) {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		});
 		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
 
 			@Override
 			public void changed(ObservableValue<? extends Note> observable, 
 					Note oldValue, Note newValue) {
-				//				if (oldValue == null) return;
+				
 				if (newValue == null)
 					return;
-				try {
-					//				if (currentMessage != newValue) {
-					openNote(newValue);
-					//				}		
-				} catch (IOException ex) {
-					Logger.getLogger(HelloWorld.class.getName()).log(Level.SEVERE, null, ex);
-				}
+				currentMessage = newValue;
+				openNote(newValue);
+				
 			}
 		});
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
 		MenuItem newMenu = new MenuItem("New");
+		MenuItem reset   = new MenuItem("Reset");
 		MenuItem loadMenu = new MenuItem("Load Messages");
-
 		MenuItem exit = new MenuItem("Exit");
 
+		Menu msgMenu = new Menu("Note");
+		MenuItem delete = new MenuItem("Delete");
+		MenuItem update  = new MenuItem("Update");
+		
 		menuBar.getMenus().add(menu);
-		menu.getItems().addAll(newMenu, loadMenu, new SeparatorMenuItem(), exit);
-		//		exit.setOnAction(new EventHandler<ActionEvent>() {
-		//		    public void handle(ActionEvent t) {
-		//		        System.exit(0);
-		//		    }
-		//		});
-
-		//		menu.
-		HBox hbox = new HBox(update, noteCB, delete);
-
+		menuBar.getMenus().add(msgMenu);
+		menu.getItems().addAll(loadMenu, reset, new SeparatorMenuItem(), exit);
+		msgMenu.getItems().addAll(newMenu, delete, update);
+		 
+		HBox hbox = new HBox(p1);
+		
+		
 		BorderPane myPane = new BorderPane();
 		myPane.setCenter(myText);
 		myPane.setBottom(hbox);
+		myPane.setLeft(noteCB);
 		myPane.setTop(menuBar);
 
+		reset.setOnAction( e -> {
+			p1.progressProperty().unbind();
+			p1.setProgress(-1);
+		});
+		
 		loadMenu.setOnAction(e -> {
 			try {
 				loadMessages(null);
@@ -232,57 +274,8 @@ public class HelloWorld extends Application {
 		}
 	}
 
-	private void saveCurrentMessage() {
-		if (currentMessage == null)
-			return;
+	
 
-		final String newContent = myText.getHtmlText();
-		System.out.println(newContent);
-		this.myText.setDisable(true);
-		//clearText();
-
-		try {
-			// TODO Bitte asynchron speichern!
-			this.currentMessage.setContent(newContent);
-			this.currentMessage.update(this.backend);
-
-			//loadMessages(newMessage);
-			//int indexOfNewMessage = this.noteCB.getItems().indexOf(newMessage);
-			//if (indexOfNewMessage != -1) {
-			//	this.noteCB.getSelectionModel().select(indexOfNewMessage);
-			//}
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.myText.setDisable(false);
-
-	}
-
-	private void deleteCurrentMessage() {
-//		if (currentMessage == null)
-//			return;
-		myText.setDisable(true);
-//		clearText();
-//		if (currentMessage instanceof String) {
-//			currentMessage = null;
-//			this.myText.setDisable(true);
-//		}
-//		final Message msgObj = (Message) currentMessage;
-
-		try {
-			System.out.println("Deleting " + msgObj.getSubject());
-			//			int oldIndex = this.noteCB.getItems().indexOf(currentMessage);
-			//this.backend.deleteMessage(msgObj);
-			//this.currentMessage = null;
-			loadMessages(null);
-			//			this.noteCB.getItems().remove(oldIndex);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		selectFirst();
-	}
 
 	public void createNewMessage() {
 		// TODO check for unsaved changes ...
@@ -312,23 +305,7 @@ public class HelloWorld extends Application {
 		this.myText.requestFocus();
 	}
 
-	public void openNote(Note m) throws IOException {
-		this.currentMessage = m;
-		try {
-			this.currentMessage.load(this.backend);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			System.out.println("Opening " + m.getUuid());
-			clearText();
-			myText.setDisable(true);
-			// TODO content asyncrhon laden !
-			myText.setHtmlText(m.getContent());
-			myText.setDisable(false);
-		
-	}
-
+	
 	private void clearText() {
 		myText.setHtmlText("");
 	}
