@@ -5,12 +5,27 @@
  * For more details take a look at the Java Quickstart chapter in the Gradle
  * user guide available at https://docs.gradle.org/4.1/userguide/tutorial_java_projects.html
  */
+import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 // Apply the java plugin to add support for Java
 apply plugin: 'java'
+apply plugin: 'eclipse'
+
 
 // Apply the application plugin to add support for building an application
 apply plugin: 'application'
+
+eclipse {
+    classpath {
+        file {
+            whenMerged {
+                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                jre.accessRules.add(new AccessRule('0', 'javafx/**'))
+            }
+        }
+    }
+}
+
 
 // In this section you declare where to find the dependencies of your project
 repositories {

@@ -18,16 +18,18 @@ import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-
+import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
+
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
@@ -57,6 +59,7 @@ import javafx.concurrent.Worker;
 // https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
 // https://gist.github.com/jewelsea/2774476
+// https://stackoverflow.com/questions/39299724/javafx-service-and-gui
 // Beim Öffnen alles laden ...
 public class HelloWorld extends Application {
 
@@ -65,13 +68,19 @@ public class HelloWorld extends Application {
 	private IMAPBackend backend;// = new IMAPBackend();
 	private final ListView<Note> noteCB = new ListView<>();
 	private final HTMLEditor myText = new HTMLEditor();
-	private final ProgressBar p1 = new ProgressBar(0);
-		
+	private final ProgressBar p1 = new ProgressBar();
+	private SaveMessageTask saveMessageTask;
+	private LoadMessageTask newLoadTask ;
+	private final Label status = new Label();
+
+
 	
 	@Override
 	public void init() throws Exception {
 		super.init();
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
+		this.saveMessageTask = new SaveMessageTask(backend);
+		this.newLoadTask = new LoadMessageTask(backend);
 	}
 	
 	private void openNote(Note m) {
@@ -91,8 +100,8 @@ public class HelloWorld extends Application {
 					}
 				}
 			});
-			resetProgressBar();
-			p1.progressProperty().bind(newTask.progressProperty());
+			//resetProgressBar();
+			//p1.progressProperty().bind(newTask.progressProperty());
 
 			new Thread(newTask).run();
 		
@@ -107,11 +116,10 @@ public class HelloWorld extends Application {
 		System.out.println(newContent);
 		
 		this.currentMessage.setContent(newContent);
-		SaveMessageTask saveMessageTask = new SaveMessageTask(backend, this.currentMessage);
-		resetProgressBar();
-		p1.progressProperty().bind(saveMessageTask.progressProperty());
-
-		new Thread(saveMessageTask).run();
+		saveMessageTask.noteProperty().set(this.currentMessage);
+		saveMessageTask.reset();
+		saveMessageTask.restart();
+		
 	}
 
 	// TODO einen Thread-Executor einführen???
@@ -121,48 +129,85 @@ public class HelloWorld extends Application {
 		System.out.println("Deleting " + currentMessage);
 	
 
-		DeleteMessageTask newLoadTask = new DeleteMessageTask(backend, this.currentMessage);
+		DeleteMessageTask deleteTask = new DeleteMessageTask(backend, this.currentMessage);
 		//noteCB.getItems().clear();
-		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
+		deleteTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			@Override
 			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
 					Worker.State newState) {
 				if (newState == Worker.State.SUCCEEDED) {
-					noteCB.setItems(newLoadTask.getValue());
+					noteCB.setItems(deleteTask.getValue());
 					noteCB.getSelectionModel().select(0);
 					myText.setDisable(false);
 				}
 			}
 		});
 
-		new Thread(newLoadTask).start();
+		new Thread(deleteTask).start();
 	}
 	
 	
 	private void loadMessages(Note messageToOpen) {
-		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
-		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
-			@Override
-			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
-					Worker.State newState) {
-				if (newState == Worker.State.SUCCEEDED) {
-					noteCB.setItems(newLoadTask.getValue());
-					if (messageToOpen != null) {
-						noteCB.getSelectionModel().select(messageToOpen);
-					} else {
-						noteCB.getSelectionModel().select(0);
-					}
-				}
-			}
-		});
-		resetProgressBar();
-		p1.progressProperty().bind(newLoadTask.progressProperty());
+		System.out.println(messageToOpen);
 
-		new Thread(newLoadTask).start();
+		// LoadMessageTask newLoadTask = new LoadMessageTask(backend);
+		// newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
+		// 	@Override
+		// 	public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
+		// 			Worker.State newState) {
+		// 		if (newState == Worker.State.SUCCEEDED) {
+		// 			noteCB.setItems(newLoadTask.getValue());
+		// 			if (messageToOpen != null) {
+		// 				noteCB.getSelectionModel().select(messageToOpen);
+		// 			} else {
+		// 				noteCB.getSelectionModel().select(0);
+		// 			}
+		// 		}
+		// 	}
+		// });
+		//resetProgressBar();
+	//	p1.progressProperty().bind(newLoadTask.progressProperty());
+		newLoadTask.setNote(messageToOpen);
+		//this.currentMessage = messageToOpen;
+		//new Thread(newLoadTask).start();
+		newLoadTask.reset();
+		newLoadTask.restart();
+		
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
+		newLoadTask.setOnScheduled(e -> {
+			p1.progressProperty().unbind();
+			p1.progressProperty().bind(newLoadTask.progressProperty());
+			status.textProperty().unbind();
+			status.textProperty().bind( newLoadTask.messageProperty());
+
+		});
+		newLoadTask.setOnSucceeded(e -> {
+			noteCB.setItems(newLoadTask.getValue());
+			if (newLoadTask.noteProperty().getValue() != null) {
+				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
+			} else {
+				noteCB.getSelectionModel().select(0);
+			}
+		});
+		saveMessageTask.setOnScheduled(e -> {
+			p1.progressProperty().unbind();
+			p1.progressProperty().bind(saveMessageTask.progressProperty());
+
+		});
+
+		// https://stackoverflow.com/questions/22971222/multiple-tasks-javafx
+		// DoubleBinding totalProgress = Bindings.createDoubleBinding(new Callable<Double>() {
+		// 	@Override
+		// 	public Double call() {
+		// 		return ( Math.max(0, saveMessageTask.getProgress())
+		// 			   + Math.max(0, newLoadTask.getProgress()) ) / 2 ;
+		// 				},
+		// 	saveMessageTask.progressProperty(), 
+		// 	newLoadTask.progressProperty());
+
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 
@@ -214,7 +259,7 @@ public class HelloWorld extends Application {
 		menu.getItems().addAll(loadMenu, reset, new SeparatorMenuItem(), exit);
 		msgMenu.getItems().addAll(newMenu, delete, update);
 		 
-		HBox hbox = new HBox(p1);
+		HBox hbox = new HBox(p1, status);
 		
 		
 		BorderPane myPane = new BorderPane();
@@ -224,7 +269,7 @@ public class HelloWorld extends Application {
 		myPane.setTop(menuBar);
 
 		reset.setOnAction( e -> {
-			resetProgressBar();
+			//resetProgressBar();
 			
 		});
 		
@@ -273,20 +318,17 @@ public class HelloWorld extends Application {
 		primaryStage.setOnCloseRequest(e -> {
 			System.err.println("Quitting application.");
 		});
-		//try {
-		//loadMessages();
-		//} catch (MessagingException e1) {
-		// TODO Auto-generated catch block
-		//	e1.printStackTrace();
-		//}
+
 		myText.setDisable(true);
 		selectFirst();
 	}
 
+	/*
 	private void resetProgressBar() {
 		p1.progressProperty().unbind();
 		p1.setProgress(-1);
 	}
+	*/
 
 	private void selectFirst() {
 		if (this.noteCB.getItems().size() > 0) {
@@ -311,8 +353,7 @@ public class HelloWorld extends Application {
 		if (result.isPresent()) {
 			entered = result.get();
 		}
-//		this.currentMessage = entered;
-		//		this.noteCB.getItems().add(this.currentMessage);
+
 		// TODO bitte asyncrhon
 		try {
 			final Note newNote = Note.createNewNote(this.backend, entered);

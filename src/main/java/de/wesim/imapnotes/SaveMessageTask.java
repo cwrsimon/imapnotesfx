@@ -1,32 +1,55 @@
 package de.wesim.imapnotes;
 
 import javafx.concurrent.Task;
-import javafx.scene.control.ProgressIndicator;
+import javafx.concurrent.Service;
 
 import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
-
-import javax.mail.Message;
-
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.ObjectProperty;
 import de.wesim.models.Note;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
-public class SaveMessageTask extends Task<Void> {
+public class SaveMessageTask extends Service<Void> {
     private final IMAPBackend backend;
-	private final Note victim;
 
-    public SaveMessageTask( IMAPBackend backend, Note msgToSave) {
+    private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
+
+    public final void setNote(Note value) {
+        note.set(value);
+    }
+
+    public final Note getNote() {
+        return note.get();
+    }
+
+    public final ObjectProperty<Note> noteProperty() {
+        return note;
+    }
+
+    public SaveMessageTask(IMAPBackend backend) {
         this.backend = backend;
-        this.victim = msgToSave;
     }
 
-    @Override 
-    protected Void call() throws Exception {
-    	updateProgress(0, 1);
-		this.victim.update(this.backend);
-    	updateProgress(1, 1);
+    @Override
+    protected Task<Void> createTask() {
+        Task<Void> task = new Task<Void>() {
 
-    	return null;
+            @Override
+            protected Void call() throws Exception {
+                updateProgress(0, 1);
+                updateMessage("Beginne mit dem Speichern ...");
+
+                getNote().update(backend);
+                //Thread.sleep(2000);
+                updateMessage("Speichern erfolgreich!");
+                updateProgress(1, 1);
+
+                return null;
+            }
+        };
+        return task;
     }
+
 }

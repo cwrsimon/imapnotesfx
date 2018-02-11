@@ -5,7 +5,6 @@ import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
-import javax.mail.Message;
 
 import de.wesim.models.Note;
 
@@ -18,7 +17,8 @@ public class DeleteMessageTask extends Task<ObservableList<Note>> {
         this.victim = msgToDelete;
     }
 
-    @Override protected ObservableList<Note> call() throws Exception {
+    @Override 
+    protected ObservableList<Note> call() throws Exception {
     	this.victim.delete(this.backend);
     	// reload messages after deletion
         final List<Note> messages = this.backend.getMessages();
