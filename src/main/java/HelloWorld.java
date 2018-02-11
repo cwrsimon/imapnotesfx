@@ -42,10 +42,22 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 import javafx.concurrent.Worker;
 
+// TODO
+// Gibt es ungespeicherte Änderungen?
+// FS-Support
+// IMAP-Ordner -> TreeView
+// Status-Nachrichten
+// Help-Menü
+// Subject ändern ...
 // Einarbeiten:
 // http://code.makery.ch/library/javafx-8-tutorial/part2/
 // Where to go from here:
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
+//Services implementieren:
+// https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
+// https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
+// https://gist.github.com/jewelsea/2774476
+// Beim Öffnen alles laden ...
 public class HelloWorld extends Application {
 
 	// FIXME 
@@ -79,7 +91,7 @@ public class HelloWorld extends Application {
 					}
 				}
 			});
-			p1.progressProperty().unbind();
+			resetProgressBar();
 			p1.progressProperty().bind(newTask.progressProperty());
 
 			new Thread(newTask).run();
@@ -96,8 +108,9 @@ public class HelloWorld extends Application {
 		
 		this.currentMessage.setContent(newContent);
 		SaveMessageTask saveMessageTask = new SaveMessageTask(backend, this.currentMessage);
-		p1.progressProperty().unbind();
+		resetProgressBar();
 		p1.progressProperty().bind(saveMessageTask.progressProperty());
+
 		new Thread(saveMessageTask).run();
 	}
 
@@ -128,7 +141,6 @@ public class HelloWorld extends Application {
 	
 	private void loadMessages(Note messageToOpen) {
 		LoadMessageTask newLoadTask = new LoadMessageTask(backend);
-		//noteCB.getItems().clear();
 		newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
 			@Override
 			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
@@ -143,6 +155,9 @@ public class HelloWorld extends Application {
 				}
 			}
 		});
+		resetProgressBar();
+		p1.progressProperty().bind(newLoadTask.progressProperty());
+
 		new Thread(newLoadTask).start();
 	}
 
@@ -209,8 +224,8 @@ public class HelloWorld extends Application {
 		myPane.setTop(menuBar);
 
 		reset.setOnAction( e -> {
-			p1.progressProperty().unbind();
-			p1.setProgress(-1);
+			resetProgressBar();
+			
 		});
 		
 		loadMenu.setOnAction(e -> {
@@ -266,6 +281,11 @@ public class HelloWorld extends Application {
 		//}
 		myText.setDisable(true);
 		selectFirst();
+	}
+
+	private void resetProgressBar() {
+		p1.progressProperty().unbind();
+		p1.setProgress(-1);
 	}
 
 	private void selectFirst() {

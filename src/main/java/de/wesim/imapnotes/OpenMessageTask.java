@@ -14,7 +14,8 @@ public class OpenMessageTask extends Task<String> {
 
     @Override protected String call() throws Exception {
     	updateProgress(0, 1);
-    	this.victim.load(this.backend);
+        this.victim.load(this.backend);
+        Thread.sleep(2000);
     	updateProgress(1, 1);
     	return this.victim.getContent();
     }
