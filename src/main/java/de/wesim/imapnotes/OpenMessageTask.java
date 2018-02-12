@@ -1,21 +1,51 @@
 package de.wesim.imapnotes;
 
 import de.wesim.models.Note;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 
-public class OpenMessageTask extends Task<String> {
-    private final IMAPBackend backend;
-	private final Note victim;
+public class OpenMessageTask extends AbstractNoteService<String> {
+    
+    private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
-    public OpenMessageTask( IMAPBackend backend, Note msgToOpen) {
-        this.backend = backend;
-        this.victim = msgToOpen;
+    public final void setNote(Note value) {
+        note.set(value);
     }
 
-    @Override protected String call() throws Exception {
-    	updateProgress(0, 1);
-        this.victim.load(this.backend);
-    	updateProgress(1, 1);
-    	return this.victim.getContent();
+    public final Note getNote() {
+        return note.get();
     }
+
+    public final ObjectProperty<Note> noteProperty() {
+        return note;
+    }
+
+    
+    public OpenMessageTask(  IMAPBackend backend, ProgressBar progress, Label status ) {
+        super(backend, progress, status);
+    }
+
+    @Override
+    protected Task<String> createTask() {
+        Task<String> task = new Task<String>() {
+
+            @Override
+            protected String call() throws Exception {
+                updateProgress(0, 1);
+                updateMessage("Opening " + note.getValue().toString() + "...");
+
+                getNote().load(backend);
+
+                updateMessage(String.format("Öffnen von %s erfolgreich!", note.getValue().toString()));
+                updateProgress(1, 1);
+
+                return getNote().getContent();
+            }
+        };
+        return task;
+    }
+   
 }

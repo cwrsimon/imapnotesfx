@@ -14,7 +14,6 @@ import de.wesim.models.Note;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class SaveMessageTask extends AbstractNoteService<Void> {
-    //private final IMAPBackend backend;
 
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 

@@ -11,6 +11,7 @@ import javax.mail.MessagingException;
 import de.wesim.imapnotes.DeleteMessageTask;
 import de.wesim.imapnotes.IMAPBackend;
 import de.wesim.imapnotes.LoadMessageTask;
+import de.wesim.imapnotes.NewNoteService;
 import de.wesim.imapnotes.OpenMessageTask;
 import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
@@ -23,6 +24,7 @@ import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -64,7 +66,6 @@ import javafx.concurrent.Worker;
 public class HelloWorld extends Application {
 
 	// FIXME 
-	private Note currentMessage;
 	private IMAPBackend backend;// = new IMAPBackend();
 	private final ListView<Note> noteCB = new ListView<>();
 	private final HTMLEditor myText = new HTMLEditor();
@@ -72,6 +73,9 @@ public class HelloWorld extends Application {
 	private SaveMessageTask saveMessageTask;
 	private LoadMessageTask newLoadTask ;
 	private final Label status = new Label();
+	private NewNoteService newNoteService;
+	private OpenMessageTask openMessageTask;
+	private DeleteMessageTask deleteNoteService;
 
 
 	
@@ -81,37 +85,20 @@ public class HelloWorld extends Application {
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 		this.saveMessageTask = new SaveMessageTask(backend, p1, status);
 		this.newLoadTask = new LoadMessageTask(backend, p1, status);
-		
+		this.newNoteService = new NewNoteService(backend, p1, status);
+		this.openMessageTask = new OpenMessageTask(backend, p1, status);
+		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
 	}
 	
 	private void openNote(Note m) {
 			System.out.println("Opening " +m.toString());
-			
-			clearText();
-			myText.setDisable(true);
-						
-			OpenMessageTask newTask = new OpenMessageTask(backend, m);
-			newTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
-				@Override
-				public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
-						Worker.State newState) {
-					if (newState == Worker.State.SUCCEEDED) {						
-						myText.setHtmlText(newTask.getValue());
-						myText.setDisable(false);
-					}
-				}
-			});
-			//resetProgressBar();
-			//p1.progressProperty().bind(newTask.progressProperty());
-
-			new Thread(newTask).run();
-		
+			this.openMessageTask.noteProperty().set(m);
+			this.openMessageTask.reset();
+			this.openMessageTask.restart();
 	}
 
 	
 	private void saveCurrentMessage() {
-		if (currentMessage == null)
-			return;
 
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		alert.setTitle("About to save note ...");
@@ -119,75 +106,44 @@ public class HelloWorld extends Application {
 		final String newContent = myText.getHtmlText();
 		System.out.println(newContent);
 		
-		this.currentMessage.setContent(newContent);
-		saveMessageTask.noteProperty().set(this.currentMessage);
+		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+		curMsg.setContent(newContent);
+		saveMessageTask.noteProperty().set(curMsg);
 		saveMessageTask.reset();
 		saveMessageTask.restart();
 		
 	}
 
-	// TODO einen Thread-Executor einführen???
 	private void deleteCurrentMessage() {
-		myText.setDisable(true);
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("About to save note ...");
+		Optional<ButtonType> result = alert.showAndWait();
+		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+			return;
+		}
+
+		// Dialog dialog = new TextInputDialog("Bla");
+		// dialog.setTitle("Enter a subject!");
+		// dialog.setHeaderText("Enter some text, or use default value.");
+		// Optional<String> result = dialog.showAndWait();
 		
-		System.out.println("Deleting " + currentMessage);
-	
-
-		DeleteMessageTask deleteTask = new DeleteMessageTask(backend, this.currentMessage);
-		//noteCB.getItems().clear();
-		deleteTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
-			@Override
-			public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
-					Worker.State newState) {
-				if (newState == Worker.State.SUCCEEDED) {
-					noteCB.setItems(deleteTask.getValue());
-					noteCB.getSelectionModel().select(0);
-					myText.setDisable(false);
-				}
-			}
-		});
-
-		new Thread(deleteTask).start();
+		
+		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+		deleteNoteService.noteProperty().set(curMsg);
+		deleteNoteService.reset();
+		deleteNoteService.restart();
 	}
 	
 	
 	private void loadMessages(Note messageToOpen) {
 		System.out.println(messageToOpen);
-
-		// LoadMessageTask newLoadTask = new LoadMessageTask(backend);
-		// newLoadTask.stateProperty().addListener(new ChangeListener<Worker.State>() {
-		// 	@Override
-		// 	public void changed(ObservableValue<? extends Worker.State> observableValue, Worker.State oldState,
-		// 			Worker.State newState) {
-		// 		if (newState == Worker.State.SUCCEEDED) {
-		// 			noteCB.setItems(newLoadTask.getValue());
-		// 			if (messageToOpen != null) {
-		// 				noteCB.getSelectionModel().select(messageToOpen);
-		// 			} else {
-		// 				noteCB.getSelectionModel().select(0);
-		// 			}
-		// 		}
-		// 	}
-		// });
-		//resetProgressBar();
-	//	p1.progressProperty().bind(newLoadTask.progressProperty());
 		newLoadTask.setNote(messageToOpen);
-		//this.currentMessage = messageToOpen;
-		//new Thread(newLoadTask).start();
 		newLoadTask.reset();
 		newLoadTask.restart();
-		
 	}
 
 	@Override
 	public void start(Stage primaryStage) {
-		// newLoadTask.setOnScheduled(e -> {
-		// 	p1.progressProperty().unbind();
-		// 	p1.progressProperty().bind(newLoadTask.progressProperty());
-		// 	status.textProperty().unbind();
-		// 	status.textProperty().bind( newLoadTask.messageProperty());
-
-		// });
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
@@ -196,22 +152,17 @@ public class HelloWorld extends Application {
 				noteCB.getSelectionModel().select(0);
 			}
 		});
-		// saveMessageTask.setOnScheduled(e -> {
-		// 	p1.progressProperty().unbind();
-		// 	p1.progressProperty().bind(saveMessageTask.progressProperty());
-
-		// });
-
-		// https://stackoverflow.com/questions/22971222/multiple-tasks-javafx
-		// DoubleBinding totalProgress = Bindings.createDoubleBinding(new Callable<Double>() {
-		// 	@Override
-		// 	public Double call() {
-		// 		return ( Math.max(0, saveMessageTask.getProgress())
-		// 			   + Math.max(0, newLoadTask.getProgress()) ) / 2 ;
-		// 				},
-		// 	saveMessageTask.progressProperty(), 
-		// 	newLoadTask.progressProperty());
-
+		newNoteService.setOnSucceeded( e -> {
+			System.out.println("Neu erstelle NAchricht");
+			System.out.println(newNoteService.getValue());
+			loadMessages(newNoteService.getValue());
+		});
+		openMessageTask.setOnSucceeded(e -> {
+			myText.setHtmlText(openMessageTask.getValue());
+		});
+		deleteNoteService.setOnSucceeded( e -> {
+			loadMessages( null );
+		});
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 
@@ -227,7 +178,6 @@ public class HelloWorld extends Application {
 						} else {
 							setText(item.getSubject());
 						}
-
 					}
 				};
 			}
@@ -241,7 +191,6 @@ public class HelloWorld extends Application {
 				
 				if (newValue == null)
 					return;
-				currentMessage = newValue;
 				openNote(newValue);
 				
 			}
@@ -251,7 +200,7 @@ public class HelloWorld extends Application {
 		Menu menu = new Menu("File");
 		MenuItem newMenu = new MenuItem("New");
 		MenuItem reset   = new MenuItem("Reset");
-		MenuItem loadMenu = new MenuItem("Load Messages");
+		MenuItem loadMenu = new MenuItem("Reload");
 		MenuItem exit = new MenuItem("Exit");
 
 		Menu msgMenu = new Menu("Note");
@@ -278,14 +227,14 @@ public class HelloWorld extends Application {
 		});
 		
 		loadMenu.setOnAction(e -> {
-			try {
+			//try {
 				loadMessages(null);
-			} catch (Exception exception) {
-				Alert alert = new Alert(Alert.AlertType.INFORMATION);
-				alert.setTitle("Laden fehlgeschlagen");
-				//			saveCurrentMessage();
-				alert.showAndWait();
-			}
+			// } catch (Exception exception) {
+			// 	Alert alert = new Alert(Alert.AlertType.INFORMATION);
+			// 	alert.setTitle("Laden fehlgeschlagen");
+			// 	//			saveCurrentMessage();
+			// 	alert.showAndWait();
+			// }
 		});
 
 		exit.setOnAction(e -> {
@@ -319,32 +268,14 @@ public class HelloWorld extends Application {
 			System.err.println("Quitting application.");
 		});
 
-		myText.setDisable(true);
 		loadMessages(null);
 	}
-
-	/*
-	private void resetProgressBar() {
-		p1.progressProperty().unbind();
-		p1.setProgress(-1);
-	}
-	*/
-
-	private void selectFirst() {
-		if (this.noteCB.getItems().size() > 0) {
-			this.noteCB.getSelectionModel().select(0);
-		}
-	}
-
-	
 
 
 	public void createNewMessage() {
 		// TODO check for unsaved changes ...
-		this.myText.setDisable(true);
-		clearText();
+		//this.myText.setDisable(true);
 
-//		final String newContent = myText.getHtmlText();
 		Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("Enter some text, or use default value.");
@@ -353,22 +284,9 @@ public class HelloWorld extends Application {
 		if (result.isPresent()) {
 			entered = result.get();
 		}
-
-		// TODO bitte asyncrhon
-		try {
-			final Note newNote = Note.createNewNote(this.backend, entered);
-			loadMessages(newNote);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		this.myText.setDisable(false);
-		this.myText.requestFocus();
-	}
-
-	
-	private void clearText() {
-		myText.setHtmlText("");
+		newNoteService.setSubject(entered);
+		newNoteService.reset();
+		newNoteService.restart();
 	}
 
 	public static void main(String[] args) {

@@ -26,8 +26,7 @@ public abstract class AbstractNoteService<T> extends Service<T> {
 			progress.progressProperty().bind(this.progressProperty());
 			status.textProperty().unbind();
 			status.textProperty().bind( this.messageProperty());
-
-		});
+        });
     }
 
 }
