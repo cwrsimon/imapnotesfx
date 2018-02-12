@@ -1,20 +1,20 @@
 package de.wesim.imapnotes;
 
 import javafx.concurrent.Task;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import java.util.List;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Service;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.ObjectProperty;
 
 import de.wesim.models.Note;
 
-public class LoadMessageTask extends Service<ObservableList<Note>> {
-    private final IMAPBackend backend;
+public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 
-    public LoadMessageTask( IMAPBackend backend) {
-        this.backend = backend;
+    public LoadMessageTask( IMAPBackend backend, ProgressBar progress, Label status) {
+        super(backend, progress, status);
     }
 
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");

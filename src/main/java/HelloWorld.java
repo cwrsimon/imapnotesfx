@@ -79,8 +79,9 @@ public class HelloWorld extends Application {
 	public void init() throws Exception {
 		super.init();
 		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
-		this.saveMessageTask = new SaveMessageTask(backend);
-		this.newLoadTask = new LoadMessageTask(backend);
+		this.saveMessageTask = new SaveMessageTask(backend, p1, status);
+		this.newLoadTask = new LoadMessageTask(backend, p1, status);
+		
 	}
 	
 	private void openNote(Note m) {
@@ -112,6 +113,9 @@ public class HelloWorld extends Application {
 		if (currentMessage == null)
 			return;
 
+		Alert alert = new Alert(Alert.AlertType.INFORMATION);
+		alert.setTitle("About to save note ...");
+		alert.showAndWait();
 		final String newContent = myText.getHtmlText();
 		System.out.println(newContent);
 		
@@ -177,13 +181,13 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		newLoadTask.setOnScheduled(e -> {
-			p1.progressProperty().unbind();
-			p1.progressProperty().bind(newLoadTask.progressProperty());
-			status.textProperty().unbind();
-			status.textProperty().bind( newLoadTask.messageProperty());
+		// newLoadTask.setOnScheduled(e -> {
+		// 	p1.progressProperty().unbind();
+		// 	p1.progressProperty().bind(newLoadTask.progressProperty());
+		// 	status.textProperty().unbind();
+		// 	status.textProperty().bind( newLoadTask.messageProperty());
 
-		});
+		// });
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
@@ -192,11 +196,11 @@ public class HelloWorld extends Application {
 				noteCB.getSelectionModel().select(0);
 			}
 		});
-		saveMessageTask.setOnScheduled(e -> {
-			p1.progressProperty().unbind();
-			p1.progressProperty().bind(saveMessageTask.progressProperty());
+		// saveMessageTask.setOnScheduled(e -> {
+		// 	p1.progressProperty().unbind();
+		// 	p1.progressProperty().bind(saveMessageTask.progressProperty());
 
-		});
+		// });
 
 		// https://stackoverflow.com/questions/22971222/multiple-tasks-javafx
 		// DoubleBinding totalProgress = Bindings.createDoubleBinding(new Callable<Double>() {
@@ -300,10 +304,6 @@ public class HelloWorld extends Application {
 
 		});
 		newMenu.setOnAction(e -> {
-//			Alert alert = new Alert(Alert.AlertType.INFORMATION);
-//			alert.setTitle("Creating new message");
-//			alert.showAndWait();
-
 			createNewMessage();
 		});
 		delete.setOnAction(e -> {
@@ -320,7 +320,7 @@ public class HelloWorld extends Application {
 		});
 
 		myText.setDisable(true);
-		selectFirst();
+		loadMessages(null);
 	}
 
 	/*

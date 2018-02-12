@@ -1,6 +1,8 @@
 package de.wesim.imapnotes;
 
 import javafx.concurrent.Task;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.concurrent.Service;
 
 import java.util.List;
@@ -11,8 +13,8 @@ import javafx.beans.property.ObjectProperty;
 import de.wesim.models.Note;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
-public class SaveMessageTask extends Service<Void> {
-    private final IMAPBackend backend;
+public class SaveMessageTask extends AbstractNoteService<Void> {
+    //private final IMAPBackend backend;
 
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
@@ -28,8 +30,8 @@ public class SaveMessageTask extends Service<Void> {
         return note;
     }
 
-    public SaveMessageTask(IMAPBackend backend) {
-        this.backend = backend;
+    public SaveMessageTask(  IMAPBackend backend, ProgressBar progress, Label status ) {
+        super(backend, progress, status);
     }
 
     @Override
