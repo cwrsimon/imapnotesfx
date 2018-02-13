@@ -19,7 +19,10 @@ import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.DoubleBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -44,6 +47,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import javafx.util.converter.BooleanStringConverter;
 import javafx.concurrent.Worker;
 
 // TODO
@@ -70,13 +74,14 @@ public class HelloWorld extends Application {
 	private final ListView<Note> noteCB = new ListView<>();
 	private final HTMLEditor myText = new HTMLEditor();
 	private final ProgressBar p1 = new ProgressBar();
-	private SaveMessageTask saveMessageTask;
-	private LoadMessageTask newLoadTask ;
 	private final Label status = new Label();
+	private final Label running = new Label();
 	private NewNoteService newNoteService;
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
-
+	private SaveMessageTask saveMessageTask;
+	private LoadMessageTask newLoadTask ;
+    private BooleanBinding allRunning;
 
 	
 	@Override
@@ -88,6 +93,12 @@ public class HelloWorld extends Application {
 		this.newNoteService = new NewNoteService(backend, p1, status);
 		this.openMessageTask = new OpenMessageTask(backend, p1, status);
 		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
+		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), 
+			this.saveMessageTask.runningProperty()).
+			or(this.openMessageTask.runningProperty())
+			.or(this.deleteNoteService.runningProperty())
+			.or(this.newNoteService.runningProperty());
+	
 	}
 	
 	private void openNote(Note m) {
@@ -136,6 +147,9 @@ public class HelloWorld extends Application {
 	
 	
 	private void loadMessages(Note messageToOpen) {
+		if (this.allRunning.getValue() == true) {
+			return;
+		}
 		System.out.println(messageToOpen);
 		newLoadTask.setNote(messageToOpen);
 		newLoadTask.reset();
@@ -144,6 +158,7 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
@@ -211,8 +226,16 @@ public class HelloWorld extends Application {
 		menuBar.getMenus().add(msgMenu);
 		menu.getItems().addAll(loadMenu, reset, new SeparatorMenuItem(), exit);
 		msgMenu.getItems().addAll(newMenu, delete, update);
-		 
-		HBox hbox = new HBox(p1, status);
+			 
+		
+		
+		this.running.textProperty().bind(
+				Bindings.createStringBinding( () -> 
+					String.valueOf(allRunning.getValue())
+				, allRunning)
+			);	
+
+		HBox hbox = new HBox(p1, status, running);
 		
 		
 		BorderPane myPane = new BorderPane();
@@ -227,14 +250,7 @@ public class HelloWorld extends Application {
 		});
 		
 		loadMenu.setOnAction(e -> {
-			//try {
-				loadMessages(null);
-			// } catch (Exception exception) {
-			// 	Alert alert = new Alert(Alert.AlertType.INFORMATION);
-			// 	alert.setTitle("Laden fehlgeschlagen");
-			// 	//			saveCurrentMessage();
-			// 	alert.showAndWait();
-			// }
+			loadMessages(null);
 		});
 
 		exit.setOnAction(e -> {
