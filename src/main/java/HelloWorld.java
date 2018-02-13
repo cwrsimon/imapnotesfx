@@ -101,16 +101,28 @@ public class HelloWorld extends Application {
 	
 	}
 	
-	private void openNote(Note m) {
-			System.out.println("Opening " +m.toString());
-			this.openMessageTask.noteProperty().set(m);
-			this.openMessageTask.reset();
-			this.openMessageTask.restart();
+	private void openNote(Note old, Note m) {
+		//System.out.println(hasContentChanged());
+		if (hasContentChanged(old)) {
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Content has changed ...");
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+				return;
+			}
+		}
+		// if (this.allRunning.getValue() == true) {
+		// 	return;
+		// }
+		System.out.println("Opening " +m.toString());
+		this.openMessageTask.noteProperty().set(m);
+		//this.openMessageTask.reset();
+		this.openMessageTask.restart();
 	}
 
 	
 	private void saveCurrentMessage() {
-
+		
 		Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		alert.setTitle("About to save note ...");
 		alert.showAndWait();
@@ -125,7 +137,25 @@ public class HelloWorld extends Application {
 		
 	}
 
+	// TODO lieber einen Key-Event-Listener implementieren
+	private boolean hasContentChanged(Note curMsg) {
+		if (curMsg == null) return false;
+
+		System.out.println(curMsg.getSubject());
+		final String oldContent = curMsg.getContent();
+		if (oldContent == null) return false;
+		final String newContent = myText.getHtmlText();
+		if (newContent == null) return false;
+		System.out.println(oldContent);
+		System.out.println(newContent);
+
+		return oldContent.length() != newContent.length();
+	}
+
 	private void deleteCurrentMessage() {
+		if (this.allRunning.getValue() == true) {
+			return;
+		}
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("About to save note ...");
 		Optional<ButtonType> result = alert.showAndWait();
@@ -147,9 +177,6 @@ public class HelloWorld extends Application {
 	
 	
 	private void loadMessages(Note messageToOpen) {
-		if (this.allRunning.getValue() == true) {
-			return;
-		}
 		System.out.println(messageToOpen);
 		newLoadTask.setNote(messageToOpen);
 		newLoadTask.reset();
@@ -158,7 +185,6 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
@@ -180,7 +206,6 @@ public class HelloWorld extends Application {
 		});
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
-
 			@Override
 			public ListCell<Note> call(ListView<Note> param) {
 				return new ListCell<Note>() {
@@ -199,15 +224,13 @@ public class HelloWorld extends Application {
 		});
 
 		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
-
 			@Override
 			public void changed(ObservableValue<? extends Note> observable, 
 					Note oldValue, Note newValue) {
 				
 				if (newValue == null)
 					return;
-				openNote(newValue);
-				
+				openNote(oldValue, newValue);
 			}
 		});
 		
@@ -246,10 +269,12 @@ public class HelloWorld extends Application {
 
 		reset.setOnAction( e -> {
 			//resetProgressBar();
-			
 		});
 		
 		loadMenu.setOnAction(e -> {
+			if (this.allRunning.getValue() == true) {
+				return;
+			}
 			loadMessages(null);
 		});
 
@@ -264,7 +289,9 @@ public class HelloWorld extends Application {
 		});
 
 		update.setOnAction(e -> {
-
+			if (this.allRunning.getValue() == true) {
+				return;
+			}
 			saveCurrentMessage();
 
 		});
