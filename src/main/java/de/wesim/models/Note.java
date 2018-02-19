@@ -51,7 +51,7 @@ public class Note {
 	}
 	
 	public static Note createNewNote(IMAPBackend backend, String subject) throws MessagingException {
-		final Message newIMAPMsg = backend.createNewMessage(subject, "Neuer Content");
+		final Message newIMAPMsg = backend.createNewMessage(subject, "");
 		final Note newNote = new Note(backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setImapMessage(newIMAPMsg);
 		return newNote;
