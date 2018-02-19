@@ -3,14 +3,10 @@ package de.wesim.imapnotes;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.concurrent.Service;
-
-import java.util.List;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.ObjectProperty;
 import de.wesim.models.Note;
+import de.wesim.services.INoteProvider;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class SaveMessageTask extends AbstractNoteService<Void> {
@@ -29,7 +25,7 @@ public class SaveMessageTask extends AbstractNoteService<Void> {
         return note;
     }
 
-    public SaveMessageTask(  IMAPBackend backend, ProgressBar progress, Label status ) {
+    public SaveMessageTask(  INoteProvider backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -42,7 +38,7 @@ public class SaveMessageTask extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Beginne mit dem Speichern ...");
 
-                getNote().update(backend);
+                backend.update(getNote());
                 //Thread.sleep(2000);
                 updateMessage("Speichern erfolgreich!");
                 updateProgress(1, 1);

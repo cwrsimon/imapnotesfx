@@ -6,6 +6,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import de.wesim.models.Note;
+import de.wesim.services.INoteProvider;
 
 public class DeleteMessageTask extends AbstractNoteService<Void> {
     
@@ -24,7 +25,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
     }
 
     
-    public DeleteMessageTask( IMAPBackend backend, ProgressBar progress, Label status ) {
+    public DeleteMessageTask( INoteProvider backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -37,7 +38,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Deleting " + note.getValue().toString() + "...");
 
-                getNote().delete(backend);
+                backend.delete(getNote());
 
                 updateMessage("Deleting was successful! :-)");
                 updateProgress(1, 1);

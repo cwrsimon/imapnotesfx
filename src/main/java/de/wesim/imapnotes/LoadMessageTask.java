@@ -10,10 +10,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.ObjectProperty;
 
 import de.wesim.models.Note;
+import de.wesim.services.INoteProvider;
 
 public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 
-    public LoadMessageTask( IMAPBackend backend, ProgressBar progress, Label status) {
+    public LoadMessageTask( INoteProvider backend, ProgressBar progress, Label status) {
         super(backend, progress, status);
     }
 
@@ -40,7 +41,7 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
                 updateProgress(0, 1);
                 updateMessage("Beginne mit dem Laden der Notizen ...");
 
-                final List<Note> messages = backend.getMessages();	
+                final List<Note> messages = backend.getNotes();	
                 updateMessage("Notizenladen erfolgreich!");
                 updateProgress(1, 1);
 

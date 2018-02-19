@@ -1,21 +1,12 @@
 package de.wesim.imapnotes;
 
 import javafx.concurrent.Task;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextInputDialog;
-import javafx.concurrent.Service;
-
-import java.util.List;
-import java.util.Optional;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.property.ObjectProperty;
 import de.wesim.models.Note;
+import de.wesim.services.INoteProvider;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class NewNoteService extends AbstractNoteService<Note> {
@@ -26,7 +17,7 @@ public class NewNoteService extends AbstractNoteService<Note> {
         this.subject.set(subject);
     }
 
-    public NewNoteService(  IMAPBackend backend, ProgressBar progress, Label status ) {
+    public NewNoteService(  INoteProvider backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -39,7 +30,7 @@ public class NewNoteService extends AbstractNoteService<Note> {
                 updateProgress(0, 1);
                 updateMessage("Creating new note ...");
 
-                final Note newNote = Note.createNewNote(backend, subject.getValue());
+                final Note newNote = backend.createNewNote(subject.getValue());
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
 

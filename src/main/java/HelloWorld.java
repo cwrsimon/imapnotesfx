@@ -1,34 +1,21 @@
-import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Application;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-
 import de.wesim.imapnotes.DeleteMessageTask;
-import de.wesim.imapnotes.IMAPBackend;
 import de.wesim.imapnotes.LoadMessageTask;
 import de.wesim.imapnotes.NewNoteService;
 import de.wesim.imapnotes.OpenMessageTask;
 import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
+import de.wesim.services.IMAPNoteProvider;
+import de.wesim.services.INoteProvider;
 import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.binding.DoubleBinding;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.FXCollections;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -46,9 +33,6 @@ import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Callback;
-import javafx.util.StringConverter;
-import javafx.util.converter.BooleanStringConverter;
-import javafx.concurrent.Worker;
 
 // TODO
 // Gibt es ungespeicherte Änderungen?
@@ -70,7 +54,7 @@ import javafx.concurrent.Worker;
 public class HelloWorld extends Application {
 
 	// FIXME 
-	private IMAPBackend backend;// = new IMAPBackend();
+	private INoteProvider backend;// = new IMAPBackend();
 	private final ListView<Note> noteCB = new ListView<>();
 	private final HTMLEditor myText = new HTMLEditor();
 	private final ProgressBar p1 = new ProgressBar();
@@ -87,7 +71,7 @@ public class HelloWorld extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
-		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
+		this.backend = new IMAPNoteProvider();
 		this.saveMessageTask = new SaveMessageTask(backend, p1, status);
 		this.newLoadTask = new LoadMessageTask(backend, p1, status);
 		this.newNoteService = new NewNoteService(backend, p1, status);
@@ -281,8 +265,7 @@ public class HelloWorld extends Application {
 		exit.setOnAction(e -> {
 			try {
 				this.backend.destroy();
-			} catch (MessagingException e1) {
-				// TODO Auto-generated catch block
+			} catch (Exception e1) {
 				e1.printStackTrace();
 			}
 			primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
