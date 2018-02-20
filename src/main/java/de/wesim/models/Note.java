@@ -8,7 +8,8 @@ public class Note {
 	private String subject;
 	private String content;
 	
-	private Message imapMessage;
+	// FIXME
+	private Object imapMessage;
 	
 	public Note(String uuid) {
 		this.uuid = uuid;
@@ -35,12 +36,15 @@ public class Note {
 		return content;
 	}
 
-
-	public Message getImapMessage() {
+	public Object getRawImapMessage() {
 		return imapMessage;
 	}
+	
+	public Message getImapMessage() {
+		return (Message) imapMessage;
+	}
 
-	public void setImapMessage(Message imapMessage) {
+	public void setImapMessage(Object imapMessage) {
 		this.imapMessage = imapMessage;
 	}
 

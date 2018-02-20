@@ -5,6 +5,7 @@ import java.util.List;
 
 public interface INoteProvider {
 
+	// TODO Create dedicated exception type !!!
     public Note createNewNote(String subject) throws Exception;
 
     public void load(Note note) throws Exception;
@@ -17,4 +18,6 @@ public interface INoteProvider {
 
     public void destroy() throws Exception;
 
+    // TODO
+    // public void rename(Note note, String newTitle); 
 }

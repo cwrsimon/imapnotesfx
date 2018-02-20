@@ -6,6 +6,7 @@ import de.wesim.imapnotes.NewNoteService;
 import de.wesim.imapnotes.OpenMessageTask;
 import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
+import de.wesim.services.FSNoteProvider;
 import de.wesim.services.IMAPNoteProvider;
 import de.wesim.services.INoteProvider;
 import javafx.scene.layout.*;
@@ -71,7 +72,9 @@ public class HelloWorld extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
-		this.backend = new IMAPNoteProvider();
+//		this.backend = new IMAPNoteProvider();
+		this.backend = new FSNoteProvider();
+
 		this.initAsyncTasks();
 		//this.myText.set
 	
@@ -165,8 +168,11 @@ public class HelloWorld extends Application {
 		if (this.allRunning.getValue() == true) {
 			return;
 		}
+		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("About to save note ...");
+		alert.setTitle("Echt jetzt?");
+		alert.setContentText("Do really want to delete '" + curMsg.getSubject() + "' ?");
 		Optional<ButtonType> result = alert.showAndWait();
 		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 			return;
@@ -178,7 +184,6 @@ public class HelloWorld extends Application {
 		// Optional<String> result = dialog.showAndWait();
 		
 		
-		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
 		deleteNoteService.noteProperty().set(curMsg);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
