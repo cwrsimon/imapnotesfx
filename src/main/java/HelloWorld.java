@@ -72,6 +72,12 @@ public class HelloWorld extends Application {
 	public void init() throws Exception {
 		super.init();
 		this.backend = new IMAPNoteProvider();
+		this.initAsyncTasks();
+		//this.myText.set
+	
+	}
+	
+	private void initAsyncTasks() {
 		this.saveMessageTask = new SaveMessageTask(backend, p1, status);
 		this.newLoadTask = new LoadMessageTask(backend, p1, status);
 		this.newNoteService = new NewNoteService(backend, p1, status);
@@ -81,10 +87,29 @@ public class HelloWorld extends Application {
 			this.saveMessageTask.runningProperty()).
 			or(this.openMessageTask.runningProperty())
 			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty());
-	
+			.or(this.newNoteService.runningProperty());		
+		
+		newLoadTask.setOnSucceeded(e -> {
+			noteCB.setItems(newLoadTask.getValue());
+			if (newLoadTask.noteProperty().getValue() != null) {
+				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
+			} else {
+				noteCB.getSelectionModel().select(0);
+			}
+		});
+		newNoteService.setOnSucceeded( e -> {
+			System.out.println("Neu erstelle NAchricht");
+			System.out.println(newNoteService.getValue());
+			loadMessages(newNoteService.getValue());
+		});
+		openMessageTask.setOnSucceeded(e -> {
+			myText.setHtmlText(openMessageTask.getValue());
+		});
+		deleteNoteService.setOnSucceeded( e -> {
+			loadMessages( null );
+		});
 	}
-	
+
 	private void openNote(Note old, Note m) {
 		//System.out.println(hasContentChanged());
 		if (hasContentChanged(old)) {
@@ -169,25 +194,7 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		newLoadTask.setOnSucceeded(e -> {
-			noteCB.setItems(newLoadTask.getValue());
-			if (newLoadTask.noteProperty().getValue() != null) {
-				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
-			} else {
-				noteCB.getSelectionModel().select(0);
-			}
-		});
-		newNoteService.setOnSucceeded( e -> {
-			System.out.println("Neu erstelle NAchricht");
-			System.out.println(newNoteService.getValue());
-			loadMessages(newNoteService.getValue());
-		});
-		openMessageTask.setOnSucceeded(e -> {
-			myText.setHtmlText(openMessageTask.getValue());
-		});
-		deleteNoteService.setOnSucceeded( e -> {
-			loadMessages( null );
-		});
+		
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 			@Override

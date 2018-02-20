@@ -8,9 +8,7 @@ import java.util.List;
 
 public class IMAPNoteProvider implements INoteProvider {
 
-	private String uuid;
-	private String subject;
-	private String content;
+
 		
 	private final IMAPBackend backend;
 
@@ -37,7 +35,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void update(Note note) throws Exception  {
-		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), content) );
+		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), note.getContent()) );
 	}
 
 	@Override
