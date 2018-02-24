@@ -3,6 +3,7 @@ package de.wesim.services;
 import javax.mail.Message;
 import de.wesim.imapnotes.IMAPBackend;
 import de.wesim.models.Note;
+import de.wesim.models.NoteFolder;
 import java.util.List;
 
 
@@ -51,6 +52,11 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public void destroy() throws Exception {
 		this.backend.destroy();
+	}
+
+	@Override
+	public void openFolder(NoteFolder folder) throws Exception {
+		// TODO
 	}
 	
 }

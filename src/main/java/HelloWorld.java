@@ -3,9 +3,11 @@ import javafx.application.Application;
 import de.wesim.imapnotes.DeleteMessageTask;
 import de.wesim.imapnotes.LoadMessageTask;
 import de.wesim.imapnotes.NewNoteService;
+import de.wesim.imapnotes.OpenFolderTask;
 import de.wesim.imapnotes.OpenMessageTask;
 import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
+import de.wesim.models.NoteFolder;
 import de.wesim.services.FSNoteProvider;
 import de.wesim.services.IMAPNoteProvider;
 import de.wesim.services.INoteProvider;
@@ -66,13 +68,14 @@ public class HelloWorld extends Application {
 	private DeleteMessageTask deleteNoteService;
 	private SaveMessageTask saveMessageTask;
 	private LoadMessageTask newLoadTask ;
+	private OpenFolderTask openFolderTask;
     private BooleanBinding allRunning;
 
 	
 	@Override
 	public void init() throws Exception {
 		super.init();
-//		this.backend = new IMAPNoteProvider();
+		//this.backend = new IMAPNoteProvider();
 		this.backend = new FSNoteProvider();
 
 		this.initAsyncTasks();
@@ -85,12 +88,14 @@ public class HelloWorld extends Application {
 		this.newLoadTask = new LoadMessageTask(backend, p1, status);
 		this.newNoteService = new NewNoteService(backend, p1, status);
 		this.openMessageTask = new OpenMessageTask(backend, p1, status);
+		this.openFolderTask = new OpenFolderTask(backend, p1, status);
 		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), 
 			this.saveMessageTask.runningProperty()).
 			or(this.openMessageTask.runningProperty())
 			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty());		
+			.or(this.newNoteService.runningProperty());	
+			// TODO openFolderTask	
 		
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
@@ -111,6 +116,9 @@ public class HelloWorld extends Application {
 		deleteNoteService.setOnSucceeded( e -> {
 			loadMessages( null );
 		});
+		openFolderTask.setOnSucceeded( e-> {
+			loadMessages( null );
+		});
 	}
 
 	private void openNote(Note old, Note m) {
@@ -127,17 +135,22 @@ public class HelloWorld extends Application {
 		// 	return;
 		// }
 		System.out.println("Opening " +m.toString());
-		this.openMessageTask.noteProperty().set(m);
-		//this.openMessageTask.reset();
-		this.openMessageTask.restart();
+		if (!(m instanceof NoteFolder)) {
+			this.openMessageTask.noteProperty().set(m);
+			//this.openMessageTask.reset();
+			this.openMessageTask.restart();
+		} else {
+			this.openFolderTask.noteFolderProperty().set((NoteFolder)m);
+			this.openFolderTask.restart();
+		}
 	}
 
 	
 	private void saveCurrentMessage() {
 		
-		Alert alert = new Alert(Alert.AlertType.INFORMATION);
-		alert.setTitle("About to save note ...");
-		alert.showAndWait();
+		// Alert alert = new Alert(Alert.AlertType.INFORMATION);
+		// alert.setTitle("About to save note ...");
+		// alert.showAndWait();
 		final String newContent = myText.getHtmlText();
 		System.out.println(newContent);
 		

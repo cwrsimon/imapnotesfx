@@ -1,12 +1,15 @@
 package de.wesim.services;
 
 import de.wesim.models.Note;
+import de.wesim.models.NoteFolder;
 import java.util.List;
 
 public interface INoteProvider {
 
 	// TODO Create dedicated exception type !!!
     public Note createNewNote(String subject) throws Exception;
+
+    public void openFolder(NoteFolder folder) throws Exception;
 
     public void load(Note note) throws Exception;
 
