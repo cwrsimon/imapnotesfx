@@ -6,10 +6,15 @@ import java.util.List;
 
 public interface INoteProvider {
 
+
 	// TODO Create dedicated exception type !!!
     public Note createNewNote(String subject) throws Exception;
 
+    public NoteFolder createNewFolder(String name) throws Exception;
+
+
     public void openFolder(NoteFolder folder) throws Exception;
+	public void returnToParent() throws Exception;
 
     public void load(Note note) throws Exception;
 

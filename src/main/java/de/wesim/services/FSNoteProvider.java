@@ -12,23 +12,26 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+
 public class FSNoteProvider implements INoteProvider {
 
-	// Umstellung auf ein TOC
+	// TODO Umstellung auf einen UUID -> Path-Mapper 
 
 	private Path userHome;
 	private Path noteDirectory;
 	private Path currentDirectory;
+	private Stack<Path> folderStack;
 
 	public FSNoteProvider() throws Exception {
 		//		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 		this.userHome = Paths.get(System.getProperty("user.home"));
 		this.noteDirectory = this.userHome.resolve("CurrentProjects").resolve("notes");
 		this.currentDirectory = this.noteDirectory;
-
+		this.folderStack = new Stack<Path>();
 	}
 
 	@Override
@@ -48,9 +51,17 @@ public class FSNoteProvider implements INoteProvider {
 	public void openFolder(NoteFolder folder) throws Exception {
 		final Path path = (Path) folder.getRawImapMessage();
 		if (Files.isDirectory(path)) {
+			this.folderStack.push(this.currentDirectory);
 			this.currentDirectory = path;
 		}
+		System.out.println("currentDir:" + this.currentDirectory.toString());
 		// TODO Verheiraten mit load ... und entsprechend zurückgeben ...
+	}
+
+	@Override
+	public void returnToParent() throws Exception {
+		this.currentDirectory = this.folderStack.pop();
+		System.out.println("returnToParent " + this.currentDirectory.toString());
 	}
 
 	@Override
@@ -126,7 +137,6 @@ public class FSNoteProvider implements INoteProvider {
 					final NoteFolder newNote = new NoteFolder(fileName);
 					newNote.setImapMessage(filePath);
 					newNote.setSubject(fileName);
-					newNote.setParentDirectory(this.currentDirectory);
 					notes.add(newNote);
 				}
 
@@ -134,12 +144,32 @@ public class FSNoteProvider implements INoteProvider {
 			});
 
 		}
+		if (this.folderStack.isEmpty()) return notes;
+
+		final Path prevFolder = this.folderStack.peek();
+		if (prevFolder != null) {
+			final NoteFolder newNote = new NoteFolder("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+			newNote.setImapMessage(null);
+			newNote.setSubject("Zurück");
+			notes.add(newNote);
+		}
 		return notes;
 	}
 
 	@Override
 	public void destroy() throws Exception {
 		;
+	}
+
+	@Override
+	public NoteFolder createNewFolder(String name) throws Exception {
+		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
+		final Path newFolderPath = this.currentDirectory.resolve(name);
+		Files.createDirectory(newFolderPath);
+		final NoteFolder newNote = new NoteFolder(name);
+					newNote.setImapMessage(newFolderPath);
+					newNote.setSubject(name);	
+		return newNote;
 	}
 
 }

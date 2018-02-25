@@ -58,5 +58,15 @@ public class IMAPNoteProvider implements INoteProvider {
 	public void openFolder(NoteFolder folder) throws Exception {
 		// TODO
 	}
+
+	@Override
+	public void returnToParent() throws Exception {
+		//
+	}
+
+	@Override
+	public NoteFolder createNewFolder(String name) throws Exception {
+		return null;
+	}
 	
 }

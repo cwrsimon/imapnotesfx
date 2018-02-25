@@ -9,7 +9,6 @@ import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
 import de.wesim.models.NoteFolder;
 import de.wesim.services.FSNoteProvider;
-import de.wesim.services.IMAPNoteProvider;
 import de.wesim.services.INoteProvider;
 import javafx.scene.layout.*;
 import javafx.beans.value.ChangeListener;
@@ -28,9 +27,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TextField;
 import javafx.scene.control.ProgressBar;
-import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
@@ -41,7 +38,7 @@ import javafx.util.Callback;
 // Gibt es ungespeicherte Änderungen?
 // FS-Support
 // IMAP-Ordner -> TreeView
-// Status-Nachrichten
+// Status-Nachrichten sinnvoller formulieren
 // Help-Menü
 // Subject ändern ...
 // Einarbeiten:
@@ -98,11 +95,12 @@ public class HelloWorld extends Application {
 			// TODO openFolderTask	
 		
 		newLoadTask.setOnSucceeded(e -> {
+			System.out.println("Bla");
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
 				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
 			} else {
-				noteCB.getSelectionModel().select(0);
+				noteCB.getSelectionModel().select(null);
 			}
 		});
 		newNoteService.setOnSucceeded( e -> {
@@ -117,11 +115,13 @@ public class HelloWorld extends Application {
 			loadMessages( null );
 		});
 		openFolderTask.setOnSucceeded( e-> {
+			openFolderTask.noteFolderProperty().set(null);
 			loadMessages( null );
 		});
 	}
 
 	private void openNote(Note old, Note m) {
+		System.out.println("openNOte");
 		//System.out.println(hasContentChanged());
 		if (hasContentChanged(old)) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -134,15 +134,16 @@ public class HelloWorld extends Application {
 		// if (this.allRunning.getValue() == true) {
 		// 	return;
 		// }
-		System.out.println("Opening " +m.toString());
+		System.out.println("Opening " +m.getSubject());
 		if (!(m instanceof NoteFolder)) {
 			this.openMessageTask.noteProperty().set(m);
-			//this.openMessageTask.reset();
 			this.openMessageTask.restart();
 		} else {
 			this.openFolderTask.noteFolderProperty().set((NoteFolder)m);
 			this.openFolderTask.restart();
 		}
+
+
 	}
 
 	
@@ -212,7 +213,6 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		
 
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 			@Override
@@ -236,7 +236,16 @@ public class HelloWorld extends Application {
 			@Override
 			public void changed(ObservableValue<? extends Note> observable, 
 					Note oldValue, Note newValue) {
-				
+				if (oldValue == null) {
+					System.out.println("oldValue:null");
+				} else {
+					System.out.println("oldValue:" + oldValue.getSubject());
+				}
+				if (newValue == null) {
+					System.out.println("newValue:null");
+				} else {
+					System.out.println("newValue:" + newValue.getSubject());
+				}
 				if (newValue == null)
 					return;
 				openNote(oldValue, newValue);
@@ -245,20 +254,21 @@ public class HelloWorld extends Application {
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
-		MenuItem newMenu = new MenuItem("New");
 		MenuItem reset   = new MenuItem("Reset");
 		MenuItem loadMenu = new MenuItem("Reload");
 		MenuItem exit = new MenuItem("Exit");
 
-		Menu msgMenu = new Menu("Note");
-		MenuItem delete = new MenuItem("Delete");
-		MenuItem update  = new MenuItem("Update");
-		
+		Menu msgMenu = new Menu("Notes");
+		MenuItem newFolder = new MenuItem("New Folder");
+		MenuItem newMenu = new MenuItem("New Note");
+		MenuItem delete = new MenuItem("Delete current Note");
+		MenuItem update  = new MenuItem("Save current Note");
+		MenuItem renameNote  = new MenuItem("Rename current Note");
+
 		menuBar.getMenus().add(menu);
 		menuBar.getMenus().add(msgMenu);
 		menu.getItems().addAll(loadMenu, reset, new SeparatorMenuItem(), exit);
-		msgMenu.getItems().addAll(newMenu, delete, update);
-			 
+		msgMenu.getItems().addAll(newFolder, new SeparatorMenuItem(), newMenu, delete, update, renameNote);
 		
 		
 		this.running.textProperty().bind(
@@ -303,8 +313,11 @@ public class HelloWorld extends Application {
 			saveCurrentMessage();
 
 		});
+		newFolder.setOnAction(e -> {
+			createNewMessage(true);
+		});
 		newMenu.setOnAction(e -> {
-			createNewMessage();
+			createNewMessage(false);
 		});
 		delete.setOnAction(e -> {
 			deleteCurrentMessage();
@@ -323,18 +336,19 @@ public class HelloWorld extends Application {
 	}
 
 
-	public void createNewMessage() {
+	public void createNewMessage(boolean createFolder) {
 		// TODO check for unsaved changes ...
 		//this.myText.setDisable(true);
 
 		Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
-		dialog.setHeaderText("Enter some text, or use default value.");
+		dialog.setHeaderText("What title is the new note going to have?");
 		Optional<String> result = dialog.showAndWait();
 		String entered = "N/A";
 		if (result.isPresent()) {
 			entered = result.get();
 		}
+		newNoteService.setCreateFolder(createFolder);
 		newNoteService.setSubject(entered);
 		newNoteService.reset();
 		newNoteService.restart();

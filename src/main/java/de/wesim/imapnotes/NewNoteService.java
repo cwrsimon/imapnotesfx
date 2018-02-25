@@ -3,6 +3,8 @@ package de.wesim.imapnotes;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import de.wesim.models.Note;
@@ -15,6 +17,12 @@ public class NewNoteService extends AbstractNoteService<Note> {
 
     public void setSubject(String subject) {
         this.subject.set(subject);
+    }
+
+    private BooleanProperty createFolder = new SimpleBooleanProperty();
+
+    public void setCreateFolder(boolean flag) {
+        this.createFolder.set(flag);
     }
 
     public NewNoteService(  INoteProvider backend, ProgressBar progress, Label status ) {
@@ -30,7 +38,12 @@ public class NewNoteService extends AbstractNoteService<Note> {
                 updateProgress(0, 1);
                 updateMessage("Creating new note ...");
 
-                final Note newNote = backend.createNewNote(subject.getValue());
+                final Note newNote;
+                if (createFolder.getValue()) {
+                    newNote = backend.createNewFolder(subject.getValue());
+                } else {
+                    newNote = backend.createNewNote(subject.getValue());
+                }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
 
