@@ -9,7 +9,7 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
-public class OpenFolderTask extends AbstractNoteService<String> {
+public class OpenFolderTask extends AbstractNoteService<Void> {
     
     private ObjectProperty<NoteFolder> noteFolder = new SimpleObjectProperty<NoteFolder>(this, "noteFolder");
 
@@ -31,11 +31,11 @@ public class OpenFolderTask extends AbstractNoteService<String> {
     }
 
     @Override
-    protected Task<String> createTask() {
-        Task<String> task = new Task<String>() {
+    protected Task<Void> createTask() {
+        Task<Void> task = new Task<Void>() {
 
             @Override
-            protected String call() throws Exception {
+            protected Void call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Opening " + noteFolder.getValue().toString() + "...");
 
@@ -52,7 +52,7 @@ public class OpenFolderTask extends AbstractNoteService<String> {
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
                 updateProgress(1, 1);
 
-                return getNoteFolder().getContent();
+                return null;
             }
         };
         return task;

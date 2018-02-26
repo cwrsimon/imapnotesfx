@@ -42,7 +42,7 @@ public class FSNoteProvider implements INoteProvider {
 		final Note newNote = new Note(uuid.toString());
 		newNote.setSubject(subject);
 		newNote.setImapMessage(newFile);
-		newNote.setContent("<html ><head></head><body></body></html>");
+		newNote.setContent(INoteProvider.EMPTY_NOTE);
 		update(newNote);
 		return newNote;
 	}
@@ -172,4 +172,9 @@ public class FSNoteProvider implements INoteProvider {
 		return newNote;
 	}
 
+	@Override
+	public void renameNote(Note note, String newName) throws Exception {
+		note.setSubject(newName);
+		update(note);
+	}
 }

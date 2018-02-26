@@ -21,7 +21,7 @@ public class IMAPNoteProvider implements INoteProvider {
 	
 	@Override
 	public Note createNewNote(String subject) throws Exception {
-		final Message newIMAPMsg = this.backend.createNewMessage(subject, "");
+		final Message newIMAPMsg = this.backend.createNewMessage(subject, INoteProvider.EMPTY_NOTE);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setImapMessage(newIMAPMsg);
 		return newNote;
@@ -67,6 +67,12 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public NoteFolder createNewFolder(String name) throws Exception {
 		return null;
+	}
+
+	@Override
+	public void renameNote(Note note, String newName) throws Exception {
+		// TODO Auto-generated method stub
+		return;
 	}
 	
 }

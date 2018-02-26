@@ -5,6 +5,7 @@ import de.wesim.imapnotes.LoadMessageTask;
 import de.wesim.imapnotes.NewNoteService;
 import de.wesim.imapnotes.OpenFolderTask;
 import de.wesim.imapnotes.OpenMessageTask;
+import de.wesim.imapnotes.RenameNoteService;
 import de.wesim.imapnotes.SaveMessageTask;
 import de.wesim.models.Note;
 import de.wesim.models.NoteFolder;
@@ -35,7 +36,9 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 // TODO
-// Gibt es ungespeicherte Änderungen?
+// Logging
+// Sortierung nach Änderungsdatum ...
+// Tastaturabkürzungen (Strg-S)
 // FS-Support
 // IMAP-Ordner -> TreeView
 // Status-Nachrichten sinnvoller formulieren
@@ -64,6 +67,7 @@ public class HelloWorld extends Application {
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
 	private SaveMessageTask saveMessageTask;
+	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask ;
 	private OpenFolderTask openFolderTask;
     private BooleanBinding allRunning;
@@ -76,7 +80,6 @@ public class HelloWorld extends Application {
 		this.backend = new FSNoteProvider();
 
 		this.initAsyncTasks();
-		//this.myText.set
 	
 	}
 	
@@ -86,6 +89,7 @@ public class HelloWorld extends Application {
 		this.newNoteService = new NewNoteService(backend, p1, status);
 		this.openMessageTask = new OpenMessageTask(backend, p1, status);
 		this.openFolderTask = new OpenFolderTask(backend, p1, status);
+		this.renameNoteService = new RenameNoteService(backend, p1, status);
 		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), 
 			this.saveMessageTask.runningProperty()).
@@ -109,6 +113,7 @@ public class HelloWorld extends Application {
 			loadMessages(newNoteService.getValue());
 		});
 		openMessageTask.setOnSucceeded(e -> {
+			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
 		});
 		deleteNoteService.setOnSucceeded( e -> {
@@ -117,6 +122,9 @@ public class HelloWorld extends Application {
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
 			loadMessages( null );
+		});
+		renameNoteService.setOnSucceeded( e-> {
+			noteCB.refresh();
 		});
 	}
 
@@ -175,7 +183,7 @@ public class HelloWorld extends Application {
 		System.out.println(oldContent);
 		System.out.println(newContent);
 
-		return oldContent.length() != newContent.length();
+		return !oldContent.equals(newContent);
 	}
 
 	private void deleteCurrentMessage() {
@@ -191,18 +199,32 @@ public class HelloWorld extends Application {
 		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 			return;
 		}
-
-		// Dialog dialog = new TextInputDialog("Bla");
-		// dialog.setTitle("Enter a subject!");
-		// dialog.setHeaderText("Enter some text, or use default value.");
-		// Optional<String> result = dialog.showAndWait();
-		
 		
 		deleteNoteService.noteProperty().set(curMsg);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
 	}
 	
+	private void renameCurrentMessage() {
+		if (this.allRunning.getValue() == true) {
+			return;
+		}
+		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+
+		Dialog dialog = new TextInputDialog("");
+		dialog.setTitle("Make a choice");
+		dialog.setHeaderText("Please enter the new name:");
+		Optional<String> result = dialog.showAndWait();
+		String entered = "N/A";
+		if (result.isPresent()) {
+			entered = result.get();
+		}
+		renameNoteService.setSubject(entered);
+		renameNoteService.noteProperty().set(curMsg);
+		renameNoteService.reset();
+		renameNoteService.restart();
+	}
+
 	
 	private void loadMessages(Note messageToOpen) {
 		System.out.println(messageToOpen);
@@ -286,9 +308,10 @@ public class HelloWorld extends Application {
 		myPane.setLeft(noteCB);
 		myPane.setTop(menuBar);
 
-		reset.setOnAction( e -> {
-			//resetProgressBar();
+		renameNote.setOnAction( e -> {
+			renameCurrentMessage();
 		});
+		
 		
 		loadMenu.setOnAction(e -> {
 			if (this.allRunning.getValue() == true) {
@@ -325,7 +348,7 @@ public class HelloWorld extends Application {
 
 		Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
-		primaryStage.setWidth(800);
+		primaryStage.setWidth(1024);
 		primaryStage.setHeight(500);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
