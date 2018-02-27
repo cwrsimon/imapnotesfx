@@ -1,4 +1,4 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
@@ -8,9 +8,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.ObjectProperty;
-
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 
 public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 

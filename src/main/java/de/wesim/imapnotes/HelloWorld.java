@@ -1,21 +1,23 @@
+package de.wesim.imapnotes;
+
 import java.util.Optional;
+
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.FSNoteProvider;
+import de.wesim.imapnotes.services.IMAPNoteProvider;
+import de.wesim.imapnotes.services.INoteProvider;
+import de.wesim.imapnotes.ui.background.DeleteMessageTask;
+import de.wesim.imapnotes.ui.background.LoadMessageTask;
+import de.wesim.imapnotes.ui.background.NewNoteService;
+import de.wesim.imapnotes.ui.background.OpenFolderTask;
+import de.wesim.imapnotes.ui.background.OpenMessageTask;
+import de.wesim.imapnotes.ui.background.RenameNoteService;
+import de.wesim.imapnotes.ui.background.SaveMessageTask;
 import javafx.application.Application;
-import de.wesim.imapnotes.DeleteMessageTask;
-import de.wesim.imapnotes.LoadMessageTask;
-import de.wesim.imapnotes.NewNoteService;
-import de.wesim.imapnotes.OpenFolderTask;
-import de.wesim.imapnotes.OpenMessageTask;
-import de.wesim.imapnotes.RenameNoteService;
-import de.wesim.imapnotes.SaveMessageTask;
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
-import de.wesim.services.FSNoteProvider;
-import de.wesim.services.INoteProvider;
-import javafx.scene.layout.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -24,12 +26,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
-
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -70,14 +73,15 @@ public class HelloWorld extends Application {
 	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask ;
 	private OpenFolderTask openFolderTask;
+	
     private BooleanBinding allRunning;
 
 	
 	@Override
 	public void init() throws Exception {
 		super.init();
-		//this.backend = new IMAPNoteProvider();
-		this.backend = new FSNoteProvider();
+		this.backend = new IMAPNoteProvider();
+		//this.backend = new FSNoteProvider();
 
 		this.initAsyncTasks();
 	
@@ -91,11 +95,15 @@ public class HelloWorld extends Application {
 		this.openFolderTask = new OpenFolderTask(backend, p1, status);
 		this.renameNoteService = new RenameNoteService(backend, p1, status);
 		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
-		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), 
+		this.allRunning = Bindings.or(
+				this.newLoadTask.runningProperty(), 
 			this.saveMessageTask.runningProperty()).
 			or(this.openMessageTask.runningProperty())
 			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty());	
+			.or(this.newNoteService.runningProperty())
+			.or(this.openFolderTask.runningProperty())
+			.or(this.renameNoteService.runningProperty())
+					;	
 			// TODO openFolderTask	
 		
 		newLoadTask.setOnSucceeded(e -> {
@@ -143,15 +151,13 @@ public class HelloWorld extends Application {
 		// 	return;
 		// }
 		System.out.println("Opening " +m.getSubject());
-		if (!(m instanceof NoteFolder)) {
+		if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
 			this.openMessageTask.restart();
 		} else {
-			this.openFolderTask.noteFolderProperty().set((NoteFolder)m);
+			this.openFolderTask.noteFolderProperty().set(m);
 			this.openFolderTask.restart();
 		}
-
-
 	}
 
 	

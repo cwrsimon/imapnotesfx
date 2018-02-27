@@ -1,9 +1,5 @@
-package de.wesim.services;
+package de.wesim.imapnotes.services;
 
-import javax.mail.Message;
-import de.wesim.imapnotes.IMAPBackend;
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -15,6 +11,8 @@ import java.util.List;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
+
+import de.wesim.imapnotes.models.Note;
 
 
 public class FSNoteProvider implements INoteProvider {
@@ -48,7 +46,7 @@ public class FSNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public void openFolder(NoteFolder folder) throws Exception {
+	public void openFolder(Note folder) throws Exception {
 		final Path path = (Path) folder.getRawImapMessage();
 		if (Files.isDirectory(path)) {
 			this.folderStack.push(this.currentDirectory);
@@ -134,13 +132,12 @@ public class FSNoteProvider implements INoteProvider {
 				if (Files.isDirectory(filePath)) {
 					// FIXME Dateiname muss geparst werden !!!
 					// String uuid = fileName.replace(".imapnote", "");
-					final NoteFolder newNote = new NoteFolder(fileName);
+					final Note newNote = new Note(fileName);
+					newNote.setIsFolder(true);
 					newNote.setImapMessage(filePath);
 					newNote.setSubject(fileName);
 					notes.add(newNote);
 				}
-
-
 			});
 
 		}
@@ -148,7 +145,8 @@ public class FSNoteProvider implements INoteProvider {
 
 		final Path prevFolder = this.folderStack.peek();
 		if (prevFolder != null) {
-			final NoteFolder newNote = new NoteFolder("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+			final Note newNote = new Note("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+			newNote.setIsFolder(true);
 			newNote.setImapMessage(null);
 			newNote.setSubject("Zurück");
 			notes.add(newNote);
@@ -162,13 +160,14 @@ public class FSNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public NoteFolder createNewFolder(String name) throws Exception {
+	public Note createNewFolder(String name) throws Exception {
 		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
 		final Path newFolderPath = this.currentDirectory.resolve(name);
 		Files.createDirectory(newFolderPath);
-		final NoteFolder newNote = new NoteFolder(name);
-					newNote.setImapMessage(newFolderPath);
-					newNote.setSubject(name);	
+		final Note newNote = new Note(name);
+		newNote.setIsFolder(true);
+		newNote.setImapMessage(newFolderPath);
+		newNote.setSubject(name);	
 		return newNote;
 	}
 
@@ -176,5 +175,13 @@ public class FSNoteProvider implements INoteProvider {
 	public void renameNote(Note note, String newName) throws Exception {
 		note.setSubject(newName);
 		update(note);
+	}
+	@Override
+	public void renameFolder(Note note, String newName) throws Exception {
+		note.setSubject(newName);
+		final Path oldPath = (Path) note.getImapMessage();
+		final Path newFolderPath = oldPath.getParent().resolve(newName);
+		note.setImapMessage(newFolderPath);
+		Files.move(oldPath, newFolderPath);
 	}
 }

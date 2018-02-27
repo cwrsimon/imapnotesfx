@@ -1,4 +1,4 @@
-package de.wesim.models;
+package de.wesim.imapnotes.models;
 
 import javax.mail.Message;
 
@@ -7,6 +7,7 @@ public class Note {
 	private String uuid;
 	private String subject;
 	private String content;
+	private boolean isFolder;
 	
 	// FIXME
 	private Object imapMessage;
@@ -73,8 +74,14 @@ public class Note {
 			return false;
 		return true;
 	}
+
+	public void setIsFolder(boolean b) {
+		this.isFolder = true;
+	}
 	
-	
+	public boolean isFolder() {
+		return this.isFolder;
+	}
 	
 	
 }

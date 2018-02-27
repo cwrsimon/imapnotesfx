@@ -1,9 +1,10 @@
-package de.wesim.services;
+package de.wesim.imapnotes.services;
 
 import javax.mail.Message;
-import de.wesim.imapnotes.IMAPBackend;
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
+
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.ui.background.IMAPBackend;
+
 import java.util.List;
 
 
@@ -55,17 +56,17 @@ public class IMAPNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public void openFolder(NoteFolder folder) throws Exception {
-		// TODO
+	public void openFolder(Note folder) throws Exception {
+		this.backend.openSubFolder(folder.getUuid());
 	}
 
 	@Override
 	public void returnToParent() throws Exception {
-		//
+		this.backend.switchToParentFolder();
 	}
 
 	@Override
-	public NoteFolder createNewFolder(String name) throws Exception {
+	public Note createNewFolder(String name) throws Exception {
 		return null;
 	}
 
@@ -73,6 +74,12 @@ public class IMAPNoteProvider implements INoteProvider {
 	public void renameNote(Note note, String newName) throws Exception {
 		// TODO Auto-generated method stub
 		return;
+	}
+
+	@Override
+	public void renameFolder(Note note, String newName) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

@@ -1,7 +1,7 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;

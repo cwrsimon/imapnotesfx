@@ -1,25 +1,15 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import javafx.beans.property.ObjectProperty;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
-public class RenameNoteService extends AbstractNoteService<Void> {
-
-    private StringProperty subject = new SimpleStringProperty();
-
-    public void setSubject(String subject) {
-        this.subject.set(subject);
-    }
+public class SaveMessageTask extends AbstractNoteService<Void> {
 
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
@@ -35,7 +25,7 @@ public class RenameNoteService extends AbstractNoteService<Void> {
         return note;
     }
 
-    public RenameNoteService(  INoteProvider backend, ProgressBar progress, Label status ) {
+    public SaveMessageTask(  INoteProvider backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -46,11 +36,11 @@ public class RenameNoteService extends AbstractNoteService<Void> {
             @Override
             protected Void call() throws Exception {
                 updateProgress(0, 1);
-                updateMessage("Rename note '' to '' ...");
+                updateMessage("Beginne mit dem Speichern ...");
 
-                backend.renameNote(getNote(), subject.getValue());
-                
-                updateMessage(String.format("Umbennen von %s erfolgreich!", subject.getValue()));
+                backend.update(getNote());
+                //Thread.sleep(2000);
+                updateMessage("Speichern erfolgreich!");
                 updateProgress(1, 1);
 
                 return null;

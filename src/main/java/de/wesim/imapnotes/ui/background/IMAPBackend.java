@@ -1,4 +1,4 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,7 +23,7 @@ import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.imap.IMAPFolder;
 
-import de.wesim.models.Note;
+import de.wesim.imapnotes.models.Note;
 
 public class IMAPBackend {
 	
@@ -47,10 +47,14 @@ public class IMAPBackend {
 		this.notesFolder = (IMAPFolder) this.store.getFolder(name);
 	}
 	
-	private void openSubFolder(String name) throws MessagingException {
+	public void openSubFolder(String name) throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
 	}
 
+	public void switchToParentFolder() throws MessagingException {
+		this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
+	}
+	
 	private void connectStore() throws MessagingException {
 		this.store.connect(imapSettings.getProperty("hostname"), 
 					-1, imapSettings.getProperty("login"), 
@@ -110,6 +114,16 @@ public class IMAPBackend {
 			newNote.setImapMessage(m);
 			messages.add(newNote);
 		}
+		Folder[] folders = this.notesFolder.list();
+		for (Folder f : folders) {
+			final String name = f.getName();
+			final Note newNote = new Note(name);
+			newNote.setSubject(name);
+			newNote.setImapMessage(f);
+			newNote.setIsFolder(true);
+			messages.add(newNote);
+		}
+		
 		// TODO Reintegrate me!
 //		Collections.sort(messages, new Comparator<Message>() {
 //			@Override
