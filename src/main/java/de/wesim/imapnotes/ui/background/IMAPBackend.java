@@ -2,12 +2,14 @@ package de.wesim.imapnotes.ui.background;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
+import java.util.Stack;
 import java.util.UUID;
 
 import javax.mail.FetchProfile;
@@ -31,28 +33,47 @@ public class IMAPBackend {
 	private Store store;
 	private IMAPFolder notesFolder;
 	private final Properties imapSettings;
+	private Stack<String> folderStack;
+
 	
 	private IMAPBackend() throws IOException {
 		Properties props = System.getProperties();
 		imapSettings = new Properties();
 		imapSettings.load(Files.newBufferedReader(Paths.get(System.getProperty("user.home"), ".imapnotesfx")));
 		this.session = Session.getInstance(props, null);
+		this.folderStack = new Stack<String>();
 	}
 
 	public Session getSession() {
 		return this.session;
 	}
 	
+	public Note createFolder(String name) throws MessagingException {
+		Folder newFolder = this.notesFolder.getFolder(name);
+		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
+		final Note newNote = new Note(name);
+		newNote.setSubject(name);
+		newNote.setImapMessage(newFolder);
+		newNote.setIsFolder(true);
+		return newNote;
+	}
+	
 	private void openNotesFolder(String name) throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.store.getFolder(name);
 	}
 	
-	public void openSubFolder(String name) throws MessagingException {
+	private void openSubFolder(String name) throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
+	}
+	
+	public void switchToSubFolder(String name) throws MessagingException {
+		openSubFolder(name);
+		this.folderStack.push(name);
 	}
 
 	public void switchToParentFolder() throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
+		this.folderStack.pop();
 	}
 	
 	private void connectStore() throws MessagingException {
@@ -124,6 +145,17 @@ public class IMAPBackend {
 			messages.add(newNote);
 		}
 		
+		if (!this.folderStack.isEmpty()) {
+			final String prevFolder = this.folderStack.peek();
+			if (prevFolder != null) {
+				final Note newNote = new Note("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+				newNote.setIsFolder(true);
+				newNote.setImapMessage(null);
+				newNote.setSubject("Zurück");
+				messages.add(newNote);
+			}
+			
+		}
 		// TODO Reintegrate me!
 //		Collections.sort(messages, new Comparator<Message>() {
 //			@Override

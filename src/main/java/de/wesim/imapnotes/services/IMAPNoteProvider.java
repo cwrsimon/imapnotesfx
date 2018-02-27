@@ -57,7 +57,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void openFolder(Note folder) throws Exception {
-		this.backend.openSubFolder(folder.getUuid());
+		this.backend.switchToSubFolder(folder.getUuid());
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public Note createNewFolder(String name) throws Exception {
-		return null;
+		return this.backend.createFolder(name);
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package de.wesim.imapnotes.models;
 
 import javax.mail.Message;
 
+// TODO Factory Methoden anlegen !!!
 public class Note {
 
 	private String uuid;
