@@ -1,12 +1,12 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.ObjectProperty;
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class SaveMessageTask extends AbstractNoteService<Void> {

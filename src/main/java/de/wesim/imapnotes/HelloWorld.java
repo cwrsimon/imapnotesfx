@@ -1,20 +1,23 @@
+package de.wesim.imapnotes;
+
 import java.util.Optional;
+
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.FSNoteProvider;
+import de.wesim.imapnotes.services.IMAPNoteProvider;
+import de.wesim.imapnotes.services.INoteProvider;
+import de.wesim.imapnotes.ui.background.DeleteMessageTask;
+import de.wesim.imapnotes.ui.background.LoadMessageTask;
+import de.wesim.imapnotes.ui.background.NewNoteService;
+import de.wesim.imapnotes.ui.background.OpenFolderTask;
+import de.wesim.imapnotes.ui.background.OpenMessageTask;
+import de.wesim.imapnotes.ui.background.RenameNoteService;
+import de.wesim.imapnotes.ui.background.SaveMessageTask;
 import javafx.application.Application;
-import de.wesim.imapnotes.DeleteMessageTask;
-import de.wesim.imapnotes.LoadMessageTask;
-import de.wesim.imapnotes.NewNoteService;
-import de.wesim.imapnotes.OpenFolderTask;
-import de.wesim.imapnotes.OpenMessageTask;
-import de.wesim.imapnotes.SaveMessageTask;
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
-import de.wesim.services.FSNoteProvider;
-import de.wesim.services.INoteProvider;
-import javafx.scene.layout.*;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -23,12 +26,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
-
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -39,6 +43,9 @@ import javafx.util.Callback;
 // http://www.javafxtutorials.com/tutorials/creating-a-pop-up-window-in-javafx/
 // https://stackoverflow.com/questions/22166610/how-to-create-a-popup-windows-in-javafx
 // Gibt es ungespeicherte Änderungen?
+// Logging
+// Sortierung nach Änderungsdatum ...
+// Tastaturabkürzungen (Strg-S)
 // FS-Support
 // IMAP-Ordner -> TreeView
 // Status-Nachrichten sinnvoller formulieren
@@ -67,19 +74,20 @@ public class HelloWorld extends Application {
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
 	private SaveMessageTask saveMessageTask;
+	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask ;
 	private OpenFolderTask openFolderTask;
+	
     private BooleanBinding allRunning;
 
 	
 	@Override
 	public void init() throws Exception {
 		super.init();
-		//this.backend = new IMAPNoteProvider();
-		this.backend = new FSNoteProvider();
+		this.backend = new IMAPNoteProvider();
+		//this.backend = new FSNoteProvider();
 
 		this.initAsyncTasks();
-		//this.myText.set
 	
 	}
 	
@@ -89,12 +97,17 @@ public class HelloWorld extends Application {
 		this.newNoteService = new NewNoteService(backend, p1, status);
 		this.openMessageTask = new OpenMessageTask(backend, p1, status);
 		this.openFolderTask = new OpenFolderTask(backend, p1, status);
+		this.renameNoteService = new RenameNoteService(backend, p1, status);
 		this.deleteNoteService = new DeleteMessageTask(backend, p1, status);
-		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), 
+		this.allRunning = Bindings.or(
+				this.newLoadTask.runningProperty(), 
 			this.saveMessageTask.runningProperty()).
 			or(this.openMessageTask.runningProperty())
 			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty());	
+			.or(this.newNoteService.runningProperty())
+			.or(this.openFolderTask.runningProperty())
+			.or(this.renameNoteService.runningProperty())
+					;	
 			// TODO openFolderTask	
 		
 		newLoadTask.setOnSucceeded(e -> {
@@ -112,6 +125,7 @@ public class HelloWorld extends Application {
 			loadMessages(newNoteService.getValue());
 		});
 		openMessageTask.setOnSucceeded(e -> {
+			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
 		});
 		deleteNoteService.setOnSucceeded( e -> {
@@ -120,6 +134,9 @@ public class HelloWorld extends Application {
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
 			loadMessages( null );
+		});
+		renameNoteService.setOnSucceeded( e-> {
+			noteCB.refresh();
 		});
 	}
 
@@ -138,15 +155,13 @@ public class HelloWorld extends Application {
 		// 	return;
 		// }
 		System.out.println("Opening " +m.getSubject());
-		if (!(m instanceof NoteFolder)) {
+		if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
 			this.openMessageTask.restart();
 		} else {
-			this.openFolderTask.noteFolderProperty().set((NoteFolder)m);
+			this.openFolderTask.noteFolderProperty().set(m);
 			this.openFolderTask.restart();
 		}
-
-
 	}
 
 	
@@ -178,7 +193,7 @@ public class HelloWorld extends Application {
 		System.out.println(oldContent);
 		System.out.println(newContent);
 
-		return oldContent.length() != newContent.length();
+		return !oldContent.equals(newContent);
 	}
 
 	private void deleteCurrentMessage() {
@@ -194,18 +209,32 @@ public class HelloWorld extends Application {
 		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 			return;
 		}
-
-		// Dialog dialog = new TextInputDialog("Bla");
-		// dialog.setTitle("Enter a subject!");
-		// dialog.setHeaderText("Enter some text, or use default value.");
-		// Optional<String> result = dialog.showAndWait();
-		
 		
 		deleteNoteService.noteProperty().set(curMsg);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
 	}
 	
+	private void renameCurrentMessage() {
+		if (this.allRunning.getValue() == true) {
+			return;
+		}
+		final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+
+		Dialog dialog = new TextInputDialog("");
+		dialog.setTitle("Make a choice");
+		dialog.setHeaderText("Please enter the new name:");
+		Optional<String> result = dialog.showAndWait();
+		String entered = "N/A";
+		if (result.isPresent()) {
+			entered = result.get();
+		}
+		renameNoteService.setSubject(entered);
+		renameNoteService.noteProperty().set(curMsg);
+		renameNoteService.reset();
+		renameNoteService.restart();
+	}
+
 	
 	private void loadMessages(Note messageToOpen) {
 		System.out.println(messageToOpen);
@@ -292,9 +321,10 @@ public class HelloWorld extends Application {
 		myPane.setLeft(noteCB);
 		myPane.setTop(menuBar);
 
-		reset.setOnAction( e -> {
-			//resetProgressBar();
+		renameNote.setOnAction( e -> {
+			renameCurrentMessage();
 		});
+		
 		
 		loadMenu.setOnAction(e -> {
 			if (this.allRunning.getValue() == true) {
@@ -331,7 +361,7 @@ public class HelloWorld extends Application {
 
 		Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
-		primaryStage.setWidth(800);
+		primaryStage.setWidth(1024);
 		primaryStage.setHeight(500);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {

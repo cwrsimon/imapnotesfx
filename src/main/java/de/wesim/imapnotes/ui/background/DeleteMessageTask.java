@@ -1,12 +1,12 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 
 public class DeleteMessageTask extends AbstractNoteService<Void> {
     

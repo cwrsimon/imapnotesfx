@@ -1,27 +1,26 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
-public class OpenFolderTask extends AbstractNoteService<String> {
+public class OpenFolderTask extends AbstractNoteService<Void> {
     
-    private ObjectProperty<NoteFolder> noteFolder = new SimpleObjectProperty<NoteFolder>(this, "noteFolder");
+    private ObjectProperty<Note> noteFolder = new SimpleObjectProperty<Note>(this, "note");
 
-    public final void setNoteFolder(NoteFolder value) {
+    public final void setNoteFolder(Note value) {
         noteFolder.set(value);
     }
 
-    public final NoteFolder getNoteFolder() {
+    public final Note getNoteFolder() {
         return noteFolder.get();
     }
 
-    public final ObjectProperty<NoteFolder> noteFolderProperty() {
+    public final ObjectProperty<Note> noteFolderProperty() {
         return noteFolder;
     }
 
@@ -31,15 +30,15 @@ public class OpenFolderTask extends AbstractNoteService<String> {
     }
 
     @Override
-    protected Task<String> createTask() {
-        Task<String> task = new Task<String>() {
+    protected Task<Void> createTask() {
+        Task<Void> task = new Task<Void>() {
 
             @Override
-            protected String call() throws Exception {
+            protected Void call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Opening " + noteFolder.getValue().toString() + "...");
 
-                final NoteFolder folderToOpen = getNoteFolder();
+                final Note folderToOpen = getNoteFolder();
                 // TODO Konstante extrahieren
                 if (folderToOpen.getUuid().startsWith("BACKTOPARENT")) {
                     System.out.println("OpenFolderTAsk: Return");
@@ -52,7 +51,7 @@ public class OpenFolderTask extends AbstractNoteService<String> {
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
                 updateProgress(1, 1);
 
-                return getNoteFolder().getContent();
+                return null;
             }
         };
         return task;

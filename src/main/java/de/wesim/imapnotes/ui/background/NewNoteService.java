@@ -1,4 +1,4 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
@@ -7,8 +7,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import de.wesim.models.Note;
-import de.wesim.services.INoteProvider;
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.INoteProvider;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class NewNoteService extends AbstractNoteService<Note> {

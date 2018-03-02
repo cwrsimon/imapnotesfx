@@ -1,9 +1,10 @@
-package de.wesim.services;
+package de.wesim.imapnotes.services;
 
 import javax.mail.Message;
-import de.wesim.imapnotes.IMAPBackend;
-import de.wesim.models.Note;
-import de.wesim.models.NoteFolder;
+
+import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.ui.background.IMAPBackend;
+
 import java.util.List;
 
 
@@ -21,7 +22,7 @@ public class IMAPNoteProvider implements INoteProvider {
 	
 	@Override
 	public Note createNewNote(String subject) throws Exception {
-		final Message newIMAPMsg = this.backend.createNewMessage(subject, "");
+		final Message newIMAPMsg = this.backend.createNewMessage(subject, INoteProvider.EMPTY_NOTE);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setImapMessage(newIMAPMsg);
 		return newNote;
@@ -55,18 +56,30 @@ public class IMAPNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public void openFolder(NoteFolder folder) throws Exception {
-		// TODO
+	public void openFolder(Note folder) throws Exception {
+		this.backend.switchToSubFolder(folder.getUuid());
 	}
 
 	@Override
 	public void returnToParent() throws Exception {
-		//
+		this.backend.switchToParentFolder();
 	}
 
 	@Override
-	public NoteFolder createNewFolder(String name) throws Exception {
-		return null;
+	public Note createNewFolder(String name) throws Exception {
+		return this.backend.createFolder(name);
+	}
+
+	@Override
+	public void renameNote(Note note, String newName) throws Exception {
+		// TODO Auto-generated method stub
+		return;
+	}
+
+	@Override
+	public void renameFolder(Note note, String newName) throws Exception {
+		// TODO Auto-generated method stub
+		
 	}
 	
 }

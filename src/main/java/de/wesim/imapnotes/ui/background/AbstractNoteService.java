@@ -1,9 +1,9 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.background;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import de.wesim.imapnotes.services.INoteProvider;
 import javafx.concurrent.Service;
-import de.wesim.services.INoteProvider;
 
 
 public abstract class AbstractNoteService<T> extends Service<T> {
