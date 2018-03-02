@@ -35,6 +35,9 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 // TODO
+// Für verschiedene Fensterebenen:
+// http://www.javafxtutorials.com/tutorials/creating-a-pop-up-window-in-javafx/
+// https://stackoverflow.com/questions/22166610/how-to-create-a-popup-windows-in-javafx
 // Gibt es ungespeicherte Änderungen?
 // FS-Support
 // IMAP-Ordner -> TreeView
@@ -213,7 +216,10 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-
+		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Cell.html
+		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TabPane.html
+		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/custom.htm#CACCFEFD
+		// TODO Hier Kontextmenüs etc. hinzufügen
 		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
 			@Override
 			public ListCell<Note> call(ListView<Note> param) {
