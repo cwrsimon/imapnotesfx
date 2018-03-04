@@ -31,6 +31,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.web.HTMLEditor;
@@ -249,24 +250,9 @@ public class HelloWorld extends Application {
 		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TabPane.html
 		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/custom.htm#CACCFEFD
 		// TODO Hier Kontextmenüs etc. hinzufügen
-		noteCB.setCellFactory(new Callback<ListView<Note>, ListCell<Note>>() {
-			@Override
-			public ListCell<Note> call(ListView<Note> param) {
-				return new ListCell<Note>() {
-					@Override
-					public void updateItem(Note item, boolean empty) {
-						super.updateItem(item, empty);
-						if (empty || item == null) {
-							setText(null);
-							setGraphic(null);
-						} else {
-							setText(item.getSubject());
-						}
-					}
-				};
-			}
-		});
+		noteCB.setCellFactory(new ListCellFactory(this));
 
+		
 		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
 			@Override
 			public void changed(ObservableValue<? extends Note> observable, 
@@ -298,6 +284,7 @@ public class HelloWorld extends Application {
 		MenuItem newMenu = new MenuItem("New Note");
 		MenuItem delete = new MenuItem("Delete current Note");
 		MenuItem update  = new MenuItem("Save current Note");
+		update.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
 		MenuItem renameNote  = new MenuItem("Rename current Note");
 
 		menuBar.getMenus().add(menu);
@@ -370,6 +357,7 @@ public class HelloWorld extends Application {
 
 		loadMessages(null);
 	}
+
 
 
 	public void createNewMessage(boolean createFolder) {
