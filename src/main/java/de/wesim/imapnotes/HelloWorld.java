@@ -46,8 +46,6 @@ import javafx.util.Callback;
 // Gibt es ungespeicherte Änderungen?
 // Logging
 // Sortierung nach Änderungsdatum ...
-// Tastaturabkürzungen (Strg-S)
-// FS-Support
 // IMAP-Ordner -> TreeView
 // Status-Nachrichten sinnvoller formulieren
 // Help-Menü
@@ -66,7 +64,7 @@ public class HelloWorld extends Application {
 
 	// FIXME 
 	private INoteProvider backend;// = new IMAPBackend();
-	private final ListView<Note> noteCB = new ListView<>();
+	private final ListView<Note> noteCB = new MyListView(this);
 	private final HTMLEditor myText = new HTMLEditor();
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
@@ -89,7 +87,6 @@ public class HelloWorld extends Application {
 		//this.backend = new FSNoteProvider();
 
 		this.initAsyncTasks();
-	
 	}
 	
 	private void initAsyncTasks() {
@@ -141,7 +138,7 @@ public class HelloWorld extends Application {
 		});
 	}
 
-	private void openNote(Note old, Note m) {
+	public void openNote(Note old, Note m) {
 		System.out.println("openNOte");
 		//System.out.println(hasContentChanged());
 		if (hasContentChanged(old)) {
@@ -167,7 +164,6 @@ public class HelloWorld extends Application {
 
 	
 	private void saveCurrentMessage() {
-		
 		// Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		// alert.setTitle("About to save note ...");
 		// alert.showAndWait();
@@ -246,32 +242,6 @@ public class HelloWorld extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Cell.html
-		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TabPane.html
-		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/custom.htm#CACCFEFD
-		// TODO Hier Kontextmenüs etc. hinzufügen
-		noteCB.setCellFactory(new ListCellFactory(this));
-
-		
-		noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
-			@Override
-			public void changed(ObservableValue<? extends Note> observable, 
-					Note oldValue, Note newValue) {
-				if (oldValue == null) {
-					System.out.println("oldValue:null");
-				} else {
-					System.out.println("oldValue:" + oldValue.getSubject());
-				}
-				if (newValue == null) {
-					System.out.println("newValue:null");
-				} else {
-					System.out.println("newValue:" + newValue.getSubject());
-				}
-				if (newValue == null)
-					return;
-				openNote(oldValue, newValue);
-			}
-		});
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
@@ -283,6 +253,7 @@ public class HelloWorld extends Application {
 		MenuItem newFolder = new MenuItem("New Folder");
 		MenuItem newMenu = new MenuItem("New Note");
 		MenuItem delete = new MenuItem("Delete current Note");
+
 		MenuItem update  = new MenuItem("Save current Note");
 		update.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
 		MenuItem renameNote  = new MenuItem("Rename current Note");
