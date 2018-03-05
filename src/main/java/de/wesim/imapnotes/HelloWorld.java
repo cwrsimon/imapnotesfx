@@ -69,7 +69,6 @@ public class HelloWorld extends Application {
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	private final Label running = new Label();
-	private NewNoteService newNoteService;
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
 	private SaveMessageTask saveMessageTask;
@@ -78,6 +77,7 @@ public class HelloWorld extends Application {
 	private OpenFolderTask openFolderTask;
 	
     private BooleanBinding allRunning;
+	private NoteController noteController;
 
 	
 	@Override
@@ -85,14 +85,13 @@ public class HelloWorld extends Application {
 		super.init();
 		this.backend = new IMAPNoteProvider();
 		//this.backend = new FSNoteProvider();
-
+		this.noteController = new NoteController(this, this.backend, p1, status);
 		this.initAsyncTasks();
 	}
 	
 	private void initAsyncTasks() {
 		this.saveMessageTask = new SaveMessageTask(backend, p1, status);
 		this.newLoadTask = new LoadMessageTask(backend, p1, status);
-		this.newNoteService = new NewNoteService(backend, p1, status);
 		this.openMessageTask = new OpenMessageTask(backend, p1, status);
 		this.openFolderTask = new OpenFolderTask(backend, p1, status);
 		this.renameNoteService = new RenameNoteService(backend, p1, status);
@@ -102,7 +101,8 @@ public class HelloWorld extends Application {
 			this.saveMessageTask.runningProperty()).
 			or(this.openMessageTask.runningProperty())
 			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty())
+			// TODO Reintegrieren !!!
+			//.or(this.newNoteService.runningProperty())
 			.or(this.openFolderTask.runningProperty())
 			.or(this.renameNoteService.runningProperty())
 					;	
@@ -117,11 +117,7 @@ public class HelloWorld extends Application {
 				noteCB.getSelectionModel().select(null);
 			}
 		});
-		newNoteService.setOnSucceeded( e -> {
-			System.out.println("Neu erstelle NAchricht");
-			System.out.println(newNoteService.getValue());
-			loadMessages(newNoteService.getValue());
-		});
+		
 		openMessageTask.setOnSucceeded(e -> {
 			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
@@ -233,7 +229,7 @@ public class HelloWorld extends Application {
 	}
 
 	
-	private void loadMessages(Note messageToOpen) {
+	public void loadMessages(Note messageToOpen) {
 		System.out.println(messageToOpen);
 		newLoadTask.setNote(messageToOpen);
 		newLoadTask.reset();
@@ -308,10 +304,10 @@ public class HelloWorld extends Application {
 
 		});
 		newFolder.setOnAction(e -> {
-			createNewMessage(true);
+			this.noteController.createNewMessage(true);
 		});
 		newMenu.setOnAction(e -> {
-			createNewMessage(false);
+			this.noteController.createNewMessage(false);
 		});
 		delete.setOnAction(e -> {
 			deleteCurrentMessage();
@@ -330,24 +326,6 @@ public class HelloWorld extends Application {
 	}
 
 
-
-	public void createNewMessage(boolean createFolder) {
-		// TODO check for unsaved changes ...
-		//this.myText.setDisable(true);
-
-		Dialog dialog = new TextInputDialog("Bla");
-		dialog.setTitle("Enter a subject!");
-		dialog.setHeaderText("What title is the new note going to have?");
-		Optional<String> result = dialog.showAndWait();
-		String entered = "N/A";
-		if (result.isPresent()) {
-			entered = result.get();
-		}
-		newNoteService.setCreateFolder(createFolder);
-		newNoteService.setSubject(entered);
-		newNoteService.reset();
-		newNoteService.restart();
-	}
 
 	public static void main(String[] args) {
 		launch(args);

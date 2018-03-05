@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.services;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -34,6 +34,7 @@ public class IMAPBackend {
 	private IMAPFolder notesFolder;
 	private final Properties imapSettings;
 	private Stack<String> folderStack;
+	private PasswordProvider passwordProvider;
 
 	
 	private IMAPBackend() throws IOException {
@@ -42,6 +43,8 @@ public class IMAPBackend {
 		imapSettings.load(Files.newBufferedReader(Paths.get(System.getProperty("user.home"), ".imapnotesfx")));
 		this.session = Session.getInstance(props, null);
 		this.folderStack = new Stack<String>();
+		this.passwordProvider = new PasswordProvider();
+		this.passwordProvider.init();
 	}
 
 	public Session getSession() {
@@ -77,9 +80,10 @@ public class IMAPBackend {
 	}
 	
 	private void connectStore() throws MessagingException {
+		final String accountName = imapSettings.getProperty("account_name");
+		final String pw = this.passwordProvider.retrievePassword(accountName);
 		this.store.connect(imapSettings.getProperty("hostname"), 
-					-1, imapSettings.getProperty("login"), 
-				imapSettings.getProperty("pw"));
+					-1, imapSettings.getProperty("login"), pw);
 	}
 	
 	public static IMAPBackend initNotesFolder(String name) throws MessagingException, IOException {

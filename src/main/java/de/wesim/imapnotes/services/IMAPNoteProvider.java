@@ -3,7 +3,6 @@ package de.wesim.imapnotes.services;
 import javax.mail.Message;
 
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.ui.background.IMAPBackend;
 
 import java.util.List;
 

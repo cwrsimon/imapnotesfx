@@ -31,6 +31,7 @@ eclipse {
 repositories {
     // Use jcenter for resolving your dependencies.
     // You can declare any Maven/Ivy/file repository here.
+    mavenLocal()
     jcenter()
 }
 
@@ -38,7 +39,7 @@ dependencies {
     // This dependency is found on compile classpath of this component and consumers.
     compile 'com.google.guava:guava:22.0'
 	compile 'com.sun.mail:javax.mail:1.6.0'
-    compile 'net.east.301:java-keyring:1.0.1-SNAPSHOT'
+    compile 'net.east301:java-keyring:1.0.1-SNAPSHOT'
     
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
