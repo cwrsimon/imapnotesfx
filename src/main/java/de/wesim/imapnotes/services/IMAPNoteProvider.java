@@ -78,7 +78,7 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		// TODO Auto-generated method stub
-		
+		// https://stackoverflow.com/questions/30626233/java-mail-imap-renaming-a-folder-which-has-children
 	}
 	
 }

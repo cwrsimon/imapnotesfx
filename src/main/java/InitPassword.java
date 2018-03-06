@@ -50,6 +50,7 @@ public class InitPassword {
         // in this case, we must set path to key store file by Keyring.setKeyStorePath
         // before using Keyring.getPassword and Keyring.getPassword.
         if (keyring.isKeyStorePathRequired()) {
+            System.out.println("isKeyStorePathRequired");
             //try {
         	
                 //File keyStoreFile = Files.createFile(Paths.get("~/.keystore")).toFile();
@@ -66,15 +67,15 @@ public class InitPassword {
         // Password can be stored to key store by using Keyring.setPassword method.
         // PasswordSaveException is thrown when some error happened while saving password.
         // LockException is thrown when keyring backend failed to lock key store file.
-//        try {
-//            keyring.setPassword("imapnotesfx", "de.wesim", "");
-//        } catch (LockException ex) {
-//            Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
-//            return;
-//        } catch (PasswordSaveException ex) {
-//            Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
-//            return;
-//        }
+    //    try {
+    //        keyring.setPassword("imapnotesfx", "de.wesim", "");
+    //    } catch (LockException ex) {
+    //        Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
+    //        return;
+    //    } catch (PasswordSaveException ex) {
+    //        Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
+    //        return;
+    //    }
 
         //
         // Retrieve password from key store

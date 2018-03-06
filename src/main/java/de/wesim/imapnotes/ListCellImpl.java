@@ -8,10 +8,10 @@ import javafx.scene.control.MenuItem;
 
 public class ListCellImpl extends ListCell<Note> {
 
-    private HelloWorld caller;
+    private NoteController caller;
     private final ContextMenu addMenu = new ContextMenu();
     
-	public ListCellImpl (HelloWorld caller) {
+	public ListCellImpl (NoteController caller) {
         final MenuItem addMenuItem = new MenuItem("Bla");
             addMenu.getItems().add(addMenuItem);
             // addMenuItem.setOnAction();

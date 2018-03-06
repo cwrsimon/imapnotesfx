@@ -9,9 +9,9 @@ import javafx.util.Callback;
 // https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/tree-view.htm#BABDEADA
 public class ListCellFactory implements Callback<ListView<Note>, ListCell<Note>>{
 
-    private HelloWorld caller;
+    private NoteController caller;
 
-	public ListCellFactory(HelloWorld caller) {
+	public ListCellFactory(NoteController caller) {
         this.caller = caller;
     }
 

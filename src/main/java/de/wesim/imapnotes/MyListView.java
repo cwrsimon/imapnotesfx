@@ -7,16 +7,16 @@ import javafx.scene.control.ListView;
 
 public class MyListView extends ListView<Note> {
 
-    private HelloWorld caller;
+    private NoteController controller;
 
 //https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Cell.html
 		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TabPane.html
 		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/custom.htm#CACCFEFD
         // TODO Hier Kontextmenüs etc. hinzufügen
         
-	public MyListView(HelloWorld caller) {
-        this.caller = caller;
-        this.setCellFactory(new ListCellFactory(caller));
+	public MyListView(NoteController controller) {
+        this.controller = controller;
+        this.setCellFactory(new ListCellFactory(this.controller));
 
         this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
 			@Override
@@ -34,7 +34,7 @@ public class MyListView extends ListView<Note> {
 				}
 				if (newValue == null)
 					return;
-				caller.openNote(oldValue, newValue);
+				controller.openNote(oldValue, newValue);
 			}
 		});
 

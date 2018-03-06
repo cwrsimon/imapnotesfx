@@ -176,6 +176,7 @@ public class FSNoteProvider implements INoteProvider {
 		note.setSubject(newName);
 		update(note);
 	}
+	
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		note.setSubject(newName);
