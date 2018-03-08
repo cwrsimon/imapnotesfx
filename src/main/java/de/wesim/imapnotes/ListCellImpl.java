@@ -5,6 +5,7 @@ import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseEvent;
 
 public class ListCellImpl extends ListCell<Note> {
 
@@ -17,6 +18,7 @@ public class ListCellImpl extends ListCell<Note> {
             // addMenuItem.setOnAction();
             //     getTreeItem().getChildren().add(newEmployee);
             // });
+            
     }
 
     @Override

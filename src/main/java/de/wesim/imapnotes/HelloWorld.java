@@ -40,6 +40,9 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 // TODO
+// 1. Ungespeicherte Änderungen
+// 2. Kontextmenüs
+// 3. Refaktorisierung: Dependency-Injection !!!
 // Für verschiedene Fensterebenen:
 // http://www.javafxtutorials.com/tutorials/creating-a-pop-up-window-in-javafx/
 // https://stackoverflow.com/questions/22166610/how-to-create-a-popup-windows-in-javafx
@@ -64,7 +67,7 @@ public class HelloWorld extends Application {
 
 	// FIXME 
 	private INoteProvider backend;// = new IMAPBackend();
-	private ListView<Note> noteCB; 
+	private MyListView noteCB; 
 	private final HTMLEditor myText = new HTMLEditor();
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();

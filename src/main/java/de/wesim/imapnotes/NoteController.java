@@ -1,6 +1,9 @@
 package de.wesim.imapnotes;
 
 import java.util.Optional;
+
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.INoteProvider;
 import de.wesim.imapnotes.ui.background.DeleteMessageTask;
@@ -35,7 +38,8 @@ public class NoteController {
 	private LoadMessageTask newLoadTask ;
 	private OpenFolderTask openFolderTask;
 	private HTMLEditor myText;
-	private ListView<Note> noteCB;
+	private MyListView noteCB;
+	//private boolean keyPressed = false;
 
 	public NoteController(INoteProvider backend, ProgressBar progressBar, Label status) {
 		this.backend = backend;
@@ -43,11 +47,15 @@ public class NoteController {
 		this.status = status;
 		
 		this.initAsyncTasks();
-
+		
 	}
 
 	public void setHTMLEditor(HTMLEditor node) {
 		this.myText = node;
+
+		// this.myText.setOnKeyTyped( e -> {
+		// 	this.keyPressed = true;
+		// });
 	}
 
 	private void initAsyncTasks() {
@@ -148,12 +156,18 @@ public class NoteController {
 
 	public void openNote(Note old, Note m) {
 		System.out.println("openNOte");
+		// if (overrideOpening) {
+		// 	return;
+		// }
 		//System.out.println(hasContentChanged());
 		if (hasContentChanged(old)) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 			alert.setTitle("Content has changed ...");
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+				//this.overrideOpening=true;
+				noteCB.toggleOverrideOpening();
+				noteCB.getSelectionModel().select(old);
 				return;
 			}
 		}
@@ -168,21 +182,32 @@ public class NoteController {
 			this.openFolderTask.noteFolderProperty().set(m);
 			this.openFolderTask.restart();
 		}
+	//	this.keyPressed = false;
 	}
 	
 	// TODO lieber einen Key-Event-Listener implementieren
 	private boolean hasContentChanged(Note curMsg) {
 		if (curMsg == null) return false;
-
+		//return this.keyPressed;
+		
 		System.out.println(curMsg.getSubject());
-		final String oldContent = curMsg.getContent();
+		 String oldContent = curMsg.getContent();
 		if (oldContent == null) return false;
-		final String newContent = myText.getHtmlText();
+		oldContent = parse(oldContent);
+		 String newContent = myText.getHtmlText();
 		if (newContent == null) return false;
+		newContent = parse(newContent);
 		System.out.println(oldContent);
 		System.out.println(newContent);
 
 		return !oldContent.equals(newContent);
+	}
+
+	private String parse(String htmlContent) {
+		System.out.println("incoming:" + htmlContent);
+		final String plainContent = Jsoup.parse(htmlContent).text();
+		System.out.println("outgoing:" + plainContent);
+		return plainContent;
 	}
 
 	public void createNewMessage(boolean createFolder) {
@@ -218,7 +243,7 @@ public class NoteController {
 		
 	}
 
-	public void setListView(ListView<Note> noteCB) {
+	public void setListView(MyListView noteCB) {
 		this.noteCB = noteCB;
 	}
 }

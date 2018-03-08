@@ -40,6 +40,7 @@ dependencies {
     compile 'com.google.guava:guava:22.0'
 	compile 'com.sun.mail:javax.mail:1.6.0'
     compile 'net.east301:java-keyring:1.0.1-SNAPSHOT'
+    compile 'org.jsoup:jsoup:1.11.2'
     
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
