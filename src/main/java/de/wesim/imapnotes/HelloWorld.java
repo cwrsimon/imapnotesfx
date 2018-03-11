@@ -40,29 +40,40 @@ import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 // TODO
+// Account-Model
+// Dependency Injection
+// http://www.kurtsparber.de/?p=246
+// https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
+// https://github.com/bpark/weldse-javafx-integration
 // 1. Ungespeicherte Änderungen
 // 2. Kontextmenüs
 // 3. Refaktorisierung: Dependency-Injection !!!
 // Für verschiedene Fensterebenen:
 // http://www.javafxtutorials.com/tutorials/creating-a-pop-up-window-in-javafx/
 // https://stackoverflow.com/questions/22166610/how-to-create-a-popup-windows-in-javafx
-// Gibt es ungespeicherte Änderungen?
-// Logging
-// Sortierung nach Änderungsdatum ...
-// IMAP-Ordner -> TreeView
-// Status-Nachrichten sinnvoller formulieren
-// Help-Menü
-// Subject ändern ...
 // Einarbeiten:
 // http://code.makery.ch/library/javafx-8-tutorial/part2/
 // Where to go from here:
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
-//Services implementieren:
+// Services implementieren:
 // https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
 // https://gist.github.com/jewelsea/2774476
 // https://stackoverflow.com/questions/39299724/javafx-service-and-gui
-// Beim Öffnen alles laden ...
+// TODOs
+// Beim Schließen auf Änderungen prüfen
+// Icon
+// Zu Applikation bündeln
+// Logging mit slf4j
+// Sortierung nach Änderungsdatum?
+// Rechtsklicks implementieren
+// About-Menü-Popup
+// Sinnvollere Nachrichten auf Englisch
+// TreeView??
+// Einstellungen
+// Dependency Injection
+// DMG/ZIP generieren lassen ...
+
 public class HelloWorld extends Application {
 
 	// FIXME 
