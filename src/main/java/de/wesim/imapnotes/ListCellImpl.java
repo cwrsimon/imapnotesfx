@@ -5,7 +5,6 @@ import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
-import javafx.scene.input.MouseEvent;
 
 public class ListCellImpl extends ListCell<Note> {
 

@@ -3,7 +3,6 @@ package de.wesim.imapnotes;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.INoteProvider;
 import de.wesim.imapnotes.ui.background.DeleteMessageTask;
@@ -15,11 +14,12 @@ import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.background.SaveMessageTask;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.web.HTMLEditor;
@@ -39,6 +39,7 @@ public class NoteController {
 	private OpenFolderTask openFolderTask;
 	private HTMLEditor myText;
 	private MyListView noteCB;
+	public StringProperty currentAccount = new SimpleStringProperty("de.wesim");
 	//private boolean keyPressed = false;
 
 	public NoteController(INoteProvider backend, ProgressBar progressBar, Label status) {
@@ -106,6 +107,10 @@ public class NoteController {
 		renameNoteService.setOnSucceeded( e-> {
 			noteCB.refresh();
 		});
+	}
+
+	public void startup() {
+		this.loadMessages(null);
 	}
 
 	public void deleteCurrentMessage(Note curMsg) {

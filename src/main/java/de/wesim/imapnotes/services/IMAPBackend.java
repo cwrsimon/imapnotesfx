@@ -25,6 +25,7 @@ import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.imap.IMAPFolder;
 
+import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Note;
 
 public class IMAPBackend {
@@ -32,15 +33,12 @@ public class IMAPBackend {
 	private Session session;
 	private Store store;
 	private IMAPFolder notesFolder;
-	private final Properties imapSettings;
 	private Stack<String> folderStack;
 	private PasswordProvider passwordProvider;
 
 	
 	private IMAPBackend() throws IOException {
 		Properties props = System.getProperties();
-		imapSettings = new Properties();
-		imapSettings.load(Files.newBufferedReader(Paths.get(System.getProperty("user.home"), ".imapnotesfx")));
 		this.session = Session.getInstance(props, null);
 		this.folderStack = new Stack<String>();
 		this.passwordProvider = new PasswordProvider();

@@ -18,6 +18,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -34,6 +35,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.TilePane;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -72,7 +74,8 @@ import javafx.util.Callback;
 // TreeView??
 // Einstellungen
 // Dependency Injection
-// DMG/ZIP generieren lassen ...
+// DMG/ZIP generieren lassen ...:
+// https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 
 public class HelloWorld extends Application {
 
@@ -83,6 +86,7 @@ public class HelloWorld extends Application {
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	private final Label running = new Label();
+	private final Label account = new Label();
 	
 	// TODO Binding nach NoteController erstellen
     //private BooleanBinding allRunning;
@@ -131,8 +135,12 @@ public class HelloWorld extends Application {
 				, this.noteController.allRunning)
 			);	
 
-		HBox hbox = new HBox(p1, status, running);
-		
+		TilePane hbox = new TilePane(account,  status, running, p1);
+		hbox.setAlignment(Pos.CENTER_LEFT);
+		hbox.setPrefWidth(Double.MAX_VALUE);
+		//hbox.setSpacing(50);
+		account.textProperty().bind(this.noteController.currentAccount);
+
 		BorderPane myPane = new BorderPane();
 		myPane.setCenter(myText);
 		myPane.setBottom(hbox);
@@ -185,7 +193,8 @@ public class HelloWorld extends Application {
 		primaryStage.setOnCloseRequest(e -> {
 			System.err.println("Quitting application.");
 		});
-		this.noteController.loadMessages(null);
+		this.noteController.startup();;
+
 	}
 
 	public static void main(String[] args) {

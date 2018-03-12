@@ -11,6 +11,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import de.wesim.imapnotes.Consts;
 import net.east301.keyring.BackendNotSupportedException;
 import net.east301.keyring.Keyring;
 import net.east301.keyring.PasswordRetrievalException;
@@ -54,7 +56,7 @@ public class InitPassword {
             //try {
         	
                 //File keyStoreFile = Files.createFile(Paths.get("~/.keystore")).toFile();
-                keyring.setKeyStorePath("/home/christian/.keystore");
+                keyring.setKeyStorePath(Consts.KEYSTORE_PATH.toString());
 //            } catch (IOException ex) {
 //                Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
 //            }
@@ -68,7 +70,7 @@ public class InitPassword {
         // PasswordSaveException is thrown when some error happened while saving password.
         // LockException is thrown when keyring backend failed to lock key store file.
     //    try {
-    //        keyring.setPassword("imapnotesfx", "de.wesim", "");
+    //        keyring.setPassword(Consts.KEYSTORE_SERVICE_NAME, "de.wesim", "");
     //    } catch (LockException ex) {
     //        Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);
     //        return;
@@ -85,7 +87,7 @@ public class InitPassword {
         // PasswordRetrievalException is thrown when some error happened while getting password.
         // LockException is thrown when keyring backend failed to lock key store file.
         try {
-            String password = keyring.getPassword("imapnotesfx", "de.wesim");
+            String password = keyring.getPassword(Consts.KEYSTORE_SERVICE_NAME, "de.wesim");
             System.out.println(password);
         } catch (LockException ex) {
             Logger.getLogger(InitPassword.class.getName()).log(Level.SEVERE, null, ex);

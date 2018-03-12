@@ -25,7 +25,6 @@ public class FSNoteProvider implements INoteProvider {
 	private Stack<Path> folderStack;
 
 	public FSNoteProvider() throws Exception {
-		//		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
 		this.userHome = Paths.get(System.getProperty("user.home"));
 		this.noteDirectory = this.userHome.resolve("CurrentProjects").resolve("notes");
 		this.currentDirectory = this.noteDirectory;

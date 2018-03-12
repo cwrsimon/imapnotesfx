@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import de.wesim.imapnotes.Consts;
 import net.east301.keyring.BackendNotSupportedException;
 import net.east301.keyring.Keyring;
 import net.east301.keyring.PasswordRetrievalException;
@@ -51,7 +53,7 @@ public class PasswordProvider {
         if (keyring.isKeyStorePathRequired()) {
             //try {
               //  File keyStoreFile = File.createTempFile("keystore", ".keystore");
-            keyring.setKeyStorePath("/home/christian/.keystore");
+            keyring.setKeyStorePath(Consts.KEYSTORE_PATH.toString());
             //} catch (IOException ex) {
             //    Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
             //}
@@ -68,7 +70,7 @@ public class PasswordProvider {
         // PasswordRetrievalException is thrown when some error happened while getting password.
         // LockException is thrown when keyring backend failed to lock key store file.
         try {
-            String password = keyring.getPassword("imapnotesfx", "de.wesim");
+            String password = keyring.getPassword(Consts.KEYSTORE_SERVICE_NAME, "de.wesim");
             System.out.println(password);
             return password;
         } catch (LockException ex) {
