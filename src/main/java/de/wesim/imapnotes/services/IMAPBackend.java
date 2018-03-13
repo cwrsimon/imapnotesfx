@@ -1,9 +1,6 @@
 package de.wesim.imapnotes.services;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -25,7 +22,7 @@ import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.imap.IMAPFolder;
 
-import de.wesim.imapnotes.Consts;
+import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
 public class IMAPBackend {
@@ -34,15 +31,14 @@ public class IMAPBackend {
 	private Store store;
 	private IMAPFolder notesFolder;
 	private Stack<String> folderStack;
-	private PasswordProvider passwordProvider;
+	private String from_address;
 
 	
 	private IMAPBackend() throws IOException {
 		Properties props = System.getProperties();
 		this.session = Session.getInstance(props, null);
 		this.folderStack = new Stack<String>();
-		this.passwordProvider = new PasswordProvider();
-		this.passwordProvider.init();
+
 	}
 
 	public Session getSession() {
@@ -57,6 +53,10 @@ public class IMAPBackend {
 		newNote.setImapMessage(newFolder);
 		newNote.setIsFolder(true);
 		return newNote;
+	}
+	
+	private void setFromAddress(String fromAddress) {
+		this.from_address = fromAddress;
 	}
 	
 	private void openNotesFolder(String name) throws MessagingException {
@@ -77,20 +77,20 @@ public class IMAPBackend {
 		this.folderStack.pop();
 	}
 	
-	private void connectStore() throws MessagingException {
-		final String accountName = imapSettings.getProperty("account_name");
-		final String pw = this.passwordProvider.retrievePassword(accountName);
-		this.store.connect(imapSettings.getProperty("hostname"), 
-					-1, imapSettings.getProperty("login"), pw);
+	private void connectStore(String hostname, String login, String pw) throws MessagingException {
+		// TODO Logging
+		System.out.println("Trying to connect:" + hostname + ";" + login + ";" + pw);
+		this.store.connect(hostname, -1, login, pw);
 	}
 	
-	public static IMAPBackend initNotesFolder(String name) throws MessagingException, IOException {
+	public static IMAPBackend initNotesFolder(Account account, String pw) throws MessagingException, IOException {
 		final IMAPBackend newInstance = new IMAPBackend();
 		if (newInstance.store == null) {
 			newInstance.store = newInstance.getSession().getStore("imap");
-			newInstance.connectStore();
+			newInstance.connectStore(account.getHostname(), account.getLogin(), pw);
 		}
-		final String[] splitItems = name.split("/");
+		newInstance.setFromAddress (account.getFrom_address() );
+		final String[] splitItems = account.getRoot_folder().split("/");
 		newInstance.openNotesFolder(splitItems[0]);
 		
 		// TODO Fehler abfangen ...
@@ -248,7 +248,7 @@ public class IMAPBackend {
 		MimeMessage newMsg = new MimeMessage(this.session);
 		newMsg.setContent(newContent, "text/html; charset=utf-8");
 		newMsg.setSubject(subject);
-		newMsg.setFrom(imapSettings.getProperty("from_address"));
+		newMsg.setFrom(this.from_address);
 		Date date = new Date();
 		newMsg.setSentDate(date);
 		// think of something here ...

@@ -13,6 +13,7 @@ public final class Consts {
 
     public static final String KEYSTORE_SERVICE_NAME = "imapnotesfx";
 
-    
+	public static final String EMPTY_NOTE = 
+			"<html dir=\"ltr\"><head></head><body contenteditable=\"true\"></body></html>";	
 
 }

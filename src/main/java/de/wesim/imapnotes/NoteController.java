@@ -3,7 +3,13 @@ package de.wesim.imapnotes;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
+
+import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.ConfigurationService;
+import de.wesim.imapnotes.services.FSNoteProvider;
+import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
 import de.wesim.imapnotes.ui.background.DeleteMessageTask;
 import de.wesim.imapnotes.ui.background.LoadMessageTask;
@@ -39,16 +45,44 @@ public class NoteController {
 	private OpenFolderTask openFolderTask;
 	private HTMLEditor myText;
 	private MyListView noteCB;
-	public StringProperty currentAccount = new SimpleStringProperty("de.wesim");
+	
+	public StringProperty currentAccount = new SimpleStringProperty("");
 	//private boolean keyPressed = false;
-
-	public NoteController(INoteProvider backend, ProgressBar progressBar, Label status) {
-		this.backend = backend;
+	
+	private Configuration config;
+	
+	public NoteController(ProgressBar progressBar, Label status) {
 		this.progressBar = progressBar;
 		this.status = status;
-		
+		this.config = ConfigurationService.readConfig();
+		final Account first = this.config.getAccountList().get(0);
+		openAccount(first);
 		this.initAsyncTasks();
-		
+
+	}
+
+	
+	private void openAccount(Account first) {
+		if (this.backend != null) {
+			try {
+				this.backend.destroy();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (first.getType().equals("FS")) {
+			this.backend = new FSNoteProvider();
+		} else {
+			this.backend = new IMAPNoteProvider();
+		}
+		try {
+			this.backend.init(first);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.currentAccount.set(first.getAccount_name());
 	}
 
 	public void setHTMLEditor(HTMLEditor node) {
@@ -60,13 +94,13 @@ public class NoteController {
 	}
 
 	private void initAsyncTasks() {
-		this.saveMessageTask = new SaveMessageTask(this.backend, this.progressBar, this.status);
-		this.newLoadTask = new LoadMessageTask(this.backend, this.progressBar, this.status);
-		this.openMessageTask = new OpenMessageTask(this.backend, this.progressBar, this.status);
-		this.openFolderTask = new OpenFolderTask(this.backend, this.progressBar, this.status);
-		this.renameNoteService = new RenameNoteService(this.backend, this.progressBar, this.status);
-		this.deleteNoteService = new DeleteMessageTask(this.backend, this.progressBar, this.status);
-		this.newNoteService = new NewNoteService(this.backend, this.progressBar, this.status);
+		this.saveMessageTask = new SaveMessageTask(this, this.progressBar, this.status);
+		this.newLoadTask = new LoadMessageTask(this, this.progressBar, this.status);
+		this.openMessageTask = new OpenMessageTask(this, this.progressBar, this.status);
+		this.openFolderTask = new OpenFolderTask(this, this.progressBar, this.status);
+		this.renameNoteService = new RenameNoteService(this, this.progressBar, this.status);
+		this.deleteNoteService = new DeleteMessageTask(this, this.progressBar, this.status);
+		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded( e -> {
 			System.out.println("Neu erstelle NAchricht");
 			System.out.println(newNoteService.getValue());
@@ -250,5 +284,17 @@ public class NoteController {
 
 	public void setListView(MyListView noteCB) {
 		this.noteCB = noteCB;
+	}
+
+	public void destroy() throws Exception {
+		if (this.backend != null) {
+			this.backend.destroy();
+		}
+		
+	}
+
+	public INoteProvider getBackend() {
+		// TODO Auto-generated method stub
+		return this.backend;
 	}
 }

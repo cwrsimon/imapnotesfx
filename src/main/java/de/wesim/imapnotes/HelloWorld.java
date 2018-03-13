@@ -1,45 +1,21 @@
 package de.wesim.imapnotes;
 
-import java.util.Optional;
-
-import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.FSNoteProvider;
-import de.wesim.imapnotes.services.IMAPNoteProvider;
-import de.wesim.imapnotes.services.INoteProvider;
-import de.wesim.imapnotes.ui.background.DeleteMessageTask;
-import de.wesim.imapnotes.ui.background.LoadMessageTask;
-import de.wesim.imapnotes.ui.background.NewNoteService;
-import de.wesim.imapnotes.ui.background.OpenFolderTask;
-import de.wesim.imapnotes.ui.background.OpenMessageTask;
-import de.wesim.imapnotes.ui.background.RenameNoteService;
-import de.wesim.imapnotes.ui.background.SaveMessageTask;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.TilePane;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import javafx.util.Callback;
 
 // TODO
 // Account-Model
@@ -76,11 +52,9 @@ import javafx.util.Callback;
 // Dependency Injection
 // DMG/ZIP generieren lassen ...:
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
-
+// Exceptions !!!
 public class HelloWorld extends Application {
 
-	// FIXME 
-	private INoteProvider backend;// = new IMAPBackend();
 	private MyListView noteCB; 
 	private final HTMLEditor myText = new HTMLEditor();
 	private final ProgressBar p1 = new ProgressBar();
@@ -96,9 +70,8 @@ public class HelloWorld extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
-		this.backend = new IMAPNoteProvider();
 		//this.backend = new FSNoteProvider();
-		this.noteController = new NoteController(this.backend, p1, status);
+		this.noteController = new NoteController(p1, status);
 		this.noteController.setHTMLEditor(myText);
 		this.noteCB = new MyListView(this.noteController);
 
@@ -111,7 +84,7 @@ public class HelloWorld extends Application {
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
-		MenuItem reset   = new MenuItem("Reset");
+		MenuItem reset   = new MenuItem("Switch Account ...");
 		MenuItem loadMenu = new MenuItem("Reload");
 		MenuItem exit = new MenuItem("Exit");
 
@@ -161,7 +134,7 @@ public class HelloWorld extends Application {
 
 		exit.setOnAction(e -> {
 			try {
-				this.backend.destroy();
+				this.noteController.destroy();
 			} catch (Exception e1) {
 				e1.printStackTrace();
 			}

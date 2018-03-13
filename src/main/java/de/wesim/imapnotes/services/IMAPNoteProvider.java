@@ -2,6 +2,8 @@ package de.wesim.imapnotes.services;
 
 import javax.mail.Message;
 
+import de.wesim.imapnotes.Consts;
+import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
 import java.util.List;
@@ -9,19 +11,25 @@ import java.util.List;
 
 public class IMAPNoteProvider implements INoteProvider {
 
+	private IMAPBackend backend;
 
-		
-	private final IMAPBackend backend;
-
-
-	public IMAPNoteProvider() throws Exception  {
-		this.backend = IMAPBackend.initNotesFolder("Notes/Playground");
-
+	public IMAPNoteProvider() {
 	}
+	
+
+	@Override
+	public void init(Account account) throws Exception {
+		PasswordProvider pp = new PasswordProvider();
+		pp.init();
+		final String accountName = account.getAccount_name();
+		final String pw = pp.retrievePassword(accountName);
+				
+		this.backend = IMAPBackend.initNotesFolder(account, pw);
+	}	
 	
 	@Override
 	public Note createNewNote(String subject) throws Exception {
-		final Message newIMAPMsg = this.backend.createNewMessage(subject, INoteProvider.EMPTY_NOTE);
+		final Message newIMAPMsg = this.backend.createNewMessage(subject, Consts.EMPTY_NOTE);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setImapMessage(newIMAPMsg);
 		return newNote;
@@ -80,5 +88,8 @@ public class IMAPNoteProvider implements INoteProvider {
 		// TODO Auto-generated method stub
 		// https://stackoverflow.com/questions/30626233/java-mail-imap-renaming-a-folder-which-has-children
 	}
+
+
+
 	
 }

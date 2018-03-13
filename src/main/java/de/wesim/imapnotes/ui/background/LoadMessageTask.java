@@ -1,19 +1,20 @@
 package de.wesim.imapnotes.ui.background;
 
+import java.util.List;
+
+import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.models.Note;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import java.util.List;
-import javafx.collections.ObservableList;
-import javafx.collections.FXCollections;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.ObjectProperty;
-import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.INoteProvider;
 
 public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 
-    public LoadMessageTask( INoteProvider backend, ProgressBar progress, Label status) {
+    public LoadMessageTask( NoteController backend, ProgressBar progress, Label status) {
         super(backend, progress, status);
     }
 
@@ -40,7 +41,7 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
                 updateProgress(0, 1);
                 updateMessage("Beginne mit dem Laden der Notizen ...");
 
-                final List<Note> messages = backend.getNotes();	
+                final List<Note> messages = controller.getBackend().getNotes();	
                 updateMessage("Notizenladen erfolgreich!");
                 updateProgress(1, 1);
 

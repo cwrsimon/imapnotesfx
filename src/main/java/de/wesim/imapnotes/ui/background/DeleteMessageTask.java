@@ -1,12 +1,12 @@
 package de.wesim.imapnotes.ui.background;
 
+import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.models.Note;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.INoteProvider;
 
 public class DeleteMessageTask extends AbstractNoteService<Void> {
     
@@ -25,7 +25,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
     }
 
     
-    public DeleteMessageTask( INoteProvider backend, ProgressBar progress, Label status ) {
+    public DeleteMessageTask( NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -38,7 +38,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Deleting " + note.getValue().toString() + "...");
 
-                backend.delete(getNote());
+                controller.getBackend().delete(getNote());
 
                 updateMessage("Deleting was successful! :-)");
                 updateProgress(1, 1);

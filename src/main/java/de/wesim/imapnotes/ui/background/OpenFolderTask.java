@@ -1,7 +1,7 @@
 package de.wesim.imapnotes.ui.background;
 
+import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.INoteProvider;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
@@ -25,7 +25,7 @@ public class OpenFolderTask extends AbstractNoteService<Void> {
     }
 
     
-    public OpenFolderTask(  INoteProvider backend, ProgressBar progress, Label status ) {
+    public OpenFolderTask(  NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -42,10 +42,10 @@ public class OpenFolderTask extends AbstractNoteService<Void> {
                 // TODO Konstante extrahieren
                 if (folderToOpen.getUuid().startsWith("BACKTOPARENT")) {
                     System.out.println("OpenFolderTAsk: Return");
-                    backend.returnToParent();
+                    controller.getBackend().returnToParent();
                 } else {
                     System.out.println("OpenFolderTAsk: " + folderToOpen);
-                    backend.openFolder(folderToOpen);
+                    controller.getBackend().openFolder(folderToOpen);
                 }
 
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));

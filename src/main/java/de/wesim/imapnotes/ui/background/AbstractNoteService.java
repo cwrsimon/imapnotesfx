@@ -1,20 +1,16 @@
 package de.wesim.imapnotes.ui.background;
 
+import de.wesim.imapnotes.NoteController;
+import javafx.concurrent.Service;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
-import de.wesim.imapnotes.services.INoteProvider;
-import javafx.concurrent.Service;
 
 
 public abstract class AbstractNoteService<T> extends Service<T> {
-    protected final INoteProvider backend;
-	// protected final ProgressBar progress;
-	// protected final Label status;
-
-    public AbstractNoteService( INoteProvider backend, ProgressBar progress, Label status) {
-        this.backend = backend;
-        //this.progress = progress;
-        //this.status = status;
+    protected final NoteController controller;
+	
+    public AbstractNoteService( NoteController parent, ProgressBar progress, Label status) {
+        this.controller = parent;
         this.setOnScheduled(e -> {
 			progress.progressProperty().unbind();
 			progress.progressProperty().bind(this.progressProperty());

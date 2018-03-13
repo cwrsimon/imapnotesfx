@@ -2,13 +2,13 @@ package de.wesim.imapnotes.services;
 
 import java.util.List;
 
+import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
 public interface INoteProvider {
 
-	public static final String EMPTY_NOTE = 
-				"<html dir=\"ltr\"><head></head><body contenteditable=\"true\"></body></html>";	
-
+	public void init(Account account) throws Exception;
+	
 	// TODO Create dedicated exception type !!!
     public Note createNewNote(String subject) throws Exception;
 

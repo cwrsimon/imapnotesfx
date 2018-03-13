@@ -12,6 +12,8 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import de.wesim.imapnotes.Consts;
+import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
 
@@ -19,15 +21,11 @@ public class FSNoteProvider implements INoteProvider {
 
 	// TODO Umstellung auf einen UUID -> Path-Mapper 
 
-	private Path userHome;
 	private Path noteDirectory;
 	private Path currentDirectory;
 	private Stack<Path> folderStack;
 
-	public FSNoteProvider() throws Exception {
-		this.userHome = Paths.get(System.getProperty("user.home"));
-		this.noteDirectory = this.userHome.resolve("CurrentProjects").resolve("notes");
-		this.currentDirectory = this.noteDirectory;
+	public FSNoteProvider() {
 		this.folderStack = new Stack<Path>();
 	}
 
@@ -39,7 +37,7 @@ public class FSNoteProvider implements INoteProvider {
 		final Note newNote = new Note(uuid.toString());
 		newNote.setSubject(subject);
 		newNote.setImapMessage(newFile);
-		newNote.setContent(INoteProvider.EMPTY_NOTE);
+		newNote.setContent(Consts.EMPTY_NOTE);
 		update(newNote);
 		return newNote;
 	}
@@ -183,5 +181,11 @@ public class FSNoteProvider implements INoteProvider {
 		final Path newFolderPath = oldPath.getParent().resolve(newName);
 		note.setImapMessage(newFolderPath);
 		Files.move(oldPath, newFolderPath);
+	}
+
+	@Override
+	public void init(Account account) throws Exception {
+		this.noteDirectory = Paths.get(account.getRoot_folder());
+		this.currentDirectory = this.noteDirectory;
 	}
 }

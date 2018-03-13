@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.ui.background;
 
+import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.INoteProvider;
 import javafx.beans.property.ObjectProperty;
@@ -25,7 +26,7 @@ public class OpenMessageTask extends AbstractNoteService<String> {
     }
 
     
-    public OpenMessageTask(  INoteProvider backend, ProgressBar progress, Label status ) {
+    public OpenMessageTask(  NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -38,7 +39,7 @@ public class OpenMessageTask extends AbstractNoteService<String> {
                 updateProgress(0, 1);
                 updateMessage("Opening " + note.getValue().toString() + "...");
 
-                backend.load(getNote());
+                controller.getBackend().load(getNote());
 
                 updateMessage(String.format("Öffnen von %s erfolgreich!", note.getValue().toString()));
                 updateProgress(1, 1);

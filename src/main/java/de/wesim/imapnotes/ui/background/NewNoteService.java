@@ -1,14 +1,14 @@
 package de.wesim.imapnotes.ui.background;
 
-import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
+import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.INoteProvider;
+import javafx.concurrent.Task;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class NewNoteService extends AbstractNoteService<Note> {
@@ -25,7 +25,7 @@ public class NewNoteService extends AbstractNoteService<Note> {
         this.createFolder.set(flag);
     }
 
-    public NewNoteService(  INoteProvider backend, ProgressBar progress, Label status ) {
+    public NewNoteService( NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
@@ -40,9 +40,9 @@ public class NewNoteService extends AbstractNoteService<Note> {
 
                 final Note newNote;
                 if (createFolder.getValue()) {
-                    newNote = backend.createNewFolder(subject.getValue());
+                    newNote = controller.getBackend().createNewFolder(subject.getValue());
                 } else {
-                    newNote = backend.createNewNote(subject.getValue());
+                    newNote = controller.getBackend().createNewNote(subject.getValue());
                 }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
