@@ -94,8 +94,7 @@ public class Account {
 
 	@Override
 	public String toString() {
-		return "Account [type=" + type + ", account_name=" + account_name + ", hostname=" + hostname + ", login="
-				+ login + ", root_folder=" + root_folder + "]";
+		return this.account_name;
 	}
 
 	

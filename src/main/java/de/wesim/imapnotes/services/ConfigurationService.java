@@ -67,10 +67,10 @@ public class ConfigurationService {
             		System.err.println("Unknown property name:" + items[1]);
             		break;
             }
-            System.out.println(accounts.size());
-            newConfig.getAccountList().addAll(accounts.values());
-            
-        }
+		}
+		System.out.println(accounts.size());            
+		newConfig.getAccountList().addAll(accounts.values());
+
         return newConfig;
     }
 

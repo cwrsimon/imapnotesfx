@@ -1,5 +1,6 @@
 package de.wesim.imapnotes;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
@@ -24,6 +25,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -55,13 +57,21 @@ public class NoteController {
 		this.progressBar = progressBar;
 		this.status = status;
 		this.config = ConfigurationService.readConfig();
-		final Account first = this.config.getAccountList().get(0);
-		openAccount(first);
+		
 		this.initAsyncTasks();
 
 	}
 
-	
+	public void chooseAccount() {
+		List<Account> availableAccounts = this.config.getAccountList();
+		ChoiceDialog<Account> cd = new ChoiceDialog<>(availableAccounts.get(0), availableAccounts);
+			
+			Optional<Account> result = cd.showAndWait();
+			if (result.isPresent()) {
+				openAccount(result.get());				
+			}
+	}
+
 	private void openAccount(Account first) {
 		if (this.backend != null) {
 			try {
@@ -83,6 +93,7 @@ public class NoteController {
 			e.printStackTrace();
 		}
 		this.currentAccount.set(first.getAccount_name());
+		loadMessages(null);
 	}
 
 	public void setHTMLEditor(HTMLEditor node) {
@@ -144,7 +155,9 @@ public class NoteController {
 	}
 
 	public void startup() {
-		this.loadMessages(null);
+		final Account first = this.config.getAccountList().get(0);
+		openAccount(first);
+		//this.loadMessages(null);
 	}
 
 	public void deleteCurrentMessage(Note curMsg) {

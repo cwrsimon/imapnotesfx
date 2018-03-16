@@ -1,9 +1,14 @@
 package de.wesim.imapnotes;
 
+import java.util.Arrays;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -13,7 +18,13 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.scene.web.HTMLEditor;
+import javafx.stage.Modality;
+import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -53,6 +64,7 @@ import javafx.stage.WindowEvent;
 // DMG/ZIP generieren lassen ...:
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
+// CellFactory muss Folder anders darstellen...
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
@@ -156,6 +168,10 @@ public class HelloWorld extends Application {
 		});
 		delete.setOnAction(e -> {
 			this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
+		});
+
+		reset.setOnAction( e -> {
+			this.noteController.chooseAccount();
 		});
 
 		Scene myScene = new Scene(myPane);

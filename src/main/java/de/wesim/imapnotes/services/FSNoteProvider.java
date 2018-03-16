@@ -186,6 +186,7 @@ public class FSNoteProvider implements INoteProvider {
 	@Override
 	public void init(Account account) throws Exception {
 		this.noteDirectory = Paths.get(account.getRoot_folder());
+		System.out.println(this.noteDirectory.toString());
 		this.currentDirectory = this.noteDirectory;
 	}
 }
