@@ -19,14 +19,15 @@ public class MyListView extends ListView<Note> {
 	public MyListView(NoteController controller) {
         this.controller = controller;
 		this.setCellFactory(new ListCellFactory(this.controller));
-		this.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
-			MouseEvent me = (MouseEvent) e;
-			//Note selected = getItem();
-
-			System.out.println("Mouse-Event:" + e.getClass().getName());
-			//System.out.println("Mouse-Event:" + selected.getSubject());
-			e.consume();
-		});
+//		this.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
+//			MouseEvent me = (MouseEvent) e;
+//			//Note selected = getItem();
+//
+//			System.out.println("Mouse-Event:" + e.getClass().getName());
+//			//System.out.println("Mouse-Event:" + selected.getSubject());
+//			e.consume();
+//		});
+		
 		this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {
 			@Override
 			public void changed(ObservableValue<? extends Note> observable, 
@@ -47,7 +48,7 @@ public class MyListView extends ListView<Note> {
 				}
 				if (newValue == null)
 					return;
-				controller.openNote(oldValue, newValue);
+				//controller.openNote(oldValue, newValue);
 			}
 		});
 		this.overrideOpening = false;

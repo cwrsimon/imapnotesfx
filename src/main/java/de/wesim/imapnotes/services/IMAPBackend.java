@@ -55,6 +55,18 @@ public class IMAPBackend {
 		return newNote;
 	}
 	
+	public boolean deleteFolder(String name) throws MessagingException {
+		Folder newFolder = this.notesFolder.getFolder(name);
+		return newFolder.delete(false);
+	}
+
+	public boolean renameFolder(String oldName, String newName) throws MessagingException {
+		Folder oldFolder = this.notesFolder.getFolder(oldName);
+		Folder newFolder = this.notesFolder.getFolder(newName);
+		return oldFolder.renameTo(newFolder);
+	}
+
+	
 	private void setFromAddress(String fromAddress) {
 		this.from_address = fromAddress;
 	}
@@ -194,9 +206,14 @@ public class IMAPBackend {
 		}
 	}
 
-	public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
+	public Message updateMessageContent(Message currentMessage, String newContent, String newSubject) throws MessagingException {
 		startTransaction();
-		String subject = currentMessage.getSubject();
+		final String subject;
+		if (newSubject == null) {
+			subject = currentMessage.getSubject();
+		} else {
+			subject = newSubject;
+		}
 		MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
 
 		Enumeration<Header> enums = currentMessage.getAllHeaders();

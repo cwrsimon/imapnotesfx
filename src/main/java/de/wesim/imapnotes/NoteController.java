@@ -48,6 +48,8 @@ public class NoteController {
 	private HTMLEditor myText;
 	private MyListView noteCB;
 	
+	private Note currentlyOPen = null;
+	
 	public StringProperty currentAccount = new SimpleStringProperty("");
 	//private boolean keyPressed = false;
 	
@@ -206,20 +208,20 @@ public class NoteController {
 		newLoadTask.restart();
 	}
 
-	public void openNote(Note old, Note m) {
+	public void openNote(Note m) {
 		System.out.println("openNOte");
 		// if (overrideOpening) {
 		// 	return;
 		// }
 		//System.out.println(hasContentChanged());
-		if (hasContentChanged(old)) {
+		if (this.currentlyOPen != null && hasContentChanged(this.currentlyOPen)) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 			alert.setTitle("Content has changed ...");
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 				//this.overrideOpening=true;
 				noteCB.toggleOverrideOpening();
-				noteCB.getSelectionModel().select(old);
+				noteCB.getSelectionModel().select(this.currentlyOPen);
 				return;
 			}
 		}
