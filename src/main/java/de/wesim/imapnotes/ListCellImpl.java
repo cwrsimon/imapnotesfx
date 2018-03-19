@@ -12,11 +12,13 @@ public class ListCellImpl extends ListCell<Note> {
     private final ContextMenu addMenu = new ContextMenu();
     
 	public ListCellImpl (NoteController caller) {
-        final MenuItem addMenuItem = new MenuItem("Bla");
-            addMenu.getItems().add(addMenuItem);
-            // addMenuItem.setOnAction();
-            //     getTreeItem().getChildren().add(newEmployee);
-            // });
+        final MenuItem deleteItem = new MenuItem("Delete");
+            addMenu.getItems().add(deleteItem);
+            deleteItem.setOnAction(e -> {
+               // getTreeItem().getChildren().add(newEmployee);
+                caller.deleteCurrentMessage(getItem());
+                
+            });
             
     }
 

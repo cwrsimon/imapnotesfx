@@ -65,6 +65,7 @@ import javafx.stage.WindowEvent;
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
 // CellFactory muss Folder anders darstellen...
+// Beim Löschen: Nächstes Element auswählen
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
