@@ -60,10 +60,21 @@ public class IMAPBackend {
 		return newFolder.delete(false);
 	}
 
-	public boolean renameFolder(String oldName, String newName) throws MessagingException {
+	public Folder renameFolder(String oldName, String newName) throws MessagingException {
+		endTransaction();
+		System.out.println("1");
 		Folder oldFolder = this.notesFolder.getFolder(oldName);
+		System.out.println("2");
+
 		Folder newFolder = this.notesFolder.getFolder(newName);
-		return oldFolder.renameTo(newFolder);
+		System.out.println("3");
+		try {
+		boolean retValue = oldFolder.renameTo(newFolder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		System.out.println("Status Umbenunng:");
+		return newFolder;
 	}
 
 	
@@ -206,14 +217,10 @@ public class IMAPBackend {
 		}
 	}
 
-	public Message updateMessageContent(Message currentMessage, String newContent, String newSubject) throws MessagingException {
+	public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
 		startTransaction();
-		final String subject;
-		if (newSubject == null) {
-			subject = currentMessage.getSubject();
-		} else {
-			subject = newSubject;
-		}
+		final String subject = currentMessage.getSubject();
+	
 		MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
 
 		Enumeration<Header> enums = currentMessage.getAllHeaders();

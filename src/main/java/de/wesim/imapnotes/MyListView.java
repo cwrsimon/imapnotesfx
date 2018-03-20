@@ -18,7 +18,7 @@ public class MyListView extends ListView<Note> {
         
 	public MyListView(NoteController controller) {
         this.controller = controller;
-		this.setCellFactory(new ListCellFactory(this.controller));
+		this.setCellFactory(new ListCellFactory(controller));
 //		this.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> {
 //			MouseEvent me = (MouseEvent) e;
 //			//Note selected = getItem();

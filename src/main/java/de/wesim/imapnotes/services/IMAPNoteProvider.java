@@ -44,7 +44,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void update(Note note) throws Exception  {
-		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), note.getContent(), null) );
+		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), note.getContent()) );
 	}
 
 	@Override
@@ -83,15 +83,18 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void renameNote(Note note, String newName) throws Exception {
-		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), note.getContent(), newName) );
-		return;
+		note.setSubject(newName);
+
+		System.out.println("Calling " + note.getSubject() + " with new Name " + newName);
+		update(note);
 	}
 
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
-		// TODO Auto-generated method stub
-		// https://stackoverflow.com/questions/30626233/java-mail-imap-renaming-a-folder-which-has-children
-		System.out.println(this.backend.renameFolder(note.getUuid(), newName));
+		System.out.println("Renaming IMAP FOlder ...");
+		note.setImapMessage(this.backend.renameFolder(note.getUuid(), newName));
+		note.setSubject(newName);
+		note.setUuid(newName);
 
 	}
 

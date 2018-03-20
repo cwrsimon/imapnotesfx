@@ -21,6 +21,9 @@ public class Note {
 		return uuid;
 	}
 
+	public void setUuid(String newUUid) {
+		this.uuid = newUUid;
+	}
 	
 	public String getSubject() {
 		return subject;

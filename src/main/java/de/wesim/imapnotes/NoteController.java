@@ -117,7 +117,8 @@ public class NoteController {
 		this.newNoteService.setOnSucceeded( e -> {
 			System.out.println("Neu erstelle NAchricht");
 			System.out.println(newNoteService.getValue());
-			this.loadMessages(newNoteService.getValue());
+			this.noteCB.getSelectionModel().
+			openNote(this.newNoteService.getValue());
 		});
 		this.allRunning = Bindings.or(
 				this.newLoadTask.runningProperty(), 
@@ -131,10 +132,10 @@ public class NoteController {
 			// TODO openFolderTask	
 		
 		newLoadTask.setOnSucceeded(e -> {
-			System.out.println("Bla");
 			noteCB.setItems(newLoadTask.getValue());
 			if (newLoadTask.noteProperty().getValue() != null) {
-				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
+				openNote(newLoadTask.noteProperty().getValue());
+//				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
 			} else {
 				noteCB.getSelectionModel().select(null);
 			}
@@ -143,6 +144,8 @@ public class NoteController {
 		openMessageTask.setOnSucceeded(e -> {
 			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
+			this.currentlyOPen = openMessageTask.getNote();
+			noteCB.getSelectionModel().select(openMessageTask.getNote());
 		});
 		deleteNoteService.setOnSucceeded( e -> {
 			loadMessages( null );
@@ -189,7 +192,7 @@ public class NoteController {
 
 		Dialog dialog = new TextInputDialog("");
 		dialog.setTitle("Make a choice");
-		dialog.setHeaderText("Please enter the new name:");
+		dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
 		Optional<String> result = dialog.showAndWait();
 		String entered = "N/A";
 		if (result.isPresent()) {
