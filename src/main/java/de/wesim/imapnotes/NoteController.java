@@ -117,8 +117,8 @@ public class NoteController {
 		this.newNoteService.setOnSucceeded( e -> {
 			System.out.println("Neu erstelle NAchricht");
 			System.out.println(newNoteService.getValue());
-			this.noteCB.getSelectionModel().
-			openNote(this.newNoteService.getValue());
+			//this.noteCB.getSelectionModel().
+			openNote(newNoteService.getValue());
 		});
 		this.allRunning = Bindings.or(
 				this.newLoadTask.runningProperty(), 
@@ -133,18 +133,21 @@ public class NoteController {
 		
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
-			if (newLoadTask.noteProperty().getValue() != null) {
-				openNote(newLoadTask.noteProperty().getValue());
-//				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
-			} else {
-				noteCB.getSelectionModel().select(null);
-			}
+			currentlyOPen = null;
+			// das erste Element öffnen
+			openNote(noteCB.getItems().get(0));
+// 			if (newLoadTask.noteProperty().getValue() != null) {
+// 				openNote(newLoadTask.noteProperty().getValue());
+// //				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
+// 			} else {
+// 				noteCB.getSelectionModel().select(null);
+// 			}
 		});
 		
 		openMessageTask.setOnSucceeded(e -> {
 			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
-			this.currentlyOPen = openMessageTask.getNote();
+			currentlyOPen = openMessageTask.getNote();
 			noteCB.getSelectionModel().select(openMessageTask.getNote());
 		});
 		deleteNoteService.setOnSucceeded( e -> {
@@ -152,6 +155,7 @@ public class NoteController {
 		});
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
+
 			loadMessages( null );
 		});
 		renameNoteService.setOnSucceeded( e-> {
@@ -190,7 +194,7 @@ public class NoteController {
 		}
 		//final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
 
-		Dialog dialog = new TextInputDialog("");
+		final Dialog dialog = new TextInputDialog("");
 		dialog.setTitle("Make a choice");
 		dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
 		Optional<String> result = dialog.showAndWait();
@@ -216,7 +220,11 @@ public class NoteController {
 		// if (overrideOpening) {
 		// 	return;
 		// }
-		//System.out.println(hasContentChanged());
+		if (this.currentlyOPen != null) {
+			System.out.println(this.currentlyOPen.getSubject());
+		} else {
+			System.out.println("Nicht gesetzt");
+		}
 		if (this.currentlyOPen != null && hasContentChanged(this.currentlyOPen)) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 			alert.setTitle("Content has changed ...");
