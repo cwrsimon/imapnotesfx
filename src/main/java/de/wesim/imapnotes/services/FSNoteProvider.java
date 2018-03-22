@@ -177,7 +177,7 @@ public class FSNoteProvider implements INoteProvider {
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		note.setSubject(newName);
-		final Path oldPath = (Path) note.getImapMessage();
+		final Path oldPath = (Path) note.getRawImapMessage();
 		final Path newFolderPath = oldPath.getParent().resolve(newName);
 		note.setImapMessage(newFolderPath);
 		Files.move(oldPath, newFolderPath);

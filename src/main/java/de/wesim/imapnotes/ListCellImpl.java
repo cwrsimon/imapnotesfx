@@ -13,6 +13,8 @@ public class ListCellImpl extends ListCell<Note> {
 
 	private NoteController caller;
 	private final ContextMenu addMenu = new ContextMenu();
+	private final ContextMenu newMenu = new ContextMenu();
+
 
 	private EventHandler<? super MouseEvent> eventHandler;
 	public ListCellImpl (NoteController caller) {
@@ -26,15 +28,17 @@ public class ListCellImpl extends ListCell<Note> {
 		renameItem.setOnAction(e -> {
 			caller.renameCurrentMessage(getItem());                
 		});
+		final MenuItem newItem = new MenuItem("Neu");
+		addMenu.getItems().add(newItem);
+		newMenu.getItems().add(newItem);
+
+		newItem.setOnAction(e -> {
+			caller.createNewMessage(false);                
+		});
 
 		eventHandler = e-> {
 			if (e.getButton() == MouseButton.PRIMARY 
 					&& e.getClickCount() == 2) {
-				// TODO Hier weitermachen
-				System.out.println("Double-Click!");
-				System.out.println(getItem());
-				System.out.println(caller.toString());
-
 				caller.openNote(getItem());
 			}
 		};
@@ -44,12 +48,20 @@ public class ListCellImpl extends ListCell<Note> {
 	@Override
 	public void updateItem(Note item, boolean empty) {
 		super.updateItem(item, empty);
+		setStyle("-fx-control-inner-background: white;");		
+
 		if (empty || item == null) {
 			setText(null);
 			setGraphic(null);
 			setOnMouseClicked( null );
+			setContextMenu(newMenu);
 
 		} else {
+			if (item.isFolder()) {
+				setStyle("-fx-control-inner-background: yellow;");		
+			} else { 
+
+			}
 			setText(item.getSubject());
 			setContextMenu(addMenu);
 

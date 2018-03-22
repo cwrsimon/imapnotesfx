@@ -46,15 +46,15 @@ public class RenameNoteService extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Rename note '' to '' ...");
                 System.out.println("Renaming ..." + subject.getValue());
-                try {
+                //try {
                 if (getNote().isFolder()) {
                 	controller.getBackend().renameFolder(getNote(), subject.getValue());
                 } else {
                 	controller.getBackend().renameNote(getNote(), subject.getValue());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            // } catch (Exception e) {
+            //     e.printStackTrace();
+            // }
                 updateMessage(String.format("Umbennen von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
 

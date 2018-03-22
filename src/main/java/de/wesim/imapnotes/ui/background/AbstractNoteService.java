@@ -17,6 +17,11 @@ public abstract class AbstractNoteService<T> extends Service<T> {
 			status.textProperty().unbind();
 			status.textProperty().bind( this.messageProperty());
         });
+        this.setOnFailed(e-> {
+
+            getException().printStackTrace();
+
+        });
     }
 
 }

@@ -100,10 +100,6 @@ public class NoteController {
 
 	public void setHTMLEditor(HTMLEditor node) {
 		this.myText = node;
-
-		// this.myText.setOnKeyTyped( e -> {
-		// 	this.keyPressed = true;
-		// });
 	}
 
 	private void initAsyncTasks() {
@@ -116,8 +112,7 @@ public class NoteController {
 		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded( e -> {
 			System.out.println("Neu erstelle NAchricht");
-			System.out.println(newNoteService.getValue());
-			//this.noteCB.getSelectionModel().
+			this.noteCB.getItems().add(newNoteService.getValue());
 			openNote(newNoteService.getValue());
 		});
 		this.allRunning = Bindings.or(
@@ -136,12 +131,6 @@ public class NoteController {
 			currentlyOPen = null;
 			// das erste Element öffnen
 			openNote(noteCB.getItems().get(0));
-// 			if (newLoadTask.noteProperty().getValue() != null) {
-// 				openNote(newLoadTask.noteProperty().getValue());
-// //				noteCB.getSelectionModel().select(newLoadTask.noteProperty().getValue());
-// 			} else {
-// 				noteCB.getSelectionModel().select(null);
-// 			}
 		});
 		
 		openMessageTask.setOnSucceeded(e -> {
@@ -155,7 +144,6 @@ public class NoteController {
 		});
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
-
 			loadMessages( null );
 		});
 		renameNoteService.setOnSucceeded( e-> {
@@ -166,7 +154,6 @@ public class NoteController {
 	public void startup() {
 		final Account first = this.config.getAccountList().get(0);
 		openAccount(first);
-		//this.loadMessages(null);
 	}
 
 	public void deleteCurrentMessage(Note curMsg) {
@@ -247,13 +234,10 @@ public class NoteController {
 			this.openFolderTask.noteFolderProperty().set(m);
 			this.openFolderTask.restart();
 		}
-	//	this.keyPressed = false;
 	}
 	
-	// TODO lieber einen Key-Event-Listener implementieren
 	private boolean hasContentChanged(Note curMsg) {
 		if (curMsg == null) return false;
-		//return this.keyPressed;
 		
 		System.out.println(curMsg.getSubject());
 		 String oldContent = curMsg.getContent();
