@@ -8,13 +8,17 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 
 public class ListCellImpl extends ListCell<Note> {
 
 	private NoteController caller;
 	private final ContextMenu addMenu = new ContextMenu();
 	private final ContextMenu newMenu = new ContextMenu();
-
+	private Rectangle rect = new Rectangle();
 
 	private EventHandler<? super MouseEvent> eventHandler;
 	public ListCellImpl (NoteController caller) {
@@ -42,13 +46,14 @@ public class ListCellImpl extends ListCell<Note> {
 				caller.openNote(getItem());
 			}
 		};
+		rect.setFill(Color.BLUE);
 
 	}
 
 	@Override
 	public void updateItem(Note item, boolean empty) {
 		super.updateItem(item, empty);
-		setStyle("-fx-control-inner-background: white;");		
+	//	setStyle("-fx-control-inner-background: white;");		
 
 		if (empty || item == null) {
 			setText(null);
@@ -58,7 +63,22 @@ public class ListCellImpl extends ListCell<Note> {
 
 		} else {
 			if (item.isFolder()) {
-				setStyle("-fx-control-inner-background: yellow;");		
+				//Circle newRect = new Circle(10, Color.RED);
+				final Polygon polygon = new Polygon();
+				if (! item.getUuid().startsWith("BACKTOPARENT")) {
+				polygon.getPoints().addAll(new Double[]{
+					0.0, 0.0,
+					20.0, 10.0,
+					0.0, 20.0 });
+				} else {
+					polygon.getPoints().addAll(new Double[]{
+						20.0, 0.0,
+						0.0, 10.0,
+						20.0, 20.0 });
+				}
+				polygon.setFill(Color.LIGHTBLUE);
+                setGraphic(polygon);
+
 			} else { 
 
 			}

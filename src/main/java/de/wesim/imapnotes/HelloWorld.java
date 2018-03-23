@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -17,6 +18,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -43,13 +46,14 @@ import javafx.stage.WindowEvent;
 // Einarbeiten:
 // http://code.makery.ch/library/javafx-8-tutorial/part2/
 // Where to go from here:
-// https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Task.html
 // Services implementieren:
 // https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
 // https://gist.github.com/jewelsea/2774476
 // https://stackoverflow.com/questions/39299724/javafx-service-and-gui
 // TODOs
+// Linux: Gnome-Keyring selber öffnen, wenn nicht schon geschehen ...
+// optional: Passwort erfragen ...
 // Beim Schließen auf Änderungen prüfen
 // Icon
 // Zu Applikation bündeln
@@ -66,6 +70,9 @@ import javafx.stage.WindowEvent;
 // Exceptions !!!
 // CellFactory muss Folder anders darstellen...
 // Beim Löschen: Nächstes Element auswählen
+// Rückwärtsgehen anders implementieren
+// Bessere Farben für Back-Folder (Symbole???)
+// Zurück nicht  als Note implementieren
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
@@ -121,10 +128,18 @@ public class HelloWorld extends Application {
 				, this.noteController.allRunning)
 			);	
 
-		TilePane hbox = new TilePane(account,  status, running, p1);
-		hbox.setAlignment(Pos.CENTER_LEFT);
-		hbox.setPrefWidth(Double.MAX_VALUE);
-		//hbox.setSpacing(50);
+		GridPane hbox = new GridPane();
+		hbox.add(account, 0, 0);
+		hbox.add(status, 1, 0);
+		hbox.add(running, 2, 0);
+		hbox.add(p1, 3, 0);
+		hbox.setVgap(10);
+		hbox.setHgap(10);
+		
+		GridPane.setHgrow(account, Priority.ALWAYS);
+		GridPane.setHgrow(status, Priority.ALWAYS);
+		GridPane.setHgrow(running, Priority.ALWAYS);
+		GridPane.setHalignment(p1, HPos.RIGHT);
 		account.textProperty().bind(this.noteController.currentAccount);
 
 		BorderPane myPane = new BorderPane();
