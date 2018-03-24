@@ -51,7 +51,6 @@ public class NoteController {
 	private Note currentlyOPen = null;
 	
 	public StringProperty currentAccount = new SimpleStringProperty("");
-	//private boolean keyPressed = false;
 	
 	private Configuration config;
 	
@@ -130,17 +129,25 @@ public class NoteController {
 			noteCB.setItems(newLoadTask.getValue());
 			currentlyOPen = null;
 			// das erste Element öffnen
-			openNote(noteCB.getItems().get(0));
+			final Note firstELement = noteCB.getItems().get(0);
+			if (! firstELement.isFolder() ) {
+				openNote(firstELement);
+			}
 		});
 		
 		openMessageTask.setOnSucceeded(e -> {
-			System.out.println(openMessageTask.getValue());
 			myText.setHtmlText(openMessageTask.getValue());
 			currentlyOPen = openMessageTask.getNote();
-			noteCB.getSelectionModel().select(openMessageTask.getNote());
+			noteCB.getSelectionModel().select(currentlyOPen);
 		});
+
 		deleteNoteService.setOnSucceeded( e -> {
-			loadMessages( null );
+			final Note deleted = deleteNoteService.getNote();
+			int index = this.noteCB.getItems().indexOf(deleted);
+			this.noteCB.getItems().remove(deleted);
+			final int previousItem = Math.max(0,index - 1);
+			final Note previous = this.noteCB.getItems().get(previousItem);
+			openNote(previous);
 		});
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
@@ -202,23 +209,25 @@ public class NoteController {
 		newLoadTask.restart();
 	}
 
+	private Optional<ButtonType> demandConfirmation() {
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle("Content has changed ...");
+		alert.setContentText("Do you want to continue without saving first?");
+		return alert.showAndWait();
+	}
+
 	public void openNote(Note m) {
 		System.out.println("openNOte");
-		// if (overrideOpening) {
-		// 	return;
-		// }
+
 		if (this.currentlyOPen != null) {
 			System.out.println(this.currentlyOPen.getSubject());
 		} else {
 			System.out.println("Nicht gesetzt");
 		}
 		if (this.currentlyOPen != null && hasContentChanged(this.currentlyOPen)) {
-			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-			alert.setTitle("Content has changed ...");
-			Optional<ButtonType> result = alert.showAndWait();
+			final Optional<ButtonType> result = demandConfirmation();
 			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
-				//this.overrideOpening=true;
-				noteCB.toggleOverrideOpening();
+				//noteCB.toggleOverrideOpening();
 				noteCB.getSelectionModel().select(this.currentlyOPen);
 				return;
 			}
@@ -240,10 +249,10 @@ public class NoteController {
 		if (curMsg == null) return false;
 		
 		System.out.println(curMsg.getSubject());
-		 String oldContent = curMsg.getContent();
+		String oldContent = curMsg.getContent();
 		if (oldContent == null) return false;
 		oldContent = parse(oldContent);
-		 String newContent = myText.getHtmlText();
+		String newContent = myText.getHtmlText();
 		if (newContent == null) return false;
 		newContent = parse(newContent);
 		System.out.println(oldContent);
@@ -253,9 +262,7 @@ public class NoteController {
 	}
 
 	private String parse(String htmlContent) {
-		System.out.println("incoming:" + htmlContent);
 		final String plainContent = Jsoup.parse(htmlContent).text();
-		System.out.println("outgoing:" + plainContent);
 		return plainContent;
 	}
 
@@ -289,11 +296,18 @@ public class NoteController {
 		saveMessageTask.noteProperty().set(curMsg);
 		saveMessageTask.reset();
 		saveMessageTask.restart();
-		
 	}
 
 	public void setListView(MyListView noteCB) {
 		this.noteCB = noteCB;
+	}
+
+	public boolean exitPossible() {
+		if (!this.hasContentChanged(this.currentlyOPen)) {
+			return true;
+		}
+		final Optional<ButtonType> result = demandConfirmation();
+		return (result.isPresent() && result.get() == ButtonType.OK);
 	}
 
 	public void destroy() throws Exception {

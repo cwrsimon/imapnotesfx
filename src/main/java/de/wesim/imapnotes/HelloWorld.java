@@ -1,15 +1,9 @@
 package de.wesim.imapnotes;
 
-import java.util.Arrays;
-import java.util.Optional;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -20,24 +14,17 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.text.Text;
 import javafx.scene.web.HTMLEditor;
-import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
-// Account-Model
-// Dependency Injection
+// Sortierung nach Datum
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
 // https://github.com/bpark/weldse-javafx-integration
-// 1. Ungespeicherte Änderungen
+// 1. Ungespeicherte Änderungen beim Beenden
+// 1a. Locking
 // 2. Kontextmenüs
 // 3. Refaktorisierung: Dependency-Injection !!!
 // Für verschiedene Fensterebenen:
@@ -54,7 +41,6 @@ import javafx.stage.WindowEvent;
 // TODOs
 // Linux: Gnome-Keyring selber öffnen, wenn nicht schon geschehen ...
 // optional: Passwort erfragen ...
-// Beim Schließen auf Änderungen prüfen
 // Icon
 // Zu Applikation bündeln
 // Logging mit slf4j
@@ -68,11 +54,13 @@ import javafx.stage.WindowEvent;
 // DMG/ZIP generieren lassen ...:
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
-// CellFactory muss Folder anders darstellen...
 // Beim Löschen: Nächstes Element auswählen
 // Rückwärtsgehen anders implementieren
 // Bessere Farben für Back-Folder (Symbole???)
 // Zurück nicht  als Note implementieren
+// Löschen ohne Reload ...
+// Exceptions als Benutzermeldung bis nach oben propagieren
+// Neues Feature: Verschieben per Drag und Drop
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
@@ -152,7 +140,6 @@ public class HelloWorld extends Application {
 			this.noteController.renameCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
 		});
 		
-		
 		loadMenu.setOnAction(e -> {
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
@@ -160,13 +147,19 @@ public class HelloWorld extends Application {
 			this.noteController.loadMessages(null);
 		});
 
-		exit.setOnAction(e -> {
-			try {
-				this.noteController.destroy();
-			} catch (Exception e1) {
-				e1.printStackTrace();
+		exit.setOnAction(event -> {
+			if (this.noteController.exitPossible()) {
+				try {
+					this.noteController.destroy();
+				} catch (Exception e) {
+					System.err.println("Destroying the backend has failed ...");
+					e.printStackTrace();
+				}
+				primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			} else {
+				// Nachricht
+				System.out.println("exitPossible ist falsch ...");
 			}
-			primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
 		});
 
 		update.setOnAction(e -> {
@@ -185,7 +178,6 @@ public class HelloWorld extends Application {
 		delete.setOnAction(e -> {
 			this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
 		});
-
 		reset.setOnAction( e -> {
 			this.noteController.chooseAccount();
 		});

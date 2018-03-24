@@ -37,7 +37,7 @@ public class OpenMessageTask extends AbstractNoteService<String> {
             @Override
             protected String call() throws Exception {
                 updateProgress(0, 1);
-                updateMessage("Opening " + note.getValue().toString() + "...");
+                updateMessage("Opening " + note.getValue().getSubject() + "...");
 
                 controller.getBackend().load(getNote());
 
