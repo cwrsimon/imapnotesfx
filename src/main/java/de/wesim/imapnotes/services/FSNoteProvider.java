@@ -7,7 +7,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -24,9 +26,11 @@ public class FSNoteProvider implements INoteProvider {
 	private Path noteDirectory;
 	private Path currentDirectory;
 	private Stack<Path> folderStack;
+	private final Map<String, Path> fsMap;
 
 	public FSNoteProvider() {
 		this.folderStack = new Stack<Path>();
+		this.fsMap = new HashMap<>();
 	}
 
 	@Override
@@ -36,7 +40,7 @@ public class FSNoteProvider implements INoteProvider {
 		// TODO Subject ...
 		final Note newNote = new Note(uuid.toString());
 		newNote.setSubject(subject);
-		newNote.setImapMessage(newFile);
+		this.fsMap.put(uuid.toString(), newFile);
 		newNote.setContent(Consts.EMPTY_NOTE);
 		update(newNote);
 		return newNote;
@@ -44,7 +48,7 @@ public class FSNoteProvider implements INoteProvider {
 
 	@Override
 	public void openFolder(Note folder) throws Exception {
-		final Path path = (Path) folder.getRawImapMessage();
+		final Path path = this.fsMap.get(folder.getUuid());
 		if (Files.isDirectory(path)) {
 			this.folderStack.push(this.currentDirectory);
 			this.currentDirectory = path;
@@ -62,7 +66,7 @@ public class FSNoteProvider implements INoteProvider {
 	@Override
 	public void load(Note note) throws Exception {
 		if (note.getContent() == null) {
-			final Path path = (Path) note.getRawImapMessage();
+			final Path path = this.fsMap.get(note.getUuid());
 			final String loadedContent = new String(Files.readAllBytes(path));
 			int startIndex = loadedContent.indexOf("<html ");
 			if (startIndex == -1) {
@@ -75,14 +79,14 @@ public class FSNoteProvider implements INoteProvider {
 
 	@Override
 	public void update(Note note) throws Exception {
-		final Path path = (Path) note.getRawImapMessage();
+		final Path path = this.fsMap.get(note.getUuid());
 		final String content = "#" + note.getSubject() + System.lineSeparator() + note.getContent();
 		Files.write(path, content.getBytes("UTF-8"));
 	}
 
 	@Override
 	public void delete(Note note) throws Exception {
-		Path path = (Path) note.getRawImapMessage();
+		final Path path = this.fsMap.get(note.getUuid());
 		// TODO try, etc. 
 		Files.delete(path);
 	}
@@ -112,7 +116,8 @@ public class FSNoteProvider implements INoteProvider {
 
 	@Override
 	public List<Note> getNotes() throws Exception {
-		List<Note> notes = new ArrayList<>();
+		final List<Note> notes = new ArrayList<>();
+		this.fsMap.clear();
 		try (Stream<Path> fileStream = Files.list(this.currentDirectory)) {
 
 			fileStream.forEach(filePath -> {
@@ -121,7 +126,7 @@ public class FSNoteProvider implements INoteProvider {
 					// FIXME Dateiname muss geparst werden !!!
 					String uuid = fileName.replace(".imapnote", "");
 					final Note newNote = new Note(uuid);
-					newNote.setImapMessage(filePath);
+					this.fsMap.put(uuid, filePath);
 					final String subject = readSubject(filePath);
 					newNote.setSubject(subject);
 					notes.add(newNote);
@@ -129,9 +134,10 @@ public class FSNoteProvider implements INoteProvider {
 				if (Files.isDirectory(filePath)) {
 					// FIXME Dateiname muss geparst werden !!!
 					// String uuid = fileName.replace(".imapnote", "");
-					final Note newNote = new Note(fileName);
+					// TODO Hier eine UUID verwenden ...
+					final Note newNote = new Note(filePath.toAbsolutePath().toString());
 					newNote.setIsFolder(true);
-					newNote.setImapMessage(filePath);
+					this.fsMap.put(filePath.toAbsolutePath().toString(), filePath);
 					newNote.setSubject(fileName);
 					notes.add(newNote);
 				}
@@ -142,9 +148,10 @@ public class FSNoteProvider implements INoteProvider {
 
 		final Path prevFolder = this.folderStack.peek();
 		if (prevFolder != null) {
-			final Note newNote = new Note("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+			final String pseudoUUID = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
+			final Note newNote = new Note(pseudoUUID);
 			newNote.setIsFolder(true);
-			newNote.setImapMessage(null);
+			this.fsMap.put(pseudoUUID, null);
 			newNote.setSubject("Zurück");
 			notes.add(newNote);
 		}
@@ -161,9 +168,9 @@ public class FSNoteProvider implements INoteProvider {
 		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
 		final Path newFolderPath = this.currentDirectory.resolve(name);
 		Files.createDirectory(newFolderPath);
-		final Note newNote = new Note(name);
+		final Note newNote = new Note(newFolderPath.toAbsolutePath().toString());
 		newNote.setIsFolder(true);
-		newNote.setImapMessage(newFolderPath);
+		this.fsMap.put(newFolderPath.toAbsolutePath().toString(), newFolderPath);
 		newNote.setSubject(name);	
 		return newNote;
 	}
@@ -177,9 +184,9 @@ public class FSNoteProvider implements INoteProvider {
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		note.setSubject(newName);
-		final Path oldPath = (Path) note.getRawImapMessage();
+		final Path oldPath = this.fsMap.get(note.getUuid());
 		final Path newFolderPath = oldPath.getParent().resolve(newName);
-		note.setImapMessage(newFolderPath);
+		this.fsMap.put(note.getUuid(), newFolderPath);
 		Files.move(oldPath, newFolderPath);
 	}
 

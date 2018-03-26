@@ -1,10 +1,17 @@
 package de.wesim.imapnotes.models;
 
+import java.io.Serializable;
+
 import javax.mail.Message;
 
+// IDee:
+// Folder haben vollständige nPFad als UUID
+// Stattdessen Map von Note -> Path im NoteProvider
 // TODO Factory Methoden anlegen !!!
-public class Note {
+public class Note implements Serializable{
 
+	private static final long serialVersionUID = 1L;
+	
 	private String uuid;
 	private String subject;
 	private String content;
@@ -40,15 +47,13 @@ public class Note {
 	public String getContent()  {
 		return content;
 	}
-
-	public Object getRawImapMessage() {
-		return imapMessage;
-	}
 	
+	@Deprecated
 	public Message getImapMessage() {
 		return (Message) imapMessage;
 	}
 
+	@Deprecated
 	public void setImapMessage(Object imapMessage) {
 		this.imapMessage = imapMessage;
 	}

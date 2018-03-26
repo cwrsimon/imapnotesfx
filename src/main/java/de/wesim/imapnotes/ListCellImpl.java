@@ -6,18 +6,24 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.scene.shape.Rectangle;
 
 public class ListCellImpl extends ListCell<Note> {
 
+    private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
+
 	private NoteController caller;
 	private final ContextMenu addMenu = new ContextMenu();
 	private final ContextMenu newMenu = new ContextMenu();
-	private Rectangle rect = new Rectangle();
 
 	private EventHandler<? super MouseEvent> eventHandler;
 	public ListCellImpl (NoteController caller) {
@@ -45,10 +51,29 @@ public class ListCellImpl extends ListCell<Note> {
 				caller.openNote(getItem());
 			}
 		};
-		rect.setFill(Color.BLUE);
 
+		this.setOnDragDetected(e -> {
+			Dragboard db = this.startDragAndDrop( TransferMode.MOVE );
+            ClipboardContent content = new ClipboardContent();
+                content.putString(getItem().getUuid() );
+                db.setContent( content );
+                e.consume();
+		});
+		this.setOnDragOver( ( DragEvent event ) ->
+		{
+			Dragboard db = event.getDragboard();
+			if ( db.hasString() && getItem().isFolder())
+			{
+				System.out.println("onDragOver:" + getItem().getSubject());
+
+				event.acceptTransferModes( TransferMode.MOVE );
+			}
+			event.consume();
+		} );
 	}
 
+	
+	
 	@Override
 	public void updateItem(Note item, boolean empty) {
 		super.updateItem(item, empty);

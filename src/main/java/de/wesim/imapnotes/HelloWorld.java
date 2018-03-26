@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
+// Bewegen von Notes
 // Sortierung nach Datum
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
