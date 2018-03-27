@@ -47,16 +47,6 @@ public class Note implements Serializable{
 	public String getContent()  {
 		return content;
 	}
-	
-	@Deprecated
-	public Message getImapMessage() {
-		return (Message) imapMessage;
-	}
-
-	@Deprecated
-	public void setImapMessage(Object imapMessage) {
-		this.imapMessage = imapMessage;
-	}
 
 
 	@Override
@@ -85,7 +75,7 @@ public class Note implements Serializable{
 	}
 
 	public void setIsFolder(boolean b) {
-		this.isFolder = true;
+		this.isFolder = b;
 	}
 	
 	public boolean isFolder() {

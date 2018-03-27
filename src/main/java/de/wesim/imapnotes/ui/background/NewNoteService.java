@@ -42,6 +42,7 @@ public class NewNoteService extends AbstractNoteService<Note> {
                 if (createFolder.getValue()) {
                     newNote = controller.getBackend().createNewFolder(subject.getValue());
                 } else {
+                    System.out.println("Erstelle Notiz");
                     newNote = controller.getBackend().createNewNote(subject.getValue());
                 }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));

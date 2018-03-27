@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Stack;
 import java.util.UUID;
@@ -45,12 +46,12 @@ public class IMAPBackend {
 		return this.session;
 	}
 	
-	public Note createFolder(String name) throws MessagingException {
+	public Note createFolder(String name, Map<String, Folder> folderMap) throws MessagingException {
 		Folder newFolder = this.notesFolder.getFolder(name);
 		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
 		final Note newNote = new Note(name);
 		newNote.setSubject(name);
-		newNote.setImapMessage(newFolder);
+		folderMap.put(name, newFolder);
 		newNote.setIsFolder(true);
 		return newNote;
 	}
@@ -129,11 +130,11 @@ public class IMAPBackend {
 		this.store.close();
 	}
 
-	public List<Note> getMessages() throws MessagingException {
+	public List<Note> getMessages(Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
 		this.startTransaction();
 
 		//int totalMessages =  this.notesFolder.getMessageCount();
-		Message[] msgs =  this.notesFolder.getMessages();
+		final Message[] msgs =  this.notesFolder.getMessages();
 		// Use a suitable FetchProfile
 		FetchProfile fp = new FetchProfile();
 		fp.add(FetchProfile.Item.ENVELOPE);
@@ -153,15 +154,19 @@ public class IMAPBackend {
 			final String uuid = this.getUUIDForMessage(m);
 			final Note newNote = new Note(uuid);
 			newNote.setSubject(m.getSubject());
-			newNote.setImapMessage(m);
+			newNote.setIsFolder(false);
+			msgMap.put(uuid, m);
+			//newNote.setImapMessage(m);
 			messages.add(newNote);
 		}
 		Folder[] folders = this.notesFolder.list();
 		for (Folder f : folders) {
+			// TODO andere Benamsung 
 			final String name = f.getName();
 			final Note newNote = new Note(name);
 			newNote.setSubject(name);
-			newNote.setImapMessage(f);
+			folderMap.put(name, f);
+			//newNote.setImapMessage(f);
 			newNote.setIsFolder(true);
 			messages.add(newNote);
 		}
@@ -169,9 +174,10 @@ public class IMAPBackend {
 		if (!this.folderStack.isEmpty()) {
 			final String prevFolder = this.folderStack.peek();
 			if (prevFolder != null) {
-				final Note newNote = new Note("BACKTOPARENT" + String.valueOf(this.folderStack.size()));
+				final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
+				final Note newNote = new Note(uuid);
 				newNote.setIsFolder(true);
-				newNote.setImapMessage(null);
+				folderMap.put(uuid, null);
 				newNote.setSubject("Zurück");
 				messages.add(newNote);
 			}

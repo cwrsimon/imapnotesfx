@@ -55,16 +55,16 @@ public class ListCellImpl extends ListCell<Note> {
 		this.setOnDragDetected(e -> {
 			Dragboard db = this.startDragAndDrop( TransferMode.MOVE );
             ClipboardContent content = new ClipboardContent();
-                content.putString(getItem().getUuid() );
+                content.put(myNotes, getItem());
                 db.setContent( content );
                 e.consume();
 		});
 		this.setOnDragOver( ( DragEvent event ) ->
 		{
 			Dragboard db = event.getDragboard();
-			if ( db.hasString() && getItem().isFolder())
+			if ( db.hasContent(myNotes) && getItem().isFolder())
 			{
-				System.out.println("onDragOver:" + getItem().getSubject());
+				System.out.println("onDragOver:" + getItem());
 
 				event.acceptTransferModes( TransferMode.MOVE );
 			}

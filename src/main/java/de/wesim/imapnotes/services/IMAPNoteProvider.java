@@ -15,10 +15,14 @@ import java.util.Map;
 public class IMAPNoteProvider implements INoteProvider {
 
 	private IMAPBackend backend;
-	private Map<String, Object> msgMap;
+	private Map<String, Message> msgMap;
+	private Map<String, Folder> folderMap;
+
 	
 	public IMAPNoteProvider() {
 		this.msgMap = new HashMap<>();
+		this.folderMap = new HashMap<>();
+
 	}
 	
 
@@ -36,8 +40,9 @@ public class IMAPNoteProvider implements INoteProvider {
 	public Note createNewNote(String subject) throws Exception {
 		final Message newIMAPMsg = this.backend.createNewMessage(subject, Consts.EMPTY_NOTE);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
+		newNote.setSubject(subject);
+		newNote.setIsFolder(false);
 		this.msgMap.put(this.backend.getUUIDForMessage(newIMAPMsg), newIMAPMsg);
-		//newNote.setImapMessage(newIMAPMsg);
 		return newNote;
 	}
 
@@ -60,6 +65,7 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public void delete(Note note) throws Exception  {
 		if (note.isFolder()) {
+			// TODO verify me
 			System.out.println(backend.deleteFolder(note.getUuid()));
 		} else {
 			backend.deleteMessage( this.msgMap.get(note.getUuid()) );			
@@ -69,7 +75,8 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public List<Note> getNotes() throws Exception {
 		this.msgMap.clear();
-		return backend.getMessages();
+		this.folderMap.clear();
+		return backend.getMessages(this.msgMap, this.folderMap);
 	}
 
 	@Override
@@ -89,7 +96,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public Note createNewFolder(String name) throws Exception {
-		return this.backend.createFolder(name);
+		return this.backend.createFolder(name, this.folderMap);
 	}
 
 	@Override
@@ -103,9 +110,10 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		System.out.println("Renaming IMAP FOlder ...");
+		// TODO Folders mit einer anderen UUID versehen ...
 		Folder newFolder = this.backend.renameFolder(note.getUuid(), newName);
 		// note.setImapMessage();
-		this.msgMap.put(note.getUuid(), newFolder);
+		this.folderMap.put(note.getUuid(), newFolder);
 		note.setSubject(newName);
 		note.setUuid(newName);
 
