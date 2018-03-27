@@ -62,18 +62,14 @@ public class IMAPBackend {
 
 	public Folder renameFolder(String oldName, String newName) throws MessagingException {
 		endTransaction();
-		System.out.println("1");
 		Folder oldFolder = this.notesFolder.getFolder(oldName);
-		System.out.println("2");
 
 		Folder newFolder = this.notesFolder.getFolder(newName);
-		System.out.println("3");
 		try {
 		boolean retValue = oldFolder.renameTo(newFolder);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("Status Umbenunng:");
 		return newFolder;
 	}
 

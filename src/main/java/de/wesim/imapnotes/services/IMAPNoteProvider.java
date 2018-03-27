@@ -1,19 +1,24 @@
 package de.wesim.imapnotes.services;
 
+import javax.mail.Folder;
 import javax.mail.Message;
 
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class IMAPNoteProvider implements INoteProvider {
 
 	private IMAPBackend backend;
-
+	private Map<String, Object> msgMap;
+	
 	public IMAPNoteProvider() {
+		this.msgMap = new HashMap<>();
 	}
 	
 
@@ -31,20 +36,25 @@ public class IMAPNoteProvider implements INoteProvider {
 	public Note createNewNote(String subject) throws Exception {
 		final Message newIMAPMsg = this.backend.createNewMessage(subject, Consts.EMPTY_NOTE);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
-		newNote.setImapMessage(newIMAPMsg);
+		this.msgMap.put(this.backend.getUUIDForMessage(newIMAPMsg), newIMAPMsg);
+		//newNote.setImapMessage(newIMAPMsg);
 		return newNote;
 	}
 
 	@Override
 	public void load(Note note) throws Exception  {
 		if (note.getContent() == null) {
-			note.setContent( this.backend.getMessageContent(note.getImapMessage()) );
+			Message msg = this.msgMap.get(note.getUuid());
+			note.setContent( this.backend.getMessageContent(msg) );
 		}
 	}
 
 	@Override
 	public void update(Note note) throws Exception  {
-		note.setImapMessage( backend.updateMessageContent(note.getImapMessage(), note.getContent()) );
+		final String uuid = note.getUuid();
+		final Message oldMsg = this.msgMap.get(uuid);
+		final Message newMsg = backend.updateMessageContent(oldMsg, note.getContent());
+		this.msgMap.put(uuid, newMsg);
 	}
 
 	@Override
@@ -52,12 +62,13 @@ public class IMAPNoteProvider implements INoteProvider {
 		if (note.isFolder()) {
 			System.out.println(backend.deleteFolder(note.getUuid()));
 		} else {
-			backend.deleteMessage( note.getImapMessage() );			
+			backend.deleteMessage( this.msgMap.get(note.getUuid()) );			
 		}
 	}
 
 	@Override
 	public List<Note> getNotes() throws Exception {
+		this.msgMap.clear();
 		return backend.getMessages();
 	}
 
@@ -92,7 +103,9 @@ public class IMAPNoteProvider implements INoteProvider {
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		System.out.println("Renaming IMAP FOlder ...");
-		note.setImapMessage(this.backend.renameFolder(note.getUuid(), newName));
+		Folder newFolder = this.backend.renameFolder(note.getUuid(), newName);
+		// note.setImapMessage();
+		this.msgMap.put(note.getUuid(), newFolder);
 		note.setSubject(newName);
 		note.setUuid(newName);
 
