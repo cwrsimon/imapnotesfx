@@ -32,8 +32,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.web.HTMLEditor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NoteController {
+
+	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
 
 	private MoveNoteService moveNoteService;
 	private NewNoteService newNoteService;
@@ -170,6 +174,7 @@ public class NoteController {
 	}
 
 	public void move(Note msg, Note target) {
+		logger.info("Moving {} to {}", msg, target);
 		this.moveNoteService.setNote(msg);
 		this.moveNoteService.setFolder(target);
 		moveNoteService.reset();
@@ -177,11 +182,6 @@ public class NoteController {
 	}
 
 	public void deleteCurrentMessage(Note curMsg, boolean dontTask) {
-		if (this.allRunning.getValue() == true) {
-			return;
-		}
-		//final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
-
 		if (!dontTask) {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("Echt jetzt?");
@@ -231,7 +231,6 @@ public class NoteController {
 	}
 
 	public void openNote(Note m) {
-		System.out.println("openNOte");
 
 		if (this.currentlyOPen != null) {
 			System.out.println(this.currentlyOPen.getSubject());
@@ -246,9 +245,7 @@ public class NoteController {
 				return;
 			}
 		}
-		// if (this.allRunning.getValue() == true) {
-		// 	return;
-		// }
+		
 		System.out.println("Opening " +m.getSubject());
 		if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
@@ -262,15 +259,12 @@ public class NoteController {
 	private boolean hasContentChanged(Note curMsg) {
 		if (curMsg == null) return false;
 		
-		System.out.println(curMsg.getSubject());
 		String oldContent = curMsg.getContent();
 		if (oldContent == null) return false;
 		oldContent = parse(oldContent);
 		String newContent = myText.getHtmlText();
 		if (newContent == null) return false;
 		newContent = parse(newContent);
-		System.out.println(oldContent);
-		System.out.println(newContent);
 
 		return !oldContent.equals(newContent);
 	}
@@ -281,9 +275,6 @@ public class NoteController {
 	}
 
 	public void createNewMessage(boolean createFolder) {
-		// TODO check for unsaved changes ...
-		//this.myText.setDisable(true);
-
 		final Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("What title is the new note going to have?");

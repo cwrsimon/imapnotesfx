@@ -126,9 +126,7 @@ public class IMAPNoteProvider implements INoteProvider {
 		Folder imapFolder = this.folderMap.get(folder.getUuid());
 		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
 		return retvalue;
-	}
-
-
-
+	}	
+	
 	
 }

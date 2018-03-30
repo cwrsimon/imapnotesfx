@@ -10,6 +10,8 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -19,15 +21,12 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
-// Bewegen von Notes:
-// Entfernen ist noch buggy ...
 // Asynchron gestalten
 // Sortierung nach Datum
 // Verzeichniswechsel: Editor clearen
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
 // https://github.com/bpark/weldse-javafx-integration
-// 1. Ungespeicherte Änderungen beim Beenden
 // 1a. Locking
 // 2. Kontextmenüs
 // 3. Refaktorisierung: Dependency-Injection !!!
@@ -65,6 +64,9 @@ import javafx.stage.WindowEvent;
 // Löschen ohne Reload ...
 // Exceptions als Benutzermeldung bis nach oben propagieren
 // Neues Feature: Verschieben per Drag und Drop
+// Zurückfolder: Nur Subject heißt "Subject",
+// sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
+// oben -> komplette IMAP-Pfade als UUID speichern
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
@@ -74,8 +76,7 @@ public class HelloWorld extends Application {
 	private final Label running = new Label();
 	private final Label account = new Label();
 	
-	// TODO Binding nach NoteController erstellen
-    //private BooleanBinding allRunning;
+	
 	private NoteController noteController;
 
 	
@@ -120,7 +121,7 @@ public class HelloWorld extends Application {
 				, this.noteController.allRunning)
 			);	
 
-		GridPane hbox = new GridPane();
+		final GridPane hbox = new GridPane();
 		hbox.add(account, 0, 0);
 		hbox.add(status, 1, 0);
 		hbox.add(running, 2, 0);
@@ -134,8 +135,12 @@ public class HelloWorld extends Application {
 		GridPane.setHalignment(p1, HPos.RIGHT);
 		account.textProperty().bind(this.noteController.currentAccount);
 
+		Tab t = new Tab("main", myText);
+		TabPane tp = new TabPane();
+		tp.getTabs().add(t);
+
 		BorderPane myPane = new BorderPane();
-		myPane.setCenter(myText);
+		myPane.setCenter(tp);
 		myPane.setBottom(hbox);
 		myPane.setLeft(noteCB);
 		myPane.setTop(menuBar);
