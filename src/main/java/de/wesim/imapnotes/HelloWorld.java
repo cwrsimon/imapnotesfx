@@ -19,8 +19,11 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
-// Bewegen von Notes
+// Bewegen von Notes:
+// Entfernen ist noch buggy ...
+// Asynchron gestalten
 // Sortierung nach Datum
+// Verzeichniswechsel: Editor clearen
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
 // https://github.com/bpark/weldse-javafx-integration
@@ -177,7 +180,7 @@ public class HelloWorld extends Application {
 			this.noteController.createNewMessage(false);
 		});
 		delete.setOnAction(e -> {
-			this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
+			this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem(), false);
 		});
 		reset.setOnAction( e -> {
 			this.noteController.chooseAccount();

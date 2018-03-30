@@ -14,6 +14,7 @@ import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
 import de.wesim.imapnotes.ui.background.DeleteMessageTask;
 import de.wesim.imapnotes.ui.background.LoadMessageTask;
+import de.wesim.imapnotes.ui.background.MoveNoteService;
 import de.wesim.imapnotes.ui.background.NewNoteService;
 import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
@@ -34,6 +35,7 @@ import javafx.scene.web.HTMLEditor;
 
 public class NoteController {
 
+	private MoveNoteService moveNoteService;
 	private NewNoteService newNoteService;
 	private INoteProvider backend;
 	private final ProgressBar progressBar;
@@ -102,6 +104,7 @@ public class NoteController {
 	}
 
 	private void initAsyncTasks() {
+		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
 		this.saveMessageTask = new SaveMessageTask(this, this.progressBar, this.status);
 		this.newLoadTask = new LoadMessageTask(this, this.progressBar, this.status);
 		this.openMessageTask = new OpenMessageTask(this, this.progressBar, this.status);
@@ -110,7 +113,6 @@ public class NoteController {
 		this.deleteNoteService = new DeleteMessageTask(this, this.progressBar, this.status);
 		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded( e -> {
-			System.out.println("Neu erstelle NAchricht");
 			this.noteCB.getItems().add(newNoteService.getValue());
 			openNote(newNoteService.getValue());
 		});
@@ -149,6 +151,10 @@ public class NoteController {
 			final Note previous = this.noteCB.getItems().get(previousItem);
 			openNote(previous);
 		});
+		moveNoteService.setOnSucceeded( e -> {
+			final Note moved = moveNoteService.getNote();
+			deleteCurrentMessage(moved, true);
+		});
 		openFolderTask.setOnSucceeded( e-> {
 			openFolderTask.noteFolderProperty().set(null);
 			loadMessages( null );
@@ -163,12 +169,20 @@ public class NoteController {
 		openAccount(first);
 	}
 
-	public void deleteCurrentMessage(Note curMsg) {
+	public void move(Note msg, Note target) {
+		this.moveNoteService.setNote(msg);
+		this.moveNoteService.setFolder(target);
+		moveNoteService.reset();
+		moveNoteService.restart();
+	}
+
+	public void deleteCurrentMessage(Note curMsg, boolean dontTask) {
 		if (this.allRunning.getValue() == true) {
 			return;
 		}
 		//final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
 
+		if (!dontTask) {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("Echt jetzt?");
 		alert.setContentText("Do really want to delete '" + curMsg.getSubject() + "' ?");
@@ -176,7 +190,7 @@ public class NoteController {
 		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 			return;
 		}
-		
+		}
 		deleteNoteService.noteProperty().set(curMsg);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
@@ -300,6 +314,10 @@ public class NoteController {
 
 	public void setListView(MyListView noteCB) {
 		this.noteCB = noteCB;
+	}
+
+	public MyListView getListView() {
+		return this.noteCB;
 	}
 
 	public boolean exitPossible() {

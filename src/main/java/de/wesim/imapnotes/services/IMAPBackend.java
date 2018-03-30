@@ -332,5 +332,18 @@ public class IMAPBackend {
         this.endTransaction();
    }
 	
-	
+	public boolean moveMessage(Message msg, Folder folder) {
+		try {
+			this.startTransaction();
+
+			getNotesFolder().copyMessages(new Message[]{msg}, folder);
+			this.endTransaction();
+
+			return true;
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

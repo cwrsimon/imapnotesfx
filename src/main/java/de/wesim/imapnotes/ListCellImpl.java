@@ -30,7 +30,7 @@ public class ListCellImpl extends ListCell<Note> {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		addMenu.getItems().add(deleteItem);
 		deleteItem.setOnAction(e -> {
-			caller.deleteCurrentMessage(getItem());
+			caller.deleteCurrentMessage(getItem(), false);
 		});
 		final MenuItem renameItem = new MenuItem("Rename");
 		addMenu.getItems().add(renameItem);
@@ -70,6 +70,39 @@ public class ListCellImpl extends ListCell<Note> {
 			}
 			event.consume();
 		} );
+		this.setOnDragEntered(( DragEvent event ) -> {
+			/* the drag-and-drop gesture entered the target */
+			/* show to the user that it is an actual gesture target */
+				 if (event.getGestureSource() != getItem() &&
+						 event.getDragboard().hasContent(myNotes)
+						 && getItem().isFolder()) {
+					 this.setUnderline(true);
+				 }
+						
+				 event.consume();
+			}
+		);
+		this.setOnDragExited(( DragEvent event ) -> {
+				 this.setUnderline(false);
+				 event.consume();
+			}
+		);
+		// Beim Ziel, hier muss dann verschoben werden ...
+		this.setOnDragDropped(( DragEvent event ) -> {
+			/* data dropped */
+    	    /* if there is a string data on dragboard, read it and use it */
+			Dragboard db = event.getDragboard();
+			Note source = (Note) db.getContent(myNotes);
+			caller.move(source, getItem());
+        	/* let the source know whether the string was successfully 
+         	 * transferred and used */
+        	event.setDropCompleted(true);    
+	        event.consume();
+	   });
+	//    this.setOnDragDone(( DragEvent event ) -> {
+	// 	event.consume();
+   	// 	}
+	//);
 	}
 
 	

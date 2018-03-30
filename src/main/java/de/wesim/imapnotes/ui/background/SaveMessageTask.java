@@ -37,12 +37,9 @@ public class SaveMessageTask extends AbstractNoteService<Void> {
             protected Void call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Beginne mit dem Speichern ...");
-
                 controller.getBackend().update(getNote());
-                //Thread.sleep(2000);
                 updateMessage("Speichern erfolgreich!");
                 updateProgress(1, 1);
-
                 return null;
             }
         };

@@ -196,4 +196,10 @@ public class FSNoteProvider implements INoteProvider {
 		System.out.println(this.noteDirectory.toString());
 		this.currentDirectory = this.noteDirectory;
 	}
+
+	@Override
+	public boolean move(Note msg, Note folder) {
+		// TODO 
+		return false;
+	}
 }

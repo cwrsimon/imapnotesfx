@@ -120,6 +120,15 @@ public class IMAPNoteProvider implements INoteProvider {
 	}
 
 
+	@Override
+	public boolean move(Note message, Note folder) {
+		Message msg = this.msgMap.get(message.getUuid());
+		Folder imapFolder = this.folderMap.get(folder.getUuid());
+		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
+		return retvalue;
+	}
+
+
 
 	
 }
