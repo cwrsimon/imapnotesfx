@@ -51,6 +51,7 @@ public class IMAPBackend {
 		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
 		final Note newNote = new Note(name);
 		newNote.setSubject(name);
+		newNote.setDate(new Date());
 		folderMap.put(name, newFolder);
 		newNote.setIsFolder(true);
 		return newNote;
@@ -133,9 +134,7 @@ public class IMAPBackend {
 	public List<Note> getMessages(Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
 		this.startTransaction();
 
-		//int totalMessages =  this.notesFolder.getMessageCount();
 		final Message[] msgs =  this.notesFolder.getMessages();
-		// Use a suitable FetchProfile
 		FetchProfile fp = new FetchProfile();
 		fp.add(FetchProfile.Item.ENVELOPE);
 		fp.add(FetchProfile.Item.FLAGS);
@@ -157,6 +156,8 @@ public class IMAPBackend {
 			newNote.setIsFolder(false);
 			msgMap.put(uuid, m);
 			//newNote.setImapMessage(m);
+			newNote.setDate(m.getReceivedDate());
+
 			messages.add(newNote);
 		}
 		Folder[] folders = this.notesFolder.list();
@@ -168,6 +169,7 @@ public class IMAPBackend {
 			folderMap.put(name, f);
 			//newNote.setImapMessage(f);
 			newNote.setIsFolder(true);
+			newNote.setDate(new Date());
 			messages.add(newNote);
 		}
 		
@@ -179,6 +181,7 @@ public class IMAPBackend {
 				newNote.setIsFolder(true);
 				folderMap.put(uuid, null);
 				newNote.setSubject("Zurück");
+				newNote.setDate(new Date());
 				messages.add(newNote);
 			}
 			
@@ -241,12 +244,9 @@ public class IMAPBackend {
 		// Flag setzen bevor(!) angehängt wird
 		newMsg.setFlag(Flag.SEEN, true);
 		Message[] newIMAPMessage = new Message[]{newMsg};
-		//newMsg.setFlag(Flag.SEEN, true);
 		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
 		deleteMessageObject(currentMessage);
 		endTransaction();
-		//markSeen(currentMessage);
-//		this.deleteMessageObject(currentMessage);
 		return resultMessage[0];
 	}
 

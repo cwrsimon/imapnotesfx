@@ -42,12 +42,13 @@ dependencies {
     compile 'net.east301:java-keyring:1.0.1-SNAPSHOT'
     compile 'org.jsoup:jsoup:1.11.2'
     compile 'org.slf4j:slf4j-jdk14:1.7.25'
+    compile 'org.controlsfx:controlsfx:9.0.0'
 
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
 }
 
 // Define the main class for the application
-mainClassName = 'de.wesim.imapnotes.HelloWorld'
-//mainClassName = 'InitPassword'
+//mainClassName = 'de.wesim.imapnotes.App'
+mainClassName = 'App'
 

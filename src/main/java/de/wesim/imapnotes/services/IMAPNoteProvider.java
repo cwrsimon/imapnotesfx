@@ -7,6 +7,8 @@ import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ public class IMAPNoteProvider implements INoteProvider {
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setSubject(subject);
 		newNote.setIsFolder(false);
+		newNote.setDate(new Date());
 		this.msgMap.put(this.backend.getUUIDForMessage(newIMAPMsg), newIMAPMsg);
 		return newNote;
 	}
@@ -76,7 +79,9 @@ public class IMAPNoteProvider implements INoteProvider {
 	public List<Note> getNotes() throws Exception {
 		this.msgMap.clear();
 		this.folderMap.clear();
-		return backend.getMessages(this.msgMap, this.folderMap);
+		List<Note> notes = this.backend.getMessages(this.msgMap, this.folderMap);
+		Collections.sort(notes);
+		return notes;
 	}
 
 	@Override
@@ -127,6 +132,5 @@ public class IMAPNoteProvider implements INoteProvider {
 		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
 		return retvalue;
 	}	
-	
 	
 }

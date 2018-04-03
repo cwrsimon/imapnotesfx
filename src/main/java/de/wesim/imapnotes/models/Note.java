@@ -1,6 +1,7 @@
 package de.wesim.imapnotes.models;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.mail.Message;
 
@@ -8,7 +9,7 @@ import javax.mail.Message;
 // Folder haben vollständige nPFad als UUID
 // Stattdessen Map von Note -> Path im NoteProvider
 // TODO Factory Methoden anlegen !!!
-public class Note implements Serializable{
+public class Note implements Serializable, Comparable<Note>  {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -17,8 +18,7 @@ public class Note implements Serializable{
 	private String content;
 	private boolean isFolder;
 	
-	// FIXME
-	private Object imapMessage;
+	private Date date;
 	
 	public Note(String uuid) {
 		this.uuid = uuid;
@@ -80,6 +80,19 @@ public class Note implements Serializable{
 	
 	public boolean isFolder() {
 		return this.isFolder;
+	}
+
+	public void setDate(Date newDate) {
+		this.date = newDate;
+	}
+
+	public Date getDate() {
+		return this.date;
+	}
+
+	@Override
+	public int compareTo(Note o) {
+		return o.getDate().compareTo(this.getDate());
 	}
 	
 	
