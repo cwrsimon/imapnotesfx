@@ -17,6 +17,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.web.HTMLEditor;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -99,6 +100,8 @@ public class HelloWorld extends Application {
 		Menu menu = new Menu("File");
 		MenuItem reset   = new MenuItem("Switch Account ...");
 		MenuItem loadMenu = new MenuItem("Reload");
+		MenuItem preferences = new MenuItem("Preferences");
+
 		MenuItem exit = new MenuItem("Exit");
 
 		Menu msgMenu = new Menu("Notes");
@@ -112,7 +115,7 @@ public class HelloWorld extends Application {
 
 		menuBar.getMenus().add(menu);
 		menuBar.getMenus().add(msgMenu);
-		menu.getItems().addAll(loadMenu, reset, new SeparatorMenuItem(), exit);
+		menu.getItems().addAll(loadMenu, reset, preferences, new SeparatorMenuItem(), exit);
 		msgMenu.getItems().addAll(newFolder, new SeparatorMenuItem(), newMenu, delete, update, renameNote);
 		
 		this.running.textProperty().bind(
@@ -189,6 +192,14 @@ public class HelloWorld extends Application {
 		});
 		reset.setOnAction( e -> {
 			this.noteController.chooseAccount();
+		});
+		preferences.setOnAction( e-> {
+			MyApp bla = new MyApp();
+			final Stage newStage = new Stage();
+			newStage.initModality(Modality.APPLICATION_MODAL);
+			newStage.initOwner(primaryStage);
+			newStage.setScene(bla.getScene());
+			newStage.showAndWait();
 		});
 
 		Scene myScene = new Scene(myPane);

@@ -1,8 +1,10 @@
 package de.wesim.imapnotes.models;
 
+
+
 public class Account {
 
-    private String type;
+    private Account_Type type;
     private String account_name;
     private String hostname;
     private String login;
@@ -12,8 +14,6 @@ public class Account {
     public Account() {
 
     }
-
-    	
     
 	public String getFrom_address() {
 		return from_address;
@@ -27,11 +27,11 @@ public class Account {
 
 
 
-	public String getType() {
+	public Account_Type getType() {
 		return type;
 	}
 
-	public void setType(String type) {
+	public void setType(Account_Type type) {
 		this.type = type;
 	}
 

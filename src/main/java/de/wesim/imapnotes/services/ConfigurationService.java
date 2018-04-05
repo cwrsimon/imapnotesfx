@@ -9,6 +9,7 @@ import java.util.Set;
 
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 
 public class ConfigurationService {
@@ -46,7 +47,7 @@ public class ConfigurationService {
 			final String propertyValue = imapSettings.getProperty(propertyName);
             switch (items[0]) {
             	case "account_type":
-            		acc.setType(propertyValue);
+            		acc.setType(Account_Type.valueOf(propertyValue));
             		break;
             	case "account_name":
             		acc.setAccount_name(propertyValue);
@@ -68,7 +69,6 @@ public class ConfigurationService {
             		break;
             }
 		}
-		System.out.println(accounts.size());            
 		newConfig.getAccountList().addAll(accounts.values());
 
         return newConfig;

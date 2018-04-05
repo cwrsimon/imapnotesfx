@@ -49,6 +49,5 @@ dependencies {
 }
 
 // Define the main class for the application
-//mainClassName = 'de.wesim.imapnotes.App'
-mainClassName = 'App'
+mainClassName = 'de.wesim.imapnotes.HelloWorld'
 
