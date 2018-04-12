@@ -7,12 +7,21 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 
 public class ConfigurationService {
+
+	private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
+
+	public static void writeConfig(Configuration config) {
+		// TODO implement me
+	}
 
     public static Configuration readConfig() {
 
@@ -32,12 +41,12 @@ public class ConfigurationService {
         	System.out.println("propertyName:" + propertyName);
             final String[] items = propertyName.split("\\.");
             if (items.length != 2) {
-                // TODO Log error
+				logger.error("Invalid property name: {}", propertyName);
                 continue;
             }
 
             String key = items[1];
-        	System.out.println("key:" + key);
+        	//logger.debug("key:" + key);
 
             Account acc = accounts.get(key);
             if (acc == null) {
@@ -65,7 +74,7 @@ public class ConfigurationService {
             		acc.setFrom_address(propertyValue);
             		break;
             	default:
-            		System.err.println("Unknown property name:" + items[1]);
+            		logger.error("Unknown property name: {}", items[1]);
             		break;
             }
 		}

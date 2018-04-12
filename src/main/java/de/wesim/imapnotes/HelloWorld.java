@@ -22,6 +22,10 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
+// Neuer Editor:
+// https://docs.oracle.com/javase/8/javafx/embedded-browser-tutorial/js-commands.htm
+// Editor-View: Icon für URLs hinzufügen
+// URLS müssen in einem separaten Fesnter geöffnet werden ...
 // Asynchron gestalten
 // Sortierung nach Datum
 // Verzeichniswechsel: Editor clearen
@@ -68,6 +72,8 @@ import javafx.stage.WindowEvent;
 // Zurückfolder: Nur Subject heißt "Subject",
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
 // oben -> komplette IMAP-Pfade als UUID speichern
+// 
+// https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
@@ -194,7 +200,7 @@ public class HelloWorld extends Application {
 			this.noteController.chooseAccount();
 		});
 		preferences.setOnAction( e-> {
-			MyApp bla = new MyApp();
+			Preferences bla = new Preferences();
 			final Stage newStage = new Stage();
 			newStage.initModality(Modality.APPLICATION_MODAL);
 			newStage.initOwner(primaryStage);
@@ -202,7 +208,7 @@ public class HelloWorld extends Application {
 			newStage.showAndWait();
 		});
 
-		Scene myScene = new Scene(myPane);
+		final Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
 		primaryStage.setWidth(1024);
 		primaryStage.setHeight(500);
@@ -211,7 +217,7 @@ public class HelloWorld extends Application {
 			System.err.println("Quitting application.");
 		});
 		this.noteController.startup();;
-
+		
 	}
 
 	public static void main(String[] args) {

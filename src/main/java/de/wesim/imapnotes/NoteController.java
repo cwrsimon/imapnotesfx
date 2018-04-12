@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.jsoup.Jsoup;
 
 import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
@@ -88,7 +89,7 @@ public class NoteController {
 				e.printStackTrace();
 			}
 		}
-		if (first.getType().equals("FS")) {
+		if (first.getType() == Account_Type.FS) {
 			this.backend = new FSNoteProvider();
 		} else {
 			this.backend = new IMAPNoteProvider();

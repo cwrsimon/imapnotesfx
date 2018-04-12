@@ -21,6 +21,7 @@ eclipse {
             whenMerged {
                 def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
                 jre.accessRules.add(new AccessRule('0', 'javafx/**'))
+                jre.accessRules.add(new AccessRule('1', 'com.sun.javafx/**'))
             }
         }
     }
@@ -49,5 +50,6 @@ dependencies {
 }
 
 // Define the main class for the application
-mainClassName = 'de.wesim.imapnotes.HelloWorld'
+//mainClassName = 'de.wesim.imapnotes.HelloWorld'
+mainClassName = 'CodeEditorExample'
 
