@@ -24,21 +24,17 @@ public class CodeEditorExample extends Application {
     Label title = new Label("Editing: CodeEditor.java");
     title.setStyle("-fx-font-size: 20;");
     final Label labeledCode = new Label(editingCode);
-    final CodeEditor editor = new CodeEditor(editingCode);
-    final Button revertEdits = new Button("Revert edits");
-    revertEdits.setOnAction(new EventHandler<ActionEvent>() {
-      @Override public void handle(ActionEvent actionEvent) {
-        editor.revertEdits();
-      }
+    final CodeEditor editor = new CodeEditor();
+    final Button revertEdits = new Button("Get");
+    revertEdits.setOnAction(e -> {
+      System.out.println(editor.getHTMLContent());
     });
+    
     final Button copyCode = new Button(
-      "Take a snapshot from the editor and set a revert point"
+      "set Content"
     );
-    copyCode.setOnAction(new EventHandler<ActionEvent>() {
-      @Override public void handle(ActionEvent actionEvent) {
-        //labeledCode.setText(editor.getCodeAndSnapshot());
-        System.out.println(editor.getCodeAndSnapshot());
-      }
+    copyCode.setOnAction(e -> {
+      editor.setHTMLContent("<p>Hello World</p>");
     });
 
     // layout the scene.
@@ -47,7 +43,7 @@ public class CodeEditorExample extends Application {
 
     final VBox layout =  new VBox(title, editor, hbox, labeledCode);
     layout.setSpacing(10);
-    layout.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
+   // layout.setStyle("-fx-background-color: cornsilk; -fx-padding: 10;");
 
     // display the scene.
     final Scene scene = new Scene(layout);

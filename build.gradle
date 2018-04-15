@@ -50,6 +50,6 @@ dependencies {
 }
 
 // Define the main class for the application
-//mainClassName = 'de.wesim.imapnotes.HelloWorld'
-mainClassName = 'CodeEditorExample'
+mainClassName = 'de.wesim.imapnotes.HelloWorld'
+//mainClassName = 'CodeEditorExample'
 
