@@ -21,6 +21,7 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.background.SaveMessageTask;
+import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -52,7 +53,7 @@ public class NoteController {
 	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask ;
 	private OpenFolderTask openFolderTask;
-	private HTMLEditor myText;
+	private QuillEditor myText;
 	private MyListView noteCB;
 	
 	private Note currentlyOPen = null;
@@ -104,7 +105,7 @@ public class NoteController {
 		loadMessages(null);
 	}
 
-	public void setHTMLEditor(HTMLEditor node) {
+	public void setHTMLEditor(QuillEditor node) {
 		this.myText = node;
 	}
 

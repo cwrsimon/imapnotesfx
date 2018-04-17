@@ -1,5 +1,6 @@
 package de.wesim.imapnotes;
 
+import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
@@ -78,7 +79,8 @@ import javafx.stage.WindowEvent;
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 
-	private final HTMLEditor myText = new HTMLEditor();
+	//private final HTMLEditor myText = new HTMLEditor();
+	private final QuillEditor myText = new QuillEditor();
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	private final Label running = new Label();
@@ -213,6 +215,7 @@ public class HelloWorld extends Application {
 		primaryStage.setScene(myScene);
 		primaryStage.setWidth(1024);
 		primaryStage.setHeight(500);
+		primaryStage.setResizable(true);
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
 			System.err.println("Quitting application.");

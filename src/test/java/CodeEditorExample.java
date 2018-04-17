@@ -1,3 +1,4 @@
+import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -19,11 +20,13 @@ public class CodeEditorExample extends Application {
     "Bla";
 
   public static void main(String[] args) { launch(args); }
-  @Override public void start(Stage stage) throws Exception {
+  
+  @Override
+  public void start(Stage stage) throws Exception {
     // create the editing controls.
     Label title = new Label("Editing: CodeEditor.java");
     final Label labeledCode = new Label(editingCode);
-    final CodeEditor editor = new CodeEditor();
+    final QuillEditor editor = new QuillEditor();
     final Button revertEdits = new Button("Get");
     revertEdits.setOnAction(e -> {
       System.out.println(editor.getFullHTMLContent());
