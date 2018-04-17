@@ -22,12 +22,11 @@ public class CodeEditorExample extends Application {
   @Override public void start(Stage stage) throws Exception {
     // create the editing controls.
     Label title = new Label("Editing: CodeEditor.java");
-    title.setStyle("-fx-font-size: 20;");
     final Label labeledCode = new Label(editingCode);
     final CodeEditor editor = new CodeEditor();
     final Button revertEdits = new Button("Get");
     revertEdits.setOnAction(e -> {
-      System.out.println(editor.getHTMLContent());
+      System.out.println(editor.getFullHTMLContent());
     });
     
     final Button copyCode = new Button(

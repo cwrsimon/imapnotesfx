@@ -1,3 +1,6 @@
+
+import org.apache.commons.text.StringEscapeUtils;
+
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 
@@ -6,6 +9,12 @@ public class CodeEditor extends StackPane {
   final WebView webview = new WebView();
 
 
+  public String getFullHTMLContent() {
+    final String editingCode = (String) webview.getEngine().
+          executeScript("getQuillContent();");
+    return "<html><head></head><body contenteditable=\"true\">" + editingCode + "</body></html>";
+  }
+
   public String getHTMLContent() {
     final String editingCode = (String) webview.getEngine().
           executeScript("getQuillContent();");
@@ -13,7 +22,8 @@ public class CodeEditor extends StackPane {
   }
 
   public void setHTMLContent(String content) {
-    webview.getEngine().executeScript("setQuillContent('" + content +  "');");
+    final String content_js = StringEscapeUtils.escapeEcmaScript(content);
+    webview.getEngine().executeScript("setQuillContent('" + content_js +  "');");
   }
 
   CodeEditor() {
