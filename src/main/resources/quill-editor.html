@@ -36,7 +36,8 @@
     };
 
     setQuillContent = function(content) {
-        quill.root.innerHTML = content;
+        quill.setText("");
+        quill.clipboard.dangerouslyPasteHTML(0, content);
     }
   </script>
 </body>
