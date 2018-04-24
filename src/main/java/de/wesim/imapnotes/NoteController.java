@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.jsoup.Jsoup;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
@@ -21,6 +23,7 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.background.SaveMessageTask;
+import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -33,8 +36,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextInputDialog;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class NoteController {
 
@@ -64,10 +65,14 @@ public class NoteController {
 	public NoteController(ProgressBar progressBar, Label status) {
 		this.progressBar = progressBar;
 		this.status = status;
-		this.config = ConfigurationService.readConfig();
+		this.refreshConfig();
 		this.initAsyncTasks();
 	}
 
+	public void refreshConfig() {
+		this.config = ConfigurationService.readConfig();
+	}
+	
 	public void chooseAccount() {
 		List<Account> availableAccounts = this.config.getAccountList();
 		ChoiceDialog<Account> cd = new ChoiceDialog<>(availableAccounts.get(0), availableAccounts);

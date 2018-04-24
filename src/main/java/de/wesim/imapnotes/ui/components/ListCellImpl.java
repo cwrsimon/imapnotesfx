@@ -1,6 +1,7 @@
 
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.components;
 
+import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;

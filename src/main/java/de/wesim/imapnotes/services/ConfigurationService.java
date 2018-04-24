@@ -27,7 +27,6 @@ public class ConfigurationService {
 	}
 
 	public static void writeConfig(Configuration config) {
-		// TODO implement me
 		logger.info("Writing config ...");
 		Properties imapSettings = new Properties();
 		for (int i=0; i< config.getAccountList().size(); i++) {
@@ -40,7 +39,8 @@ public class ConfigurationService {
 			addProp(imapSettings, "from_address", acc.getFrom_address(), i);
 		}
 		try {
-			imapSettings.store(Files.newOutputStream(Paths.get("/Users/christian/bla.properties")), "bla");
+			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
+						"Update ImapNotesFX configuration");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

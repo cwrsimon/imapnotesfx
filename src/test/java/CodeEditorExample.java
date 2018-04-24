@@ -1,5 +1,6 @@
 import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.Application;
+import javafx.application.HostServices;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
@@ -26,7 +27,7 @@ public class CodeEditorExample extends Application {
     // create the editing controls.
     Label title = new Label("Editing: CodeEditor.java");
     final Label labeledCode = new Label(editingCode);
-    final QuillEditor editor = new QuillEditor();
+    final QuillEditor editor = new QuillEditor(getHostServices());
     final Button revertEdits = new Button("Get");
     revertEdits.setOnAction(e -> {
       System.out.println(editor.getFullHTMLContent());

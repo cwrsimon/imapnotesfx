@@ -1,4 +1,4 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.ui.views;
 
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
