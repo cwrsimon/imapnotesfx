@@ -33,7 +33,6 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextInputDialog;
-import javafx.scene.web.HTMLEditor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,9 +65,7 @@ public class NoteController {
 		this.progressBar = progressBar;
 		this.status = status;
 		this.config = ConfigurationService.readConfig();
-		
 		this.initAsyncTasks();
-
 	}
 
 	public void chooseAccount() {
@@ -202,8 +199,6 @@ public class NoteController {
 		if (this.allRunning.getValue() == true) {
 			return;
 		}
-		//final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
-
 		final Dialog dialog = new TextInputDialog("");
 		dialog.setTitle("Make a choice");
 		dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
@@ -247,8 +242,7 @@ public class NoteController {
 				return;
 			}
 		}
-		
-		System.out.println("Opening " +m.getSubject());
+		logger.info("Opening {}", m.getSubject());
 		if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
 			this.openMessageTask.restart();
@@ -280,7 +274,7 @@ public class NoteController {
 		final Dialog dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("What title is the new note going to have?");
-		Optional<String> result = dialog.showAndWait();
+		final Optional<String> result = dialog.showAndWait();
 		String entered = "N/A";
 		if (result.isPresent()) {
 			entered = result.get();

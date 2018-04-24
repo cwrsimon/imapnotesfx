@@ -19,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Skin;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -82,7 +83,12 @@ private void initScene() {
     Button delete = new Button("Delete");
     Button save = new Button("Save");
 
-    VBox myPane = new VBox(ps, button, delete);
+    HBox buttonBar = new HBox(button, delete, save);
+    VBox myPane = new VBox(ps, buttonBar);
+    save.setOnAction( e-> {
+        // TODO Asynchron auslagren ???
+        ConfigurationService.writeConfig(configuration);
+    });
     button.setOnAction( e-> {
         final Account newAccount = configuration.createNewAccount();
         ps.getItems().addAll(createPrefItemsFromAccount(newAccount));
@@ -99,7 +105,6 @@ private void initScene() {
         configuration.deleteAccount(currentAccount);
         ps.getItems().clear();
         updateEverything(ps, configuration);
-
     });
 
 	this.myScene = new Scene(myPane);

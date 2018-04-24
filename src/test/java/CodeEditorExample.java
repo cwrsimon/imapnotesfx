@@ -36,7 +36,7 @@ public class CodeEditorExample extends Application {
       "set Content"
     );
     copyCode.setOnAction(e -> {
-      editor.setHTMLContent("<p>Hello World</p>");
+      editor.setHTMLContent("<p><a href=\"https://www.faz.net\">FAZ</a></p>");
     });
 
     // layout the scene.

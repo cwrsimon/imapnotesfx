@@ -71,7 +71,6 @@ public class PasswordProvider {
         // LockException is thrown when keyring backend failed to lock key store file.
         try {
             String password = keyring.getPassword(Consts.KEYSTORE_SERVICE_NAME, "de.wesim");
-            System.out.println(password);
             return password;
         } catch (LockException ex) {
             Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);

@@ -22,8 +22,9 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-// TODO
-// http://commons.apache.org/proper/commons-lang/javadocs/api-2.6/org/apache/commons/lang/StringEscapeUtils.html
+// https://stackoverflow.com/questions/15555510/javafx-stop-opening-url-in-webview-open-in-browser-instead
+// https://stackoverflow.com/questions/25622515/desktop-class-in-javafx#25625871
+
 // Neuer Editor:
 // https://docs.oracle.com/javase/8/javafx/embedded-browser-tutorial/js-commands.htm
 // Editor-View: Icon für URLs hinzufügen
@@ -67,6 +68,7 @@ import javafx.stage.WindowEvent;
 // Beim Löschen: Nächstes Element auswählen
 // Rückwärtsgehen anders implementieren
 // Bessere Farben für Back-Folder (Symbole???)
+// Aktuellen Pfad anzeigen
 // Zurück nicht  als Note implementieren
 // Löschen ohne Reload ...
 // Exceptions als Benutzermeldung bis nach oben propagieren
@@ -74,8 +76,7 @@ import javafx.stage.WindowEvent;
 // Zurückfolder: Nur Subject heißt "Subject",
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
 // oben -> komplette IMAP-Pfade als UUID speichern
-// 
-// https://developer.mozilla.org/en-US/docs/Web/API/Document/execCommand
+// Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 public class HelloWorld extends Application {
 
 	private MyListView noteCB; 

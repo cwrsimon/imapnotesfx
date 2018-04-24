@@ -3,9 +3,21 @@ package de.wesim.imapnotes.ui.components;
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventListener;
+import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLAnchorElement;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.layout.StackPane;
+import javafx.scene.web.PopupFeatures;
+import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.util.Callback;
 
 public class QuillEditor extends StackPane {
   /** a webview used to encapsulate the CodeMirror JavaScript. */
@@ -16,6 +28,7 @@ public class QuillEditor extends StackPane {
   public String getFullHTMLContent() {
     final String editingCode = (String) webview.getEngine().
           executeScript("getQuillContent();");
+        
     return "<html><head></head><body contenteditable=\"true\">" + editingCode + "</body></html>";
   }
 
@@ -30,6 +43,29 @@ public class QuillEditor extends StackPane {
 	  }
 
   public void setHTMLContent(String content) {
+
+    Element nodeList = webview.getEngine().getDocument().getElementById("editor");
+    // for (int i = 0; i < nodeList.getLength(); i++)
+    // {
+    //     Node node= nodeList.item(i);
+        EventTarget eventTarget = (EventTarget) nodeList;
+        eventTarget.addEventListener("click", new EventListener()
+        {
+            @Override
+            public void handleEvent(Event evt)
+            {
+                EventTarget target = evt.getCurrentTarget();
+                System.out.println("Und klick target:"+target.getClass().getName());
+                System.out.println("Und klick target:"+evt.getTarget().getClass().getName());
+
+                // HTMLAnchorElement anchorElement = (HTMLAnchorElement) target;
+                // String href = anchorElement.getHref();
+                // //handle opening URL outside JavaFX WebView
+                // System.out.println(href);
+                evt.preventDefault();
+            }
+        }, false);
+
     final String content_js = StringEscapeUtils.escapeEcmaScript(content);
     webview.getEngine().executeScript("setQuillContent('" + content_js +  "');");
   }
@@ -48,5 +84,31 @@ public class QuillEditor extends StackPane {
     webview.getEngine().load(content);
 
     this.getChildren().add(webview);
+    // webview.getEngine().setWe
+   // webview.getEngine().locationProperty().
+    // webview.getEngine().locationProperty().addListener(new ChangeListener<String>() {
+
+		//   @Override
+    //   public void changed(ObservableValue<? extends String> observable, 
+    //                           String oldValue, String newValue) {
+    //     System.out.println(oldValue);
+    //     System.out.println(newValue);
+    //    // webview.getEngine().getLoadWorker().cancel();
+    //     return;
+		//   }
+    // });
+
+   
+           // }
+    //  webview.getEngine().setCreatePopupHandler(new Callback<PopupFeatures, WebEngine>() {
+
+		// @Override
+		// public WebEngine call(PopupFeatures param) {
+      
+    //   //System.out.println("Popup Handler:" + param.);
+		// 	return null;
+		// }
+      
+    // });
   }
 }

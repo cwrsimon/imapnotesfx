@@ -37,7 +37,7 @@
 
     setQuillContent = function(content) {
         quill.setText("");
-        quill.clipboard.dangerouslyPasteHTML(0, content);
+        quill.clipboard.dangerouslyPasteHTML(content, "api");
     }
   </script>
 </body>

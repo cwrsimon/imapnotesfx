@@ -2,6 +2,7 @@ package de.wesim.imapnotes.services;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -19,8 +20,32 @@ public class ConfigurationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
+	private static void addProp(Properties props, String name, String value, int i) {
+		if (value == null) return;
+		if (value.trim().length() == 0) return;
+		props.put(name + "." + String.valueOf(i), value);
+	}
+
 	public static void writeConfig(Configuration config) {
 		// TODO implement me
+		logger.info("Writing config ...");
+		Properties imapSettings = new Properties();
+		for (int i=0; i< config.getAccountList().size(); i++) {
+			Account acc = config.getAccountList().get(i);
+			addProp(imapSettings, "account_name", acc.getAccount_name(), i);
+			addProp(imapSettings, "account_type", acc.getType().toString(), i);
+			addProp(imapSettings, "hostname", acc.getHostname(), i);
+			addProp(imapSettings, "login", acc.getLogin(), i);
+			addProp(imapSettings, "root_folder", acc.getRoot_folder(), i);
+			addProp(imapSettings, "from_address", acc.getFrom_address(), i);
+		}
+		try {
+			imapSettings.store(Files.newOutputStream(Paths.get("/Users/christian/bla.properties")), "bla");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
     public static Configuration readConfig() {
@@ -38,7 +63,6 @@ public class ConfigurationService {
         Map<String, Account> accounts = new LinkedHashMap<>();
         Set<String> propertyNames = imapSettings.stringPropertyNames();
         for (String propertyName : propertyNames) {
-        	System.out.println("propertyName:" + propertyName);
             final String[] items = propertyName.split("\\.");
             if (items.length != 2) {
 				logger.error("Invalid property name: {}", propertyName);

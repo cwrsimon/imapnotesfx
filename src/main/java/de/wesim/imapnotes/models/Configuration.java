@@ -27,6 +27,7 @@ public class Configuration {
         Account newAccount = new Account();
         newAccountCounter++;
         newAccount.setAccount_name("New account " + String.valueOf(newAccountCounter));
+        newAccount.setType(Account_Type.FS);
         this.accounts.add(newAccount);
         return newAccount;
     }
