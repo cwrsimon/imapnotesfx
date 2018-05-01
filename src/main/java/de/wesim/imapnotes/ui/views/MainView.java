@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.ui.components.MyListView;
-import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
@@ -16,7 +15,6 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
@@ -26,6 +24,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+// Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
 // https://github.com/revelc/gnome-keyring-java
 // Neuer Editor:
@@ -87,7 +86,6 @@ public class MainView extends Application {
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
 	private MyListView noteCB; 
-	private QuillEditor myText;
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	private final Label running = new Label();
@@ -109,8 +107,6 @@ public class MainView extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-		this.myText = new QuillEditor(getHostServices(), this.noteController, "");
-		//this.noteController.setHTMLEditor(myText);
 		this.noteController.setTabPane(tp);
 
 		MenuBar menuBar = new MenuBar();
@@ -192,7 +188,7 @@ public class MainView extends Application {
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}
-			this.noteController.saveCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
+			this.noteController.saveCurrentMessage();
 
 		});
 		newFolder.setOnAction(e -> {

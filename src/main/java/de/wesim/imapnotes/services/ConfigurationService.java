@@ -97,6 +97,9 @@ public class ConfigurationService {
             	case "from_address":
             		acc.setFrom_address(propertyValue);
             		break;
+            	case "password":
+            		acc.setPassword(propertyValue);
+            		break;
             	default:
             		logger.error("Unknown property name: {}", items[1]);
             		break;

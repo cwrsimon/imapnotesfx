@@ -33,8 +33,12 @@ public class IMAPNoteProvider implements INoteProvider {
 		PasswordProvider pp = new PasswordProvider();
 		pp.init();
 		final String accountName = account.getAccount_name();
-		final String pw = pp.retrievePassword(accountName);
-				
+		String pw = pp.retrievePassword(accountName);
+		// TODO FIXME
+		if (pw == null) {
+			pw = account.getPassword();
+		}
+		// TODO Abfrage implementieren ...
 		this.backend = IMAPBackend.initNotesFolder(account, pw);
 	}	
 	

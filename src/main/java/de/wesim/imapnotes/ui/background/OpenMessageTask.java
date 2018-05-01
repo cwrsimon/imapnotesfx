@@ -2,14 +2,13 @@ package de.wesim.imapnotes.ui.background;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.INoteProvider;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 
-public class OpenMessageTask extends AbstractNoteService<String> {
+public class OpenMessageTask extends AbstractNoteService<Note> {
     
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
@@ -31,20 +30,21 @@ public class OpenMessageTask extends AbstractNoteService<String> {
     }
 
     @Override
-    protected Task<String> createTask() {
-        Task<String> task = new Task<String>() {
+    protected Task<Note> createTask() {
+        Task<Note> task = new Task<Note>() {
 
             @Override
-            protected String call() throws Exception {
+            protected Note call() throws Exception {
+            	final Note workingItem = note.getValue();
                 updateProgress(0, 1);
-                updateMessage("Opening " + note.getValue().getSubject() + "...");
+                updateMessage(String.format("Opening %s ...", workingItem.getSubject()));
 
-                controller.getBackend().load(getNote());
+                controller.getBackend().load(workingItem);
 
-                updateMessage(String.format("Öffnen von %s erfolgreich!", note.getValue().toString()));
+                updateMessage(String.format("%s was successfully opened!", workingItem.getSubject()));
                 updateProgress(1, 1);
 
-                return getNote().getContent();
+                return workingItem;
             }
         };
         return task;

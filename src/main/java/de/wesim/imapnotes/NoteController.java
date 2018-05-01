@@ -3,7 +3,6 @@ package de.wesim.imapnotes;
 import java.util.List;
 import java.util.Optional;
 
-import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ import de.wesim.imapnotes.ui.background.NewNoteService;
 import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
-import de.wesim.imapnotes.ui.background.SaveMessageTask;
+import de.wesim.imapnotes.ui.components.EditorTab;
 import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.HostServices;
@@ -49,23 +48,17 @@ public class NoteController {
 	private INoteProvider backend;
 	private final ProgressBar progressBar;
 	private final Label status;
-	private SaveMessageTask saveMessageTask;
 	public BooleanBinding allRunning;
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
 	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask;
 	private OpenFolderTask openFolderTask;
-	private QuillEditor myText;
 	private MyListView noteCB;
-
-	private Note currentlyOPen = null;
 
 	public StringProperty currentAccount = new SimpleStringProperty("");
 
 	private Configuration config;
-
-	private boolean contentUpdated = false;
 
 	private TabPane tp;
 
@@ -79,9 +72,8 @@ public class NoteController {
 		this.initAsyncTasks();
 	}
 
-	public void contentUpdated() {
-		logger.debug("ContentUpdated()");
-		this.contentUpdated = true;
+	public HostServices getHostServices() {
+		return hostServices;
 	}
 
 	public void refreshConfig() {
@@ -121,14 +113,10 @@ public class NoteController {
 		this.currentAccount.set(first.getAccount_name());
 		loadMessages(null);
 	}
-
-	// public void setHTMLEditor(QuillEditor node) {
-	// 	this.myText = node;
-	// }
+	
 
 	private void initAsyncTasks() {
 		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
-		this.saveMessageTask = new SaveMessageTask(this, this.progressBar, this.status);
 		this.newLoadTask = new LoadMessageTask(this, this.progressBar, this.status);
 		this.openMessageTask = new OpenMessageTask(this, this.progressBar, this.status);
 		this.openFolderTask = new OpenFolderTask(this, this.progressBar, this.status);
@@ -139,15 +127,15 @@ public class NoteController {
 			this.noteCB.getItems().add(newNoteService.getValue());
 			openNote(newNoteService.getValue());
 		});
-		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.saveMessageTask.runningProperty())
-				.or(this.openMessageTask.runningProperty()).or(this.deleteNoteService.runningProperty())
+		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
+				.or(this.deleteNoteService.runningProperty())
 				.or(this.newNoteService.runningProperty()).or(this.openFolderTask.runningProperty())
 				.or(this.renameNoteService.runningProperty());
 		// TODO openFolderTask	
 
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
-			currentlyOPen = null;
+			//currentlyOPen = null;
 			// das erste Element öffnen
 			final Note firstELement = noteCB.getItems().get(0);
 			if (!firstELement.isFolder()) {
@@ -156,18 +144,16 @@ public class NoteController {
 		});
 
 		openMessageTask.setOnSucceeded(e -> {
-			currentlyOPen = openMessageTask.getNote();
+			final Note openedNote = openMessageTask.getValue();
 
-			QuillEditor qe = new QuillEditor(this.hostServices, this, openMessageTask.getValue());
-			final Tab t = new Tab(currentlyOPen.getSubject(), qe);
-			tp.getTabs().add(t);
-			tp.getSelectionModel().select(t);
+			Tab editorTab = new EditorTab(this, openedNote);
+			tp.getTabs().add(editorTab);
+			tp.getSelectionModel().select(editorTab);
 			
 			//qe.setHtmlText(openMessageTask.getValue());
-			noteCB.getSelectionModel().select(currentlyOPen);
-			this.contentUpdated = false;
+			noteCB.getSelectionModel().select(openedNote);
 		});
-
+		
 		deleteNoteService.setOnSucceeded(e -> {
 			final Note deleted = deleteNoteService.getNote();
 			int index = this.noteCB.getItems().indexOf(deleted);
@@ -249,21 +235,17 @@ public class NoteController {
 		return alert.showAndWait();
 	}
 
+	// Aufgerufen beim Klick aufs ListViewItem
 	public void openNote(Note m) {
-
-		if (this.currentlyOPen != null) {
-			System.out.println(this.currentlyOPen.getSubject());
-		} else {
-			logger.debug("Nicht gesetzt");
-		}
-		if (this.currentlyOPen != null && hasContentChanged(this.currentlyOPen)) {
-			final Optional<ButtonType> result = demandConfirmation();
-			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
-				//noteCB.toggleOverrideOpening();
-				noteCB.getSelectionModel().select(this.currentlyOPen);
+		// Böse, aber funktioniert ...
+		for (Tab t : this.tp.getTabs()) {
+			EditorTab et = (EditorTab) t;
+			if (et.getNote().equals(m)) {
+				this.tp.getSelectionModel().select(t);
 				return;
 			}
 		}
+		
 		logger.info("Opening {}", m.getSubject());
 		if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
@@ -274,9 +256,9 @@ public class NoteController {
 		}
 	}
 
-	private boolean hasContentChanged(Note curMsg) {
-		return this.contentUpdated;
-		//if (curMsg == null) return false;
+//	private boolean hasContentChanged(Note curMsg) {
+//		return this.contentUpdated;
+//		//if (curMsg == null) return false;
 
 		// String oldContent = curMsg.getContent();
 		// if (oldContent == null) return false;
@@ -286,12 +268,12 @@ public class NoteController {
 		// newContent = parse(newContent);
 
 		// return !oldContent.equals(newContent);
-	}
+//	}
 
-	private String parse(String htmlContent) {
-		final String plainContent = Jsoup.parse(htmlContent).text();
-		return plainContent;
-	}
+//	private String parse(String htmlContent) {
+//		final String plainContent = Jsoup.parse(htmlContent).text();
+//		return plainContent;
+//	}
 
 	public void createNewMessage(boolean createFolder) {
 		final Dialog dialog = new TextInputDialog("Bla");
@@ -308,19 +290,21 @@ public class NoteController {
 		newNoteService.restart();
 	}
 
-	public void saveCurrentMessage(Note curMsg) {
+	public void saveCurrentMessage() {
 		// Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		// alert.setTitle("About to save note ...");
 		// alert.showAndWait();
-		final String newContent = myText.getHtmlText();
-		System.out.println(newContent);
+		final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+		
+		
+		final String newContent = et.getQe().getHtmlText();
+		logger.info("Saving new content: {}", newContent);
 
-		curMsg.setContent(newContent);
-		saveMessageTask.noteProperty().set(curMsg);
-		saveMessageTask.reset();
-		saveMessageTask.restart();
-		// TODO muss asynchron geschehen ...
-		this.contentUpdated = false;
+		et.getNote().setContent(newContent);
+		et.saveContents();
+//		saveMessageTask.noteProperty().set(curMsg);
+//		saveMessageTask.reset();
+//		saveMessageTask.restart();
 	}
 
 	public void setListView(MyListView noteCB) {
@@ -332,9 +316,12 @@ public class NoteController {
 	}
 
 	public boolean exitPossible() {
-		if (!this.hasContentChanged(this.currentlyOPen)) {
-			return true;
+		boolean noUnsavedChanges = true;
+		for (Tab t : this.tp.getTabs()) {
+			EditorTab et = (EditorTab) t;
+			noUnsavedChanges = noUnsavedChanges && !(et.getQe().isContentUpdated());
 		}
+		if (noUnsavedChanges) return true;
 		final Optional<ButtonType> result = demandConfirmation();
 		return (result.isPresent() && result.get() == ButtonType.OK);
 	}

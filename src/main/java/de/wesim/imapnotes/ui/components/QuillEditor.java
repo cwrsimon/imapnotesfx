@@ -10,6 +10,8 @@ import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 
 import javafx.application.HostServices;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
@@ -39,15 +41,28 @@ public class QuillEditor extends StackPane {
 	public void setHTMLContent(String content) {
 		final String content_js = StringEscapeUtils.escapeEcmaScript(content);
 		webview.getEngine().executeScript("setQuillContent('" + content_js + "');");
+		this.contentUpdated = false;
 	}
 
 	public void setHtmlText(String content) {
 		log.info("Setting neu content: {}", content);
 		this.setHTMLContent(content);
 	}
+	
+	private BooleanProperty contentUpdate = new SimpleBooleanProperty(false);
+	
+	public final BooleanProperty contentUpdateProperty() { return contentUpdate; }
+	public final void setContentUpdate(boolean newValue) {		log.info("Updating content for  {} with {}", toString(), contentUpdated); 
+contentUpdate.set(newValue);}
+	public final boolean getContentUpdate { return contentUpdate.get(); }
+	
+	
+	public void setContentUpdated(boolean contentUpdated) {
+		this.contentUpdated = contentUpdated;
+	}
 
-	public QuillEditor(HostServices hostServices, Object javaApp, String string) {
-
+	public QuillEditor(HostServices hostServices, String string) {
+		final QuillEditor backReference = this;
 		webview.setPrefSize(650, 325);
 		webview.setMinSize(650, 325);
 		String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
@@ -59,8 +74,9 @@ public class QuillEditor extends StackPane {
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue == State.SUCCEEDED) {
+					log.info("What is this: {}", this.getClass().getName());
 					JSObject window = (JSObject) webview.getEngine().executeScript("window");
-					window.setMember("app", javaApp);
+					window.setMember("app", backReference);
 					setHtmlText(string);
 
 					Element nodeList = webview.getEngine().getDocument().getElementById("editor");
