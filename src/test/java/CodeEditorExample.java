@@ -27,7 +27,7 @@ public class CodeEditorExample extends Application {
     // create the editing controls.
     Label title = new Label("Editing: CodeEditor.java");
     final Label labeledCode = new Label(editingCode);
-    final QuillEditor editor = new QuillEditor(getHostServices());
+    final QuillEditor editor = new QuillEditor(getHostServices(), null, "");
     final Button revertEdits = new Button("Get");
     revertEdits.setOnAction(e -> {
       System.out.println(editor.getFullHTMLContent());

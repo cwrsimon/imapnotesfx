@@ -1,5 +1,8 @@
 package de.wesim.imapnotes.ui.views;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.components.QuillEditor;
@@ -19,18 +22,14 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.web.HTMLEditor;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-// https://stackoverflow.com/questions/15555510/javafx-stop-opening-url-in-webview-open-in-browser-instead
-// https://stackoverflow.com/questions/25622515/desktop-class-in-javafx#25625871
-
+// Neue Implementierung von Gnome Keyring:
+// https://github.com/revelc/gnome-keyring-java
 // Neuer Editor:
-// https://docs.oracle.com/javase/8/javafx/embedded-browser-tutorial/js-commands.htm
-// Editor-View: Icon für URLs hinzufügen
-// URLS müssen in einem separaten Fesnter geöffnet werden ...
+// JSOUP durch etwas Sinnvolleres ersetzen ...
 // Asynchron gestalten
 // Sortierung nach Datum
 // Verzeichniswechsel: Editor clearen
@@ -56,12 +55,16 @@ import javafx.stage.WindowEvent;
 // optional: Passwort erfragen ...
 // Icon
 // Zu Applikation bündeln
-// Logging mit slf4j
+// Umstellung auf TreeView in separatem Branch
+// Tabs fertig implementieren
+// Geöffneten Zustand abspeichern
+// Schließen der Preferences
+// Gmail-Integration
+// Umgangt mit LEEREM Account
 // Sortierung nach Änderungsdatum?
 // Rechtsklicks implementieren
 // About-Menü-Popup
 // Sinnvollere Nachrichten auf Englisch
-// TreeView??
 // Einstellungen
 // Dependency Injection
 // DMG/ZIP generieren lassen ...:
@@ -81,14 +84,16 @@ import javafx.stage.WindowEvent;
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 public class MainView extends Application {
 
+	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
+
 	private MyListView noteCB; 
-	//private final HTMLEditor myText = new HTMLEditor();
-	private final QuillEditor myText = new QuillEditor(getHostServices());
+	private QuillEditor myText;
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	private final Label running = new Label();
 	private final Label account = new Label();
-	
+	private final TabPane tp = new TabPane();
+
 	
 	private NoteController noteController;
 
@@ -96,18 +101,18 @@ public class MainView extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
-		//this.backend = new FSNoteProvider();
-		this.noteController = new NoteController(p1, status);
-		this.noteController.setHTMLEditor(myText);
-		this.noteCB = new MyListView(this.noteController);
+		this.noteController = new NoteController(p1, status, getHostServices());
 
+		this.noteCB = new MyListView(this.noteController);
 		this.noteController.setListView(noteCB);
 	}
-	
 
 	@Override
 	public void start(Stage primaryStage) {
-		
+		this.myText = new QuillEditor(getHostServices(), this.noteController, "");
+		//this.noteController.setHTMLEditor(myText);
+		this.noteController.setTabPane(tp);
+
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
 		MenuItem reset   = new MenuItem("Switch Account ...");
@@ -150,9 +155,8 @@ public class MainView extends Application {
 		GridPane.setHalignment(p1, HPos.RIGHT);
 		account.textProperty().bind(this.noteController.currentAccount);
 
-		Tab t = new Tab("main", myText);
-		TabPane tp = new TabPane();
-		tp.getTabs().add(t);
+		//Tab t = new Tab("main", myText);
+		//tp.getTabs().add(t);
 
 		BorderPane myPane = new BorderPane();
 		myPane.setCenter(tp);
@@ -176,13 +180,11 @@ public class MainView extends Application {
 				try {
 					this.noteController.destroy();
 				} catch (Exception e) {
-					System.err.println("Destroying the backend has failed ...");
-					e.printStackTrace();
+					logger.error("Destroying the backend has failed ...", e);
 				}
 				primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			} else {
-				// Nachricht
-				System.out.println("exitPossible ist falsch ...");
+				logger.error("exitPossible returned false ...");
 			}
 		});
 
@@ -206,11 +208,11 @@ public class MainView extends Application {
 			this.noteController.chooseAccount();
 		});
 		preferences.setOnAction( e-> {
-			Preferences bla = new Preferences();
+			final Preferences prefs = new Preferences();
 			final Stage newStage = new Stage();
 			newStage.initModality(Modality.APPLICATION_MODAL);
 			newStage.initOwner(primaryStage);
-			newStage.setScene(bla.getScene());
+			newStage.setScene(prefs.getScene());
 			newStage.showAndWait();
 			this.noteController.refreshConfig();
 		});
@@ -220,9 +222,10 @@ public class MainView extends Application {
 		primaryStage.setWidth(1024);
 		primaryStage.setHeight(500);
 		primaryStage.setResizable(true);
+		primaryStage.setTitle("ImapNotesFX");
 		primaryStage.show();
 		primaryStage.setOnCloseRequest(e -> {
-			System.err.println("Quitting application.");
+			logger.info("Quitting application.");
 		});
 		this.noteController.startup();;
 		

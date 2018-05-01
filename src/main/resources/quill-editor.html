@@ -30,6 +30,9 @@
     modules: {toolbar: toolbarOptions},
       theme: 'snow'
     });
+    quill.on("editor-change", function() {
+        app.contentUpdated();
+    });
 
     getQuillContent = function() {
         return quill.root.innerHTML;

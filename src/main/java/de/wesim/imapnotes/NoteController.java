@@ -25,6 +25,7 @@ import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.background.SaveMessageTask;
 import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.components.QuillEditor;
+import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -35,6 +36,8 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 
 public class NoteController {
@@ -47,40 +50,52 @@ public class NoteController {
 	private final ProgressBar progressBar;
 	private final Label status;
 	private SaveMessageTask saveMessageTask;
-    public BooleanBinding allRunning;
+	public BooleanBinding allRunning;
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
 	private RenameNoteService renameNoteService;
-	private LoadMessageTask newLoadTask ;
+	private LoadMessageTask newLoadTask;
 	private OpenFolderTask openFolderTask;
 	private QuillEditor myText;
 	private MyListView noteCB;
-	
+
 	private Note currentlyOPen = null;
-	
+
 	public StringProperty currentAccount = new SimpleStringProperty("");
-	
+
 	private Configuration config;
-	
-	public NoteController(ProgressBar progressBar, Label status) {
+
+	private boolean contentUpdated = false;
+
+	private TabPane tp;
+
+	private HostServices hostServices;
+
+	public NoteController(ProgressBar progressBar, Label status, HostServices hostServices) {
+		this.hostServices = hostServices;
 		this.progressBar = progressBar;
 		this.status = status;
 		this.refreshConfig();
 		this.initAsyncTasks();
 	}
 
+	public void contentUpdated() {
+		logger.debug("ContentUpdated()");
+		this.contentUpdated = true;
+	}
+
 	public void refreshConfig() {
 		this.config = ConfigurationService.readConfig();
 	}
-	
+
 	public void chooseAccount() {
 		List<Account> availableAccounts = this.config.getAccountList();
 		ChoiceDialog<Account> cd = new ChoiceDialog<>(availableAccounts.get(0), availableAccounts);
-			
-			Optional<Account> result = cd.showAndWait();
-			if (result.isPresent()) {
-				openAccount(result.get());				
-			}
+
+		Optional<Account> result = cd.showAndWait();
+		if (result.isPresent()) {
+			openAccount(result.get());
+		}
 	}
 
 	private void openAccount(Account first) {
@@ -107,9 +122,9 @@ public class NoteController {
 		loadMessages(null);
 	}
 
-	public void setHTMLEditor(QuillEditor node) {
-		this.myText = node;
-	}
+	// public void setHTMLEditor(QuillEditor node) {
+	// 	this.myText = node;
+	// }
 
 	private void initAsyncTasks() {
 		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
@@ -120,54 +135,56 @@ public class NoteController {
 		this.renameNoteService = new RenameNoteService(this, this.progressBar, this.status);
 		this.deleteNoteService = new DeleteMessageTask(this, this.progressBar, this.status);
 		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
-		this.newNoteService.setOnSucceeded( e -> {
+		this.newNoteService.setOnSucceeded(e -> {
 			this.noteCB.getItems().add(newNoteService.getValue());
 			openNote(newNoteService.getValue());
 		});
-		this.allRunning = Bindings.or(
-				this.newLoadTask.runningProperty(), 
-			this.saveMessageTask.runningProperty())
-			.or(this.openMessageTask.runningProperty())
-			.or(this.deleteNoteService.runningProperty())
-			.or(this.newNoteService.runningProperty())
-			.or(this.openFolderTask.runningProperty())
-			.or(this.renameNoteService.runningProperty())
-					;	
-			// TODO openFolderTask	
-		
+		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.saveMessageTask.runningProperty())
+				.or(this.openMessageTask.runningProperty()).or(this.deleteNoteService.runningProperty())
+				.or(this.newNoteService.runningProperty()).or(this.openFolderTask.runningProperty())
+				.or(this.renameNoteService.runningProperty());
+		// TODO openFolderTask	
+
 		newLoadTask.setOnSucceeded(e -> {
 			noteCB.setItems(newLoadTask.getValue());
 			currentlyOPen = null;
 			// das erste Element öffnen
 			final Note firstELement = noteCB.getItems().get(0);
-			if (! firstELement.isFolder() ) {
+			if (!firstELement.isFolder()) {
 				openNote(firstELement);
 			}
 		});
-		
+
 		openMessageTask.setOnSucceeded(e -> {
-			myText.setHtmlText(openMessageTask.getValue());
 			currentlyOPen = openMessageTask.getNote();
+
+			QuillEditor qe = new QuillEditor(this.hostServices, this, openMessageTask.getValue());
+			final Tab t = new Tab(currentlyOPen.getSubject(), qe);
+			tp.getTabs().add(t);
+			tp.getSelectionModel().select(t);
+			
+			//qe.setHtmlText(openMessageTask.getValue());
 			noteCB.getSelectionModel().select(currentlyOPen);
+			this.contentUpdated = false;
 		});
 
-		deleteNoteService.setOnSucceeded( e -> {
+		deleteNoteService.setOnSucceeded(e -> {
 			final Note deleted = deleteNoteService.getNote();
 			int index = this.noteCB.getItems().indexOf(deleted);
 			this.noteCB.getItems().remove(deleted);
-			final int previousItem = Math.max(0,index - 1);
+			final int previousItem = Math.max(0, index - 1);
 			final Note previous = this.noteCB.getItems().get(previousItem);
 			openNote(previous);
 		});
-		moveNoteService.setOnSucceeded( e -> {
+		moveNoteService.setOnSucceeded(e -> {
 			final Note moved = moveNoteService.getNote();
 			deleteCurrentMessage(moved, true);
 		});
-		openFolderTask.setOnSucceeded( e-> {
+		openFolderTask.setOnSucceeded(e -> {
 			openFolderTask.noteFolderProperty().set(null);
-			loadMessages( null );
+			loadMessages(null);
 		});
-		renameNoteService.setOnSucceeded( e-> {
+		renameNoteService.setOnSucceeded(e -> {
 			noteCB.refresh();
 		});
 	}
@@ -187,19 +204,19 @@ public class NoteController {
 
 	public void deleteCurrentMessage(Note curMsg, boolean dontTask) {
 		if (!dontTask) {
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("Echt jetzt?");
-		alert.setContentText("Do really want to delete '" + curMsg.getSubject() + "' ?");
-		Optional<ButtonType> result = alert.showAndWait();
-		if (result.isPresent() && result.get() == ButtonType.CANCEL) {
-			return;
-		}
+			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+			alert.setTitle("Echt jetzt?");
+			alert.setContentText("Do really want to delete '" + curMsg.getSubject() + "' ?");
+			Optional<ButtonType> result = alert.showAndWait();
+			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+				return;
+			}
 		}
 		deleteNoteService.noteProperty().set(curMsg);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
 	}
-	
+
 	public void renameCurrentMessage(Note curMsg) {
 		if (this.allRunning.getValue() == true) {
 			return;
@@ -237,7 +254,7 @@ public class NoteController {
 		if (this.currentlyOPen != null) {
 			System.out.println(this.currentlyOPen.getSubject());
 		} else {
-			System.out.println("Nicht gesetzt");
+			logger.debug("Nicht gesetzt");
 		}
 		if (this.currentlyOPen != null && hasContentChanged(this.currentlyOPen)) {
 			final Optional<ButtonType> result = demandConfirmation();
@@ -256,18 +273,19 @@ public class NoteController {
 			this.openFolderTask.restart();
 		}
 	}
-	
-	private boolean hasContentChanged(Note curMsg) {
-		if (curMsg == null) return false;
-		
-		String oldContent = curMsg.getContent();
-		if (oldContent == null) return false;
-		oldContent = parse(oldContent);
-		String newContent = myText.getHtmlText();
-		if (newContent == null) return false;
-		newContent = parse(newContent);
 
-		return !oldContent.equals(newContent);
+	private boolean hasContentChanged(Note curMsg) {
+		return this.contentUpdated;
+		//if (curMsg == null) return false;
+
+		// String oldContent = curMsg.getContent();
+		// if (oldContent == null) return false;
+		// oldContent = parse(oldContent);
+		// String newContent = myText.getHtmlText();
+		// if (newContent == null) return false;
+		// newContent = parse(newContent);
+
+		// return !oldContent.equals(newContent);
 	}
 
 	private String parse(String htmlContent) {
@@ -289,19 +307,20 @@ public class NoteController {
 		newNoteService.reset();
 		newNoteService.restart();
 	}
-	
+
 	public void saveCurrentMessage(Note curMsg) {
 		// Alert alert = new Alert(Alert.AlertType.INFORMATION);
 		// alert.setTitle("About to save note ...");
 		// alert.showAndWait();
 		final String newContent = myText.getHtmlText();
 		System.out.println(newContent);
-		
-		//final Note curMsg = this.noteCB.getSelectionModel().getSelectedItem();
+
 		curMsg.setContent(newContent);
 		saveMessageTask.noteProperty().set(curMsg);
 		saveMessageTask.reset();
 		saveMessageTask.restart();
+		// TODO muss asynchron geschehen ...
+		this.contentUpdated = false;
 	}
 
 	public void setListView(MyListView noteCB) {
@@ -324,11 +343,15 @@ public class NoteController {
 		if (this.backend != null) {
 			this.backend.destroy();
 		}
-		
+
 	}
 
 	public INoteProvider getBackend() {
 		// TODO Auto-generated method stub
 		return this.backend;
+	}
+
+	public void setTabPane(TabPane tp) {
+		this.tp = tp;
 	}
 }
