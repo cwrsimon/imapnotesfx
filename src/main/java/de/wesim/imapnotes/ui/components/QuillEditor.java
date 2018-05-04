@@ -41,7 +41,7 @@ public class QuillEditor extends StackPane {
 	public void setHTMLContent(String content) {
 		final String content_js = StringEscapeUtils.escapeEcmaScript(content);
 		webview.getEngine().executeScript("setQuillContent('" + content_js + "');");
-		this.contentUpdated = false;
+		setContentUpdate(false);
 	}
 
 	public void setHtmlText(String content) {
@@ -51,15 +51,19 @@ public class QuillEditor extends StackPane {
 	
 	private BooleanProperty contentUpdate = new SimpleBooleanProperty(false);
 	
-	public final BooleanProperty contentUpdateProperty() { return contentUpdate; }
-	public final void setContentUpdate(boolean newValue) {		log.info("Updating content for  {} with {}", toString(), contentUpdated); 
-contentUpdate.set(newValue);}
-	public final boolean getContentUpdate { return contentUpdate.get(); }
-	
-	
-	public void setContentUpdated(boolean contentUpdated) {
-		this.contentUpdated = contentUpdated;
+	public final BooleanProperty contentUpdateProperty() {
+		 return contentUpdate; 
 	}
+
+	public final void setContentUpdate(boolean newValue) {	
+			log.info("Updating content for  {} with {}", toString(), newValue); 
+		contentUpdate.set(newValue);
+	}
+
+	public final boolean getContentUpdate() { return contentUpdate.get();
+	 }
+	
+
 
 	public QuillEditor(HostServices hostServices, String string) {
 		final QuillEditor backReference = this;

@@ -28,12 +28,21 @@ public class EditorTab extends Tab {
 		this.note = note;
 		setOnCloseRequest(e-> {
 			// TODO Confirmation dialog öffnen wenn true
-			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.isContentUpdated());
+			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
 		});
 		this.textProperty().bind(
 				Bindings.createStringBinding( () -> 
-					String.valueOf(this.noteController.allRunning.getValue())
-				, this.noteController.allRunning)
+					{
+					 if (this.qe.contentUpdateProperty().get()) {
+						return "* " + note.getSubject();
+					 } else {
+						return note.getSubject();
+					 }
+					}
+
+				, this.qe.contentUpdateProperty()
+				
+				)
 			);	
 
 	}
@@ -61,7 +70,7 @@ public class EditorTab extends Tab {
 				protected void succeeded() {
 					// TODO Auto-generated method stub
 					super.succeeded();
-					getQe().setContentUpdated(false);
+					getQe().setContentUpdate(false);
 					// TODO Text im Tab anpassen
 				}
 	        };

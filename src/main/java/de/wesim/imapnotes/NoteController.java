@@ -319,7 +319,7 @@ public class NoteController {
 		boolean noUnsavedChanges = true;
 		for (Tab t : this.tp.getTabs()) {
 			EditorTab et = (EditorTab) t;
-			noUnsavedChanges = noUnsavedChanges && !(et.getQe().isContentUpdated());
+			noUnsavedChanges = noUnsavedChanges && !(et.getQe().getContentUpdate());
 		}
 		if (noUnsavedChanges) return true;
 		final Optional<ButtonType> result = demandConfirmation();
