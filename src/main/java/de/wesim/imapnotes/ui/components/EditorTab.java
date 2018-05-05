@@ -28,6 +28,7 @@ public class EditorTab extends Tab {
 		this.note = note;
 		setOnCloseRequest(e-> {
 			// TODO Confirmation dialog öffnen wenn true
+			// Speicherstatus auslesen
 			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
 		});
 		this.textProperty().bind(

@@ -19,6 +19,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
+// TODO 
+// Syntax-Highlighting 
+// Font-Größe konfigurabel machen
+// Keyboard-Shortcuts für Historie
+// Keyboard-Shortcurts ins Menü bringen ...
+
 public class QuillEditor extends StackPane {
 	final WebView webview = new WebView();
 	private static final Logger log = LoggerFactory.getLogger(QuillEditor.class);
@@ -67,18 +73,19 @@ public class QuillEditor extends StackPane {
 
 	public QuillEditor(HostServices hostServices, String string) {
 		final QuillEditor backReference = this;
+		// TODO WebView muss sich dem verfügbaren Platz anpassen
 		webview.setPrefSize(650, 325);
 		webview.setMinSize(650, 325);
 		String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
 		webview.getEngine().load(content);
 
 		this.getChildren().add(webview);
+		// TODO Hübscher machen ...
 		webview.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
 
 			@Override
 			public void changed(ObservableValue<? extends State> observable, State oldValue, State newValue) {
 				if (newValue == State.SUCCEEDED) {
-					log.info("What is this: {}", this.getClass().getName());
 					JSObject window = (JSObject) webview.getEngine().executeScript("window");
 					window.setMember("app", backReference);
 					setHtmlText(string);
