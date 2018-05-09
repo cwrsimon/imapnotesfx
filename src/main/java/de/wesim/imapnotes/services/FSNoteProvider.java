@@ -14,6 +14,9 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
@@ -21,6 +24,8 @@ import de.wesim.imapnotes.models.Note;
 
 public class FSNoteProvider implements INoteProvider {
 
+	private Logger logger = LoggerFactory.getLogger(FSNoteProvider.class);
+	
 	// TODO Umstellung auf einen UUID -> Path-Mapper 
 
 	private Path noteDirectory;
@@ -53,14 +58,13 @@ public class FSNoteProvider implements INoteProvider {
 			this.folderStack.push(this.currentDirectory);
 			this.currentDirectory = path;
 		}
-		System.out.println("currentDir:" + this.currentDirectory.toString());
 		// TODO Verheiraten mit load ... und entsprechend zurückgeben ...
 	}
 
 	@Override
 	public void returnToParent() throws Exception {
 		this.currentDirectory = this.folderStack.pop();
-		System.out.println("returnToParent " + this.currentDirectory.toString());
+		logger.info("returning to parent dir {}", this.currentDirectory.toString());
 	}
 
 	@Override

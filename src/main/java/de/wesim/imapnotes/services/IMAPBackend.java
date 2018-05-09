@@ -21,12 +21,17 @@ import javax.mail.Store;
 import javax.mail.UIDFolder;
 import javax.mail.internet.MimeMessage;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sun.mail.imap.IMAPFolder;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
 public class IMAPBackend {
+	
+	private static final Logger logger = LoggerFactory.getLogger(IMAPBackend.class);
 	
 	private Session session;
 	private Store store;
@@ -99,8 +104,7 @@ public class IMAPBackend {
 	}
 	
 	private void connectStore(String hostname, String login, String pw) throws MessagingException {
-		// TODO Logging
-		System.out.println("Trying to connect:" + hostname + ";" + login + ";" + pw);
+		logger.info("Trying to connect: {}, {}, {}", hostname, login, pw);
 		this.store.connect(hostname, -1, login, pw);
 	}
 	
@@ -315,22 +319,22 @@ public class IMAPBackend {
         return msg;
 	}
 
-	public void dumpMessage(Message msg) throws MessagingException, IOException {
-		this.startTransaction();
-		final Enumeration<Header> enums = msg.getAllHeaders();
-		System.out.println("Headers:");
-        while (enums.hasMoreElements()) {
-            Header next = (Header) enums.nextElement();
-//			X-Mail-Created-Date
-//			X-Universally-Unique-Identifier
-            String name = next.getName();
-
-            System.out.println(name + ";" + next.getValue());
-        }
-		System.out.println("Content:");
-		System.out.println(this.getMessageContent(msg));
-        this.endTransaction();
-   }
+//	public void dumpMessage(Message msg) throws MessagingException, IOException {
+//		this.startTransaction();
+//		final Enumeration<Header> enums = msg.getAllHeaders();
+//		System.out.println("Headers:");
+//        while (enums.hasMoreElements()) {
+//            Header next = (Header) enums.nextElement();
+////			X-Mail-Created-Date
+////			X-Universally-Unique-Identifier
+//            String name = next.getName();
+//
+//            System.out.println(name + ";" + next.getValue());
+//        }
+//		System.out.println("Content:");
+//		System.out.println(this.getMessageContent(msg));
+//        this.endTransaction();
+//   }
 	
 	public boolean moveMessage(Message msg, Folder folder) {
 		try {

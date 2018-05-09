@@ -8,6 +8,7 @@ import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.HPos;
+import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -15,11 +16,13 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -81,6 +84,8 @@ import javafx.stage.WindowEvent;
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
 // oben -> komplette IMAP-Pfade als UUID speichern
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
+// Copy , Paste, Historie ans Menü binden ...
+
 public class MainView extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
@@ -88,7 +93,7 @@ public class MainView extends Application {
 	private MyListView noteCB; 
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
-	private final Label running = new Label();
+	//private final Label running = new Label();
 	private final Label account = new Label();
 	private final TabPane tp = new TabPane();
 
@@ -131,33 +136,38 @@ public class MainView extends Application {
 		menu.getItems().addAll(loadMenu, reset, preferences, new SeparatorMenuItem(), exit);
 		msgMenu.getItems().addAll(newFolder, new SeparatorMenuItem(), newMenu, delete, update, renameNote);
 		
-		this.running.textProperty().bind(
-				Bindings.createStringBinding( () -> 
-					String.valueOf(this.noteController.allRunning.getValue())
-				, this.noteController.allRunning)
-			);	
+//		this.running.textProperty().bind(
+//				Bindings.createStringBinding( () -> 
+//					String.valueOf(this.noteController.allRunning.getValue())
+//				, this.noteController.allRunning)
+//			);	
+//		p1.progressProperty().
 
 		final GridPane hbox = new GridPane();
 		hbox.add(account, 0, 0);
 		hbox.add(status, 1, 0);
-		hbox.add(running, 2, 0);
+		//hbox.add(running, 2, 0);
 		hbox.add(p1, 3, 0);
 		hbox.setVgap(10);
 		hbox.setHgap(10);
 		
 		GridPane.setHgrow(account, Priority.ALWAYS);
 		GridPane.setHgrow(status, Priority.ALWAYS);
-		GridPane.setHgrow(running, Priority.ALWAYS);
+		//GridPane.setHgrow(running, Priority.ALWAYS);
 		GridPane.setHalignment(p1, HPos.RIGHT);
 		account.textProperty().bind(this.noteController.currentAccount);
-
-		//Tab t = new Tab("main", myText);
-		//tp.getTabs().add(t);
-
+		
+		this.noteCB.setPrefWidth(150);
+		
+		this.tp.setMinWidth(500);
+		this.tp.setPrefWidth(500);
+		final SplitPane sp = new SplitPane(new StackPane(noteCB),    tp);
+		sp.setOrientation(Orientation.HORIZONTAL);
+		sp.setDividerPositions(0.3);
+		
 		BorderPane myPane = new BorderPane();
-		myPane.setCenter(tp);
+		myPane.setCenter(sp);
 		myPane.setBottom(hbox);
-		myPane.setLeft(noteCB);
 		myPane.setTop(menuBar);
 
 		renameNote.setOnAction( e -> {

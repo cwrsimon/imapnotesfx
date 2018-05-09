@@ -23,7 +23,6 @@ import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.components.EditorTab;
 import de.wesim.imapnotes.ui.components.MyListView;
-import de.wesim.imapnotes.ui.components.QuillEditor;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -291,20 +290,12 @@ public class NoteController {
 	}
 
 	public void saveCurrentMessage() {
-		// Alert alert = new Alert(Alert.AlertType.INFORMATION);
-		// alert.setTitle("About to save note ...");
-		// alert.showAndWait();
 		final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-		
-		
 		final String newContent = et.getQe().getHtmlText();
 		logger.info("Saving new content: {}", newContent);
 
 		et.getNote().setContent(newContent);
 		et.saveContents();
-//		saveMessageTask.noteProperty().set(curMsg);
-//		saveMessageTask.reset();
-//		saveMessageTask.restart();
 	}
 
 	public void setListView(MyListView noteCB) {
