@@ -3,8 +3,6 @@ package de.wesim.imapnotes.models;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.mail.Message;
-
 // IDee:
 // Folder haben vollständige nPFad als UUID
 // Stattdessen Map von Note -> Path im NoteProvider
@@ -93,6 +91,11 @@ public class Note implements Serializable, Comparable<Note>  {
 	@Override
 	public int compareTo(Note o) {
 		return o.getDate().compareTo(this.getDate());
+	}
+
+	@Override
+	public String toString() {
+		return subject;
 	}
 	
 	

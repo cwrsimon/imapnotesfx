@@ -28,6 +28,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
@@ -37,6 +38,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 public class NoteController {
 
@@ -53,7 +56,7 @@ public class NoteController {
 	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask;
 	private OpenFolderTask openFolderTask;
-	private MyListView noteCB;
+	private TreeView<Note> noteCB;
 
 	public StringProperty currentAccount = new SimpleStringProperty("");
 
@@ -123,7 +126,8 @@ public class NoteController {
 		this.deleteNoteService = new DeleteMessageTask(this, this.progressBar, this.status);
 		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded(e -> {
-			this.noteCB.getItems().add(newNoteService.getValue());
+			// FIXME
+			//this.noteCB.getItems().add(newNoteService.getValue());
 			openNote(newNoteService.getValue());
 		});
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
@@ -133,10 +137,15 @@ public class NoteController {
 		// TODO openFolderTask	
 
 		newLoadTask.setOnSucceeded(e -> {
-			noteCB.setItems(newLoadTask.getValue());
+			final ObservableList<Note> loadedItems = newLoadTask.getValue();
+			noteCB.getRoot().getChildren().clear();
+			for (Note n : loadedItems) {
+				noteCB.getRoot().getChildren().add(new TreeItem(n));
+			}
+			//noteCB.setItems(loadedItems);
 			//currentlyOPen = null;
 			// das erste Element öffnen
-			final Note firstELement = noteCB.getItems().get(0);
+			final Note firstELement = loadedItems.get(0);
 			if (!firstELement.isFolder()) {
 				openNote(firstELement);
 			}
@@ -150,16 +159,17 @@ public class NoteController {
 			tp.getSelectionModel().select(editorTab);
 			
 			//qe.setHtmlText(openMessageTask.getValue());
-			noteCB.getSelectionModel().select(openedNote);
+			// FIXME
+			//noteCB.getSelectionModel().select(openedNote);
 		});
 		
 		deleteNoteService.setOnSucceeded(e -> {
-			final Note deleted = deleteNoteService.getNote();
-			int index = this.noteCB.getItems().indexOf(deleted);
-			this.noteCB.getItems().remove(deleted);
-			final int previousItem = Math.max(0, index - 1);
-			final Note previous = this.noteCB.getItems().get(previousItem);
-			openNote(previous);
+//			final Note deleted = deleteNoteService.getNote();
+//			int index = this.noteCB.getItems().indexOf(deleted);
+//			this.noteCB.getItems().remove(deleted);
+//			final int previousItem = Math.max(0, index - 1);
+//			final Note previous = this.noteCB.getItems().get(previousItem);
+//			openNote(previous);
 		});
 		moveNoteService.setOnSucceeded(e -> {
 			final Note moved = moveNoteService.getNote();
@@ -298,11 +308,11 @@ public class NoteController {
 		et.saveContents();
 	}
 
-	public void setListView(MyListView noteCB) {
+	public void setListView(TreeView noteCB) {
 		this.noteCB = noteCB;
 	}
 
-	public MyListView getListView() {
+	public TreeView getListView() {
 		return this.noteCB;
 	}
 

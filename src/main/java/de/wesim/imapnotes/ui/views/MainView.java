@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
@@ -18,6 +19,8 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -90,7 +93,7 @@ public class MainView extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
-	private MyListView noteCB; 
+	private TreeView<Note> noteCB; 
 	private final ProgressBar p1 = new ProgressBar();
 	private final Label status = new Label();
 	//private final Label running = new Label();
@@ -105,8 +108,11 @@ public class MainView extends Application {
 	public void init() throws Exception {
 		super.init();
 		this.noteController = new NoteController(p1, status, getHostServices());
+//		this.noteCB = new TreeVi(this.noteController);
 
-		this.noteCB = new MyListView(this.noteController);
+		this.noteCB = new TreeView<Note>(new TreeItem<Note>());
+		this.noteCB.setShowRoot(false);
+		
 		this.noteController.setListView(noteCB);
 	}
 
@@ -114,6 +120,8 @@ public class MainView extends Application {
 	public void start(Stage primaryStage) {
 		this.noteController.setTabPane(tp);
 
+		this.noteCB.setCl
+		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
 		MenuItem reset   = new MenuItem("Switch Account ...");
@@ -171,7 +179,8 @@ public class MainView extends Application {
 		myPane.setTop(menuBar);
 
 		renameNote.setOnAction( e -> {
-			this.noteController.renameCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
+			// FIXME
+			//this.noteController.renameCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
 		});
 		
 		loadMenu.setOnAction(e -> {
@@ -208,7 +217,8 @@ public class MainView extends Application {
 			this.noteController.createNewMessage(false);
 		});
 		delete.setOnAction(e -> {
-			this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem(), false);
+			// FIXME
+		//	this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem(), false);
 		});
 		reset.setOnAction( e -> {
 			this.noteController.chooseAccount();
