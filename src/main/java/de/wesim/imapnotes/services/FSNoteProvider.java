@@ -206,4 +206,10 @@ public class FSNoteProvider implements INoteProvider {
 		// TODO 
 		return false;
 	}
+
+	@Override
+	public List<Note> getNotesFromFolder(Note folder) throws Exception {
+		// TODO
+		return null;
+	}
 }

@@ -2,11 +2,9 @@ package de.wesim.imapnotes.services;
 
 import javax.mail.Folder;
 import javax.mail.Message;
-
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -24,7 +22,6 @@ public class IMAPNoteProvider implements INoteProvider {
 	public IMAPNoteProvider() {
 		this.msgMap = new HashMap<>();
 		this.folderMap = new HashMap<>();
-
 	}
 	
 
@@ -79,14 +76,28 @@ public class IMAPNoteProvider implements INoteProvider {
 		}
 	}
 
+	// TODO Nur für die Wurzel ...
 	@Override
 	public List<Note> getNotes() throws Exception {
 		this.msgMap.clear();
 		this.folderMap.clear();
-		List<Note> notes = this.backend.getMessages(this.msgMap, this.folderMap);
+		final List<Note> notes = this.backend.getMessages(this.backend.getNotesFolder(), 
+													this.msgMap, this.folderMap);
+		// TODO
 		Collections.sort(notes);
 		return notes;
 	}
+
+	@Override
+	public List<Note> getNotesFromFolder(Note folder) throws Exception {
+		Folder f = this.folderMap.get(folder.getUuid());
+		final List<Note> notes = this.backend.getMessages(f, 
+													this.msgMap, this.folderMap);
+		// TODO
+		Collections.sort(notes);
+		return notes;
+	}
+
 
 	@Override
 	public void destroy() throws Exception {
@@ -95,7 +106,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void openFolder(Note folder) throws Exception {
-		this.backend.switchToSubFolder(folder.getUuid());
+		//this.backend.switchToSubFolder(folder.getUuid());
 	}
 
 	@Override
@@ -118,13 +129,13 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
-		System.out.println("Renaming IMAP FOlder ...");
-		// TODO Folders mit einer anderen UUID versehen ...
-		Folder newFolder = this.backend.renameFolder(note.getUuid(), newName);
-		// note.setImapMessage();
-		this.folderMap.put(note.getUuid(), newFolder);
-		note.setSubject(newName);
-		note.setUuid(newName);
+		// System.out.println("Renaming IMAP FOlder ...");
+		// // TODO Folders mit einer anderen UUID versehen ...
+		// Folder newFolder = this.backend.renameFolder(note.getUuid(), newName);
+		// // note.setImapMessage();
+		// this.folderMap.put(note.getUuid(), newFolder);
+		// note.setSubject(newName);
+		// note.setUuid(newName);
 
 	}
 

@@ -67,18 +67,19 @@ public class IMAPBackend {
 		return newFolder.delete(false);
 	}
 
-	public Folder renameFolder(String oldName, String newName) throws MessagingException {
-		endTransaction();
-		Folder oldFolder = this.notesFolder.getFolder(oldName);
+	// TODO
+	// public Folder renameFolder(String oldName, String newName) throws MessagingException {
+	// 	endTransaction();
+	// 	Folder oldFolder = this.notesFolder.getFolder(oldName);
 
-		Folder newFolder = this.notesFolder.getFolder(newName);
-		try {
-		boolean retValue = oldFolder.renameTo(newFolder);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return newFolder;
-	}
+	// 	Folder newFolder = this.notesFolder.getFolder(newName);
+	// 	try {
+	// 	boolean retValue = oldFolder.renameTo(newFolder);
+	// 	} catch (Exception e) {
+	// 		e.printStackTrace();
+	// 	}
+	// 	return newFolder;
+	// }
 
 	
 	private void setFromAddress(String fromAddress) {
@@ -93,10 +94,10 @@ public class IMAPBackend {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
 	}
 	
-	public void switchToSubFolder(String name) throws MessagingException {
-		openSubFolder(name);
-		this.folderStack.push(name);
-	}
+	// public void switchToSubFolder(String name) throws MessagingException {
+	// 	openSubFolder(name);
+	// 	this.folderStack.push(name);
+	// }
 
 	public void switchToParentFolder() throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
@@ -135,22 +136,20 @@ public class IMAPBackend {
 		this.store.close();
 	}
 
-	public List<Note> getMessages(Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
-		this.startTransaction();
+	public List<Note> getMessages(Folder folder, Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
+		this.startTransaction((IMAPFolder) folder);
 
-		final Message[] msgs =  this.notesFolder.getMessages();
+		final Message[] msgs =  folder.getMessages();
 		FetchProfile fp = new FetchProfile();
 		fp.add(FetchProfile.Item.ENVELOPE);
 		fp.add(FetchProfile.Item.FLAGS);
 		fp.add("X-Uniform-Type-Identifier");
 		fp.add("X-Mail-Created-Date");
 		fp.add("X-Universally-Unique-Identifier");
-		this.notesFolder.fetch(msgs, fp);
+		folder.fetch(msgs, fp);
 
 		List<Note> messages = new ArrayList<>();
 		for (Message m : msgs) {
-			System.out.println(m.getSubject());
-			System.out.println(m.isSet(Flag.DELETED));
 			if (m.isSet(Flag.DELETED)) {
 				continue;
 			}
@@ -159,37 +158,33 @@ public class IMAPBackend {
 			newNote.setSubject(m.getSubject());
 			newNote.setIsFolder(false);
 			msgMap.put(uuid, m);
-			//newNote.setImapMessage(m);
 			newNote.setDate(m.getReceivedDate());
-
 			messages.add(newNote);
 		}
-		Folder[] folders = this.notesFolder.list();
+		Folder[] folders = folder.list();
 		for (Folder f : folders) {
-			// TODO andere Benamsung 
+			logger.info("Folder full name: {}", f.getFullName());
 			final String name = f.getName();
-			final Note newNote = new Note(name);
+			final Note newNote = new Note(f.getFullName());
 			newNote.setSubject(name);
-			folderMap.put(name, f);
-			//newNote.setImapMessage(f);
+			folderMap.put(f.getFullName(), f);
 			newNote.setIsFolder(true);
 			newNote.setDate(new Date());
 			messages.add(newNote);
 		}
 		
-		if (!this.folderStack.isEmpty()) {
-			final String prevFolder = this.folderStack.peek();
-			if (prevFolder != null) {
-				final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
-				final Note newNote = new Note(uuid);
-				newNote.setIsFolder(true);
-				folderMap.put(uuid, null);
-				newNote.setSubject("Zurück");
-				newNote.setDate(new Date());
-				messages.add(newNote);
-			}
-			
-		}
+		// if (!this.folderStack.isEmpty()) {
+		// 	final String prevFolder = this.folderStack.peek();
+		// 	if (prevFolder != null) {
+		// 		final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
+		// 		final Note newNote = new Note(uuid);
+		// 		newNote.setIsFolder(true);
+		// 		folderMap.put(uuid, null);
+		// 		newNote.setSubject("Zurück");
+		// 		newNote.setDate(new Date());
+		// 		messages.add(newNote);
+		// 	}	
+		// }
 		// TODO Reintegrate me!
 //		Collections.sort(messages, new Comparator<Message>() {
 //			@Override
@@ -202,32 +197,33 @@ public class IMAPBackend {
 //				}
 //			}
 //		});
-		this.endTransaction();
+		this.endTransaction(((IMAPFolder) folder));
 		return messages;
 	}
 
 
 	public String getMessageContent(Message message) throws MessagingException, IOException {
-		startTransaction();
+		IMAPFolder parentFolder = (IMAPFolder) message.getFolder();
+		startTransaction(parentFolder);
 		final String content = (String) message.getContent();
-		endTransaction();
+		endTransaction(parentFolder);
 		return content;
 	}
 
-	private void endTransaction() throws MessagingException {
-		if (this.notesFolder.isOpen()) {
-			this.notesFolder.close(false);
+	private void endTransaction(IMAPFolder folder) throws MessagingException {
+		if (folder.isOpen()) {
+			folder.close(false);
 		}
 	}
 
-	private void startTransaction() throws MessagingException {
-		if (!this.notesFolder.isOpen()) {
-			this.notesFolder.open(Folder.READ_WRITE);
+	private void startTransaction(IMAPFolder folder) throws MessagingException {
+		if (!folder.isOpen()) {
+			folder.open(Folder.READ_WRITE);
 		}
 	}
 
 	public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
-		startTransaction();
+	//	startTransaction();
 		final String subject = currentMessage.getSubject();
 	
 		MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
@@ -250,14 +246,14 @@ public class IMAPBackend {
 		Message[] newIMAPMessage = new Message[]{newMsg};
 		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
 		deleteMessageObject(currentMessage);
-		endTransaction();
+		//endTransaction();
 		return resultMessage[0];
 	}
 
 	public void deleteMessage(Message message)  throws MessagingException {
-		startTransaction();
+		//startTransaction();
 		deleteMessageObject(message);
-		endTransaction();
+	//	endTransaction();
 	}
 	
 	private void deleteMessageObject(Message message) throws MessagingException {
@@ -265,12 +261,12 @@ public class IMAPBackend {
 	}
 
 	public Message createNewMessage(String subject, String newContent) throws MessagingException {
-		startTransaction();
+	//	startTransaction();
 		final MimeMessage newMsg = createNewMessageObject(subject, newContent, true);
 		newMsg.setFlag(Flag.SEEN, true);
 		final Message[] newIMAPMessage = new Message[]{newMsg};
 		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
-		endTransaction();
+	//	endTransaction();
 		return resultMessage[0];
 	}
 
@@ -292,30 +288,29 @@ public class IMAPBackend {
 	}
 
 	public String getUUIDForMessage(Message msg) throws MessagingException {
-		this.startTransaction();
+		//this.startTransaction();
 	    final String uuid =  msg.getHeader("X-Universally-Unique-Identifier")[0];	
-	    this.endTransaction();
+	   // this.endTransaction();
 	    return uuid;
 	}
 	
 	public long getUidForMessage(Message msg) throws MessagingException {
-		this.startTransaction();
+	//	this.startTransaction();
 	    final long uid =  ((UIDFolder) this.getNotesFolder()).getUID(msg);		
-	    this.endTransaction();
+	  //  this.endTransaction();
 	    return uid;
 	}
 	
 	public void cleanup() throws MessagingException {
-		this.startTransaction();
+		//this.startTransaction();
 	    this.getNotesFolder().expunge();	
-	    this.endTransaction();
-	    //return uid;
+	    //this.endTransaction();
 	}
 
 	public Message getMessageByUID(long uid) throws MessagingException {
-		this.startTransaction();
+		//this.startTransaction();
         final Message msg = this.getNotesFolder().getMessageByUID(uid);	
-        this.endTransaction();
+        //this.endTransaction();
         return msg;
 	}
 
@@ -338,10 +333,10 @@ public class IMAPBackend {
 	
 	public boolean moveMessage(Message msg, Folder folder) {
 		try {
-			this.startTransaction();
+			//this.startTransaction();
 
 			getNotesFolder().copyMessages(new Message[]{msg}, folder);
-			this.endTransaction();
+			//this.endTransaction();
 
 			return true;
 		} catch (MessagingException e) {

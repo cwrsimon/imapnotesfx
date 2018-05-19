@@ -8,6 +8,8 @@ import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -120,7 +122,7 @@ public class MainView extends Application {
 	public void start(Stage primaryStage) {
 		this.noteController.setTabPane(tp);
 
-		this.noteCB.setCl
+	
 		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");

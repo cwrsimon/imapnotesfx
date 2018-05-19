@@ -1,26 +1,31 @@
 package de.wesim.imapnotes.ui.background;
 
+import java.util.List;
+
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TreeItem;
 
-public class OpenFolderTask extends AbstractNoteService<Void> {
+public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
     
-    private ObjectProperty<Note> noteFolder = new SimpleObjectProperty<Note>(this, "note");
+    private ObjectProperty<TreeItem<Note>> noteFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
 
-    public final void setNoteFolder(Note value) {
+    public final void setNoteFolder(TreeItem<Note> value) {
         noteFolder.set(value);
     }
 
-    public final Note getNoteFolder() {
+    public final TreeItem<Note> getNoteFolder() {
         return noteFolder.get();
     }
 
-    public final ObjectProperty<Note> noteFolderProperty() {
+    public final ObjectProperty<TreeItem<Note>> noteFolderProperty() {
         return noteFolder;
     }
 
@@ -30,28 +35,28 @@ public class OpenFolderTask extends AbstractNoteService<Void> {
     }
 
     @Override
-    protected Task<Void> createTask() {
-        Task<Void> task = new Task<Void>() {
+    protected Task<ObservableList<Note>> createTask() {
+        Task<ObservableList<Note>> task = new Task<ObservableList<Note>>() {
 
             @Override
-            protected Void call() throws Exception {
+            protected ObservableList<Note> call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Opening " + noteFolder.getValue().toString() + "...");
 
-                final Note folderToOpen = getNoteFolder();
+                final TreeItem<Note> openedItem = getNoteFolder();
+                final Note folderToOpen = openedItem.getValue();
                 // TODO Konstante extrahieren
-                if (folderToOpen.getUuid().startsWith("BACKTOPARENT")) {
-                    System.out.println("OpenFolderTAsk: Return");
-                    controller.getBackend().returnToParent();
-                } else {
-                    System.out.println("OpenFolderTAsk: " + folderToOpen);
-                    controller.getBackend().openFolder(folderToOpen);
-                }
+                // if (folderToOpen.getUuid().startsWith("BACKTOPARENT")) {
+                //     System.out.println("OpenFolderTAsk: Return");
+                //     controller.getBackend().returnToParent();
+                // } else {
+                final List<Note> messages  = controller.getBackend().getNotesFromFolder(folderToOpen);
+                //}
 
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
                 updateProgress(1, 1);
 
-                return null;
+                return FXCollections.observableArrayList(messages);
             }
         };
         return task;

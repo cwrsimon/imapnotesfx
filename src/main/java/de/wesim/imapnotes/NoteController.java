@@ -22,12 +22,14 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.components.EditorTab;
-import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -72,6 +74,7 @@ public class NoteController {
 		this.status = status;
 		this.refreshConfig();
 		this.initAsyncTasks();
+		
 	}
 
 	public HostServices getHostServices() {
@@ -140,7 +143,30 @@ public class NoteController {
 			final ObservableList<Note> loadedItems = newLoadTask.getValue();
 			noteCB.getRoot().getChildren().clear();
 			for (Note n : loadedItems) {
-				noteCB.getRoot().getChildren().add(new TreeItem(n));
+				final TreeItem<Note> newItem = new TreeItem<Note>(n);
+				if (n.isFolder()) {
+					newItem.getChildren().add(new TreeItem<Note>());
+					// TODO https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
+					newItem.setExpanded(false);
+					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+						@Override
+						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+								Boolean newValue) {
+								if (!newValue) { return; }
+								
+								BooleanProperty bb = (BooleanProperty) observable;
+
+								TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+								if (callee.getChildren().size() != 1) return;
+								// nur bei einem einzigen leeren Kind
+								if (callee.getChildren().get(0).getValue() != null) return;
+								openFolder(callee);
+								
+						}		
+					});
+				}
+				noteCB.getRoot().getChildren().add(newItem);
 			}
 			//noteCB.setItems(loadedItems);
 			//currentlyOPen = null;
@@ -176,8 +202,40 @@ public class NoteController {
 			deleteCurrentMessage(moved, true);
 		});
 		openFolderTask.setOnSucceeded(e -> {
+			TreeItem<Note> containedTreeItem = openFolderTask.noteFolderProperty().get();
+			containedTreeItem.getChildren().clear();
+			final ObservableList<Note> loadedItems = openFolderTask.getValue();
+			for (Note n : loadedItems) {
+				final TreeItem<Note> newItem = new TreeItem<Note>(n);
+				if (n.isFolder()) {
+					newItem.getChildren().add(new TreeItem<Note>());
+					// TODO https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
+					newItem.setExpanded(false);
+					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
+
+						@Override
+						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+								Boolean newValue) {
+								if (!newValue) { return; }
+								
+								BooleanProperty bb = (BooleanProperty) observable;
+
+								TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+								if (callee.getChildren().size() != 1) return;
+								// nur bei einem einzigen leeren Kind
+								if (callee.getChildren().get(0).getValue() != null) return;
+								openFolder(callee);
+								
+						}		
+					});
+				}
+
+				containedTreeItem.getChildren().add(newItem);
+			}
+
 			openFolderTask.noteFolderProperty().set(null);
-			loadMessages(null);
+
+			//loadMessages(null);
 		});
 		renameNoteService.setOnSucceeded(e -> {
 			noteCB.refresh();
@@ -246,6 +304,7 @@ public class NoteController {
 
 	// Aufgerufen beim Klick aufs ListViewItem
 	public void openNote(Note m) {
+		if (m == null) return;
 		// Böse, aber funktioniert ...
 		for (Tab t : this.tp.getTabs()) {
 			EditorTab et = (EditorTab) t;
@@ -256,15 +315,35 @@ public class NoteController {
 		}
 		
 		logger.info("Opening {}", m.getSubject());
-		if (m.isFolder() == false) {
+		//if (m.isFolder() == false) {
 			this.openMessageTask.noteProperty().set(m);
 			this.openMessageTask.restart();
-		} else {
-			this.openFolderTask.noteFolderProperty().set(m);
-			this.openFolderTask.restart();
-		}
+		//} 
+		// else {
+		// 	this.openFolderTask.noteFolderProperty().set(m);
+		// 	this.openFolderTask.restart();
+		// }
 	}
 
+	// Aufgerufen beim Klick aufs ListViewItem
+	public void openFolder(TreeItem<Note> m) {
+		if (m == null) return;
+		// TODO Brauchen wir das noch ????
+		// Böse, aber funktioniert ...
+		for (Tab t : this.tp.getTabs()) {
+			EditorTab et = (EditorTab) t;
+			if (et.getNote().equals(m)) {
+				this.tp.getSelectionModel().select(t);
+				return;
+			}
+		}
+		
+		logger.info("Opening Folder {}", m.getValue().getSubject());
+		
+			this.openFolderTask.noteFolderProperty().set(m);
+			this.openFolderTask.restart();
+		
+	}
 //	private boolean hasContentChanged(Note curMsg) {
 //		return this.contentUpdated;
 //		//if (curMsg == null) return false;
@@ -310,6 +389,18 @@ public class NoteController {
 
 	public void setListView(TreeView noteCB) {
 		this.noteCB = noteCB;
+		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
+
+			@Override
+			public void changed(ObservableValue<? extends TreeItem<Note>> observable, TreeItem<Note> oldValue,
+					TreeItem<Note> newValue) {
+					if (newValue == null) return;
+					if (oldValue != newValue) {
+						openNote(newValue.getValue());
+					}
+
+			}
+		});
 	}
 
 	public TreeView getListView() {
