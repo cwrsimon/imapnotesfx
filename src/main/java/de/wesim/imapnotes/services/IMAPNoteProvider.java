@@ -109,10 +109,10 @@ public class IMAPNoteProvider implements INoteProvider {
 		//this.backend.switchToSubFolder(folder.getUuid());
 	}
 
-	@Override
-	public void returnToParent() throws Exception {
-		this.backend.switchToParentFolder();
-	}
+	// @Override
+	// public void returnToParent() throws Exception {
+	// 	//this.backend.switchToParentFolder();
+	// }
 
 	@Override
 	public Note createNewFolder(String name) throws Exception {

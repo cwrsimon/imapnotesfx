@@ -20,8 +20,8 @@ public interface INoteProvider {
     @Deprecated
     public void openFolder(Note folder) throws Exception;
 
-    @Deprecated
-	public void returnToParent() throws Exception;
+    // @Deprecated
+	// public void returnToParent() throws Exception;
 
     public void load(Note note) throws Exception;
 

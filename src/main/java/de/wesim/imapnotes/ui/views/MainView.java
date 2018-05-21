@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.ui.components.MyListView;
+import de.wesim.imapnotes.ui.components.MyTreeView;
 import javafx.application.Application;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -112,7 +113,7 @@ public class MainView extends Application {
 		this.noteController = new NoteController(p1, status, getHostServices());
 //		this.noteCB = new TreeVi(this.noteController);
 
-		this.noteCB = new TreeView<Note>(new TreeItem<Note>());
+		this.noteCB = new MyListView(this.noteController);
 		this.noteCB.setShowRoot(false);
 		
 		this.noteController.setListView(noteCB);

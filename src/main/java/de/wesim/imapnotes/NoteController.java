@@ -305,6 +305,11 @@ public class NoteController {
 	// Aufgerufen beim Klick aufs ListViewItem
 	public void openNote(Note m) {
 		if (m == null) return;
+		
+		if (m.isFolder()) {
+			logger.warn("Opening folders like this not supported, yet.");
+			return;
+		}
 		// Böse, aber funktioniert ...
 		for (Tab t : this.tp.getTabs()) {
 			EditorTab et = (EditorTab) t;

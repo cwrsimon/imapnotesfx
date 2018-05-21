@@ -7,6 +7,8 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -17,41 +19,60 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 
-public class ListCellImpl extends ListCell<Note> {
+public class MyTreeView extends TreeCell<Note> {
 
     private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
 
 	private NoteController caller;
-	private final ContextMenu addMenu = new ContextMenu();
-	private final ContextMenu newMenu = new ContextMenu();
+	private final ContextMenu noteMenu = new ContextMenu();
+	private final ContextMenu genericMenu = new ContextMenu();
+	private final ContextMenu folderMenu = new ContextMenu();
+
 
 	private EventHandler<? super MouseEvent> eventHandler;
-	public ListCellImpl (NoteController caller) {
+	public MyTreeView (NoteController caller) {
+		
 		final MenuItem deleteItem = new MenuItem("Delete");
-		addMenu.getItems().add(deleteItem);
 		deleteItem.setOnAction(e -> {
 			caller.deleteCurrentMessage(getItem(), false);
 		});
 		final MenuItem renameItem = new MenuItem("Rename");
-		addMenu.getItems().add(renameItem);
+		noteMenu.getItems().add(renameItem);
 		renameItem.setOnAction(e -> {
 			caller.renameCurrentMessage(getItem());                
 		});
-		final MenuItem newItem = new MenuItem("Neu");
-		addMenu.getItems().add(newItem);
-		newMenu.getItems().add(newItem);
+		final MenuItem newItem = new MenuItem("New Note");
+		//noteMenu.getItems().add(newItem);
+		final MenuItem delete2 = new MenuItem("deleteme");
+		noteMenu.getItems().add(delete2);
+
 
 		newItem.setOnAction(e -> {
 			caller.createNewMessage(false);                
 		});
 
+		final MenuItem newFolder = new MenuItem("Add Folder");
+
+		genericMenu.getItems().add(newItem);
+		genericMenu.getItems().add(newFolder);
+
+
+		
+		folderMenu.getItems().add(newFolder);
+		folderMenu.getItems().add(newItem);
+		folderMenu.getItems().add(renameItem);
+		folderMenu.getItems().add(deleteItem);
+
+		/*
 		eventHandler = e-> {
 			if (e.getButton() == MouseButton.PRIMARY 
 					&& e.getClickCount() == 2) {
 				caller.openNote(getItem());
 			}
 		};
+		*/
 
+		/*
 		this.setOnDragDetected(e -> {
 			Dragboard db = this.startDragAndDrop( TransferMode.MOVE );
             ClipboardContent content = new ClipboardContent();
@@ -71,8 +92,7 @@ public class ListCellImpl extends ListCell<Note> {
 			event.consume();
 		} );
 		this.setOnDragEntered(( DragEvent event ) -> {
-			/* the drag-and-drop gesture entered the target */
-			/* show to the user that it is an actual gesture target */
+			
 				 if (event.getGestureSource() != getItem() &&
 						 event.getDragboard().hasContent(myNotes)
 						 && getItem().isFolder()) {
@@ -89,20 +109,13 @@ public class ListCellImpl extends ListCell<Note> {
 		);
 		// Beim Ziel, hier muss dann verschoben werden ...
 		this.setOnDragDropped(( DragEvent event ) -> {
-			/* data dropped */
-    	    /* if there is a string data on dragboard, read it and use it */
 			Dragboard db = event.getDragboard();
 			Note source = (Note) db.getContent(myNotes);
 			caller.move(source, getItem());
-        	/* let the source know whether the string was successfully 
-         	 * transferred and used */
         	event.setDropCompleted(true);    
 	        event.consume();
 	   });
-	//    this.setOnDragDone(( DragEvent event ) -> {
-	// 	event.consume();
-   	// 	}
-	//);
+*/
 	}
 
 	
@@ -115,34 +128,36 @@ public class ListCellImpl extends ListCell<Note> {
 		if (empty || item == null) {
 			setText(null);
 			setGraphic(null);
-			setOnMouseClicked( null );
-			setContextMenu(newMenu);
+			//setOnMouseClicked( null );
+			setContextMenu(genericMenu);
 
 		} else {
 			if (item.isFolder()) {
-				//Circle newRect = new Circle(10, Color.RED);
-				final Polygon polygon = new Polygon();
-				if (! item.getUuid().startsWith("BACKTOPARENT")) {
-				polygon.getPoints().addAll(new Double[]{
-					0.0, 0.0,
-					20.0, 10.0,
-					0.0, 20.0 });
-				} else {
-					polygon.getPoints().addAll(new Double[]{
-						20.0, 0.0,
-						0.0, 10.0,
-						20.0, 20.0 });
-				}
-				polygon.setFill(Color.LIGHTBLUE);
-                setGraphic(polygon);
+			// 	//Circle newRect = new Circle(10, Color.RED);
+			// 	final Polygon polygon = new Polygon();
+			// 	if (! item.getUuid().startsWith("BACKTOPARENT")) {
+			// 	polygon.getPoints().addAll(new Double[]{
+			// 		0.0, 0.0,
+			// 		20.0, 10.0,
+			// 		0.0, 20.0 });
+			// 	} else {
+			// 		polygon.getPoints().addAll(new Double[]{
+			// 			20.0, 0.0,
+			// 			0.0, 10.0,
+			// 			20.0, 20.0 });
+			// 	}
+			// 	polygon.setFill(Color.LIGHTBLUE);
+            //     setGraphic(polygon);
+				setContextMenu(folderMenu);
 
 			} else { 
+				setContextMenu(noteMenu);
 
-			}
+			 }
 			setText(item.getSubject());
-			setContextMenu(addMenu);
+			setGraphic(null);
 
-			setOnMouseClicked( eventHandler);
+			//setOnMouseClicked( eventHandler);
 		}
 	}
 }

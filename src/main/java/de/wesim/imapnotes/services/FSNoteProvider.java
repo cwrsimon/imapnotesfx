@@ -61,11 +61,11 @@ public class FSNoteProvider implements INoteProvider {
 		// TODO Verheiraten mit load ... und entsprechend zurückgeben ...
 	}
 
-	@Override
-	public void returnToParent() throws Exception {
-		this.currentDirectory = this.folderStack.pop();
-		logger.info("returning to parent dir {}", this.currentDirectory.toString());
-	}
+	// @Override
+	// public void returnToParent() throws Exception {
+	// 	this.currentDirectory = this.folderStack.pop();
+	// 	logger.info("returning to parent dir {}", this.currentDirectory.toString());
+	// }
 
 	@Override
 	public void load(Note note) throws Exception {

@@ -4,11 +4,13 @@ import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeView;
 import javafx.util.Callback;
 
 // Was es editierbar werden soll:
 // https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/tree-view.htm#BABDEADA
-public class ListCellFactory implements Callback<ListView<Note>, ListCell<Note>>{
+public class ListCellFactory implements Callback<TreeView<Note>, TreeCell<Note>>{
 
     private NoteController caller;
 
@@ -16,9 +18,10 @@ public class ListCellFactory implements Callback<ListView<Note>, ListCell<Note>>
         this.caller = caller;
     }
 
+
 	@Override
-	public ListCell<Note> call(ListView<Note> arg0) {
-		return new ListCellImpl(caller);
+	public TreeCell<Note> call(TreeView<Note> param) {
+		return new MyTreeView(caller);
 	}
 
 }

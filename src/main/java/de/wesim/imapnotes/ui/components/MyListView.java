@@ -5,15 +5,18 @@ import de.wesim.imapnotes.models.Note;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.input.MouseEvent;
 
-public class MyListView extends ListView<Note> {
+public class MyListView extends TreeView<Note> {
 
 	//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/Cell.html
 		//https://docs.oracle.com/javase/8/javafx/api/javafx/scene/control/TabPane.html
 		// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/custom.htm#CACCFEFD
         
 	public MyListView(NoteController controller) {
+		super(new TreeItem<Note>());
     //    this.controller = controller;
 		this.setCellFactory(new ListCellFactory(controller));
 		// this.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Note>() {

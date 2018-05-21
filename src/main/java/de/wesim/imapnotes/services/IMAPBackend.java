@@ -51,6 +51,7 @@ public class IMAPBackend {
 		return this.session;
 	}
 	
+	// TODO Absoluten Pfad angeben
 	public Note createFolder(String name, Map<String, Folder> folderMap) throws MessagingException {
 		Folder newFolder = this.notesFolder.getFolder(name);
 		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
@@ -62,6 +63,7 @@ public class IMAPBackend {
 		return newNote;
 	}
 	
+	// TODO Absoluten Pfad angeben
 	public boolean deleteFolder(String name) throws MessagingException {
 		Folder newFolder = this.notesFolder.getFolder(name);
 		return newFolder.delete(false);
@@ -99,10 +101,10 @@ public class IMAPBackend {
 	// 	this.folderStack.push(name);
 	// }
 
-	public void switchToParentFolder() throws MessagingException {
-		this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
-		this.folderStack.pop();
-	}
+	// public void switchToParentFolder() throws MessagingException {
+	// 	this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
+	// 	this.folderStack.pop();
+	// }
 	
 	private void connectStore(String hostname, String login, String pw) throws MessagingException {
 		logger.info("Trying to connect: {}, {}, {}", hostname, login, pw);
@@ -223,37 +225,39 @@ public class IMAPBackend {
 	}
 
 	public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
-	//	startTransaction();
+		final IMAPFolder myFolder = (IMAPFolder)currentMessage.getFolder();
+		startTransaction(myFolder);
 		final String subject = currentMessage.getSubject();
 	
-		MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
+		final MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
 
 		Enumeration<Header> enums = currentMessage.getAllHeaders();
 		while (enums.hasMoreElements()) {
 			Header next = (Header) enums.nextElement();
 			//			X-Mail-Created-Date
 			//			X-Universally-Unique-Identifier
-			String name = next.getName();
+			final String name = next.getName();
 			if (!name.equals("X-Mail-Created-Date") 
 					&& !name.equals("X-Universally-Unique-Identifier")) {
 				continue;
 			}
 			newMsg.addHeader(name, next.getValue());
-			System.out.println(name + ";" + next.getValue());
+			//System.out.println(name + ";" + next.getValue());
 		}
 		// Flag setzen bevor(!) angehängt wird
 		newMsg.setFlag(Flag.SEEN, true);
-		Message[] newIMAPMessage = new Message[]{newMsg};
-		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
+		final Message[] newIMAPMessage = new Message[]{newMsg};
+		final Message[] resultMessage = myFolder.addMessages(newIMAPMessage);
 		deleteMessageObject(currentMessage);
-		//endTransaction();
+		endTransaction(myFolder);
 		return resultMessage[0];
 	}
 
 	public void deleteMessage(Message message)  throws MessagingException {
-		//startTransaction();
+		final IMAPFolder myFolder = (IMAPFolder) message.getFolder();
+		startTransaction(myFolder);
 		deleteMessageObject(message);
-	//	endTransaction();
+		endTransaction(myFolder);
 	}
 	
 	private void deleteMessageObject(Message message) throws MessagingException {
@@ -271,11 +275,11 @@ public class IMAPBackend {
 	}
 
 	private MimeMessage createNewMessageObject(String subject, String newContent, boolean newUUid) throws MessagingException {
-		MimeMessage newMsg = new MimeMessage(this.session);
+		final MimeMessage newMsg = new MimeMessage(this.session);
 		newMsg.setContent(newContent, "text/html; charset=utf-8");
 		newMsg.setSubject(subject);
 		newMsg.setFrom(this.from_address);
-		Date date = new Date();
+		final Date date = new Date();
 		newMsg.setSentDate(date);
 		// think of something here ...
 		//		newMsg.addHeader("X-Mail-Created-Date", "Sun, 31 Jan 2016 21:17:36 +0100");
@@ -294,24 +298,11 @@ public class IMAPBackend {
 	    return uuid;
 	}
 	
-	public long getUidForMessage(Message msg) throws MessagingException {
-	//	this.startTransaction();
-	    final long uid =  ((UIDFolder) this.getNotesFolder()).getUID(msg);		
-	  //  this.endTransaction();
-	    return uid;
-	}
 	
 	public void cleanup() throws MessagingException {
-		//this.startTransaction();
-	    this.getNotesFolder().expunge();	
-	    //this.endTransaction();
-	}
-
-	public Message getMessageByUID(long uid) throws MessagingException {
-		//this.startTransaction();
-        final Message msg = this.getNotesFolder().getMessageByUID(uid);	
-        //this.endTransaction();
-        return msg;
+		this.startTransaction(this.notesFolder);
+		this.notesFolder.expunge();	
+	    this.endTransaction(this.notesFolder);
 	}
 
 //	public void dumpMessage(Message msg) throws MessagingException, IOException {
