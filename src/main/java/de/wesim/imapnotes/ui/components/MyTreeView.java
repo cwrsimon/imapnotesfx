@@ -36,30 +36,41 @@ public class MyTreeView extends TreeCell<Note> {
 		deleteItem.setOnAction(e -> {
 			caller.deleteCurrentMessage(getItem(), false);
 		});
+
 		final MenuItem renameItem = new MenuItem("Rename");
 		noteMenu.getItems().add(renameItem);
 		renameItem.setOnAction(e -> {
 			caller.renameCurrentMessage(getItem());                
 		});
-		final MenuItem newItem = new MenuItem("New Note");
 		//noteMenu.getItems().add(newItem);
 		final MenuItem delete2 = new MenuItem("deleteme");
 		noteMenu.getItems().add(delete2);
 
 
+		final MenuItem newItem = new MenuItem("New Root Note");
 		newItem.setOnAction(e -> {
-			caller.createNewMessage(false);                
+			caller.createNewMessage(false, null);                
 		});
 
-		final MenuItem newFolder = new MenuItem("Add Folder");
+		final MenuItem newFolder = new MenuItem("New Root Folder");
+		newFolder.setOnAction(e -> {
+			caller.createNewMessage(true, null);              
+		});
 
 		genericMenu.getItems().add(newItem);
 		genericMenu.getItems().add(newFolder);
 
 
-		
-		folderMenu.getItems().add(newFolder);
-		folderMenu.getItems().add(newItem);
+		final MenuItem newSubfolder = new MenuItem("Add subfolder");
+		final MenuItem newFolderNote = new MenuItem("Add note to folder");
+		newFolderNote.setOnAction(e -> {
+			caller.createNewMessage(false, getItem());                
+		});
+		newSubfolder.setOnAction(e -> {
+			caller.createNewMessage(true, getItem());                
+		});
+		folderMenu.getItems().add(newSubfolder);
+		folderMenu.getItems().add(newFolderNote);
 		folderMenu.getItems().add(renameItem);
 		folderMenu.getItems().add(deleteItem);
 
@@ -133,21 +144,21 @@ public class MyTreeView extends TreeCell<Note> {
 
 		} else {
 			if (item.isFolder()) {
-			// 	//Circle newRect = new Circle(10, Color.RED);
-			// 	final Polygon polygon = new Polygon();
-			// 	if (! item.getUuid().startsWith("BACKTOPARENT")) {
-			// 	polygon.getPoints().addAll(new Double[]{
-			// 		0.0, 0.0,
-			// 		20.0, 10.0,
-			// 		0.0, 20.0 });
-			// 	} else {
-			// 		polygon.getPoints().addAll(new Double[]{
-			// 			20.0, 0.0,
-			// 			0.0, 10.0,
-			// 			20.0, 20.0 });
-			// 	}
-			// 	polygon.setFill(Color.LIGHTBLUE);
-            //     setGraphic(polygon);
+				//Circle newRect = new Circle(10, Color.RED);
+				final Polygon polygon = new Polygon();
+				if (! item.getUuid().startsWith("BACKTOPARENT")) {
+				polygon.getPoints().addAll(new Double[]{
+					0.0, 0.0,
+					20.0, 10.0,
+					0.0, 20.0 });
+				} else {
+					polygon.getPoints().addAll(new Double[]{
+						20.0, 0.0,
+						0.0, 10.0,
+						20.0, 20.0 });
+				}
+				polygon.setFill(Color.LIGHTBLUE);
+                setGraphic(polygon);
 				setContextMenu(folderMenu);
 
 			} else { 

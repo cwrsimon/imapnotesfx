@@ -40,8 +40,15 @@ public class IMAPNoteProvider implements INoteProvider {
 	}	
 	
 	@Override
-	public Note createNewNote(String subject) throws Exception {
-		final Message newIMAPMsg = this.backend.createNewMessage(subject, Consts.EMPTY_NOTE);
+	public Note createNewNote(String subject, Note parentFolder) throws Exception {
+		// TODO wenn null, dann root folder benutzen
+		final Folder f;
+		if (parentFolder == null) {
+			f = this.backend.getNotesFolder();
+		} else {
+			f = this.folderMap.get(parentFolder.getUuid());
+		}
+		final Message newIMAPMsg = this.backend.createNewMessage(subject, f);
 		final Note newNote = new Note(this.backend.getUUIDForMessage(newIMAPMsg));
 		newNote.setSubject(subject);
 		newNote.setIsFolder(false);
@@ -109,14 +116,16 @@ public class IMAPNoteProvider implements INoteProvider {
 		//this.backend.switchToSubFolder(folder.getUuid());
 	}
 
-	// @Override
-	// public void returnToParent() throws Exception {
-	// 	//this.backend.switchToParentFolder();
-	// }
-
 	@Override
-	public Note createNewFolder(String name) throws Exception {
-		return this.backend.createFolder(name, this.folderMap);
+	public Note createNewFolder(String name, Note parent) throws Exception {
+		final Folder parentFolder;
+		if (parent != null) {
+			parentFolder = this.folderMap.get(parent.getUuid());
+		} else {
+			parentFolder = this.backend.getNotesFolder();
+		}
+		final Note newFolder =  this.backend.createFolder(name, parentFolder, this.folderMap);
+		return newFolder;
 	}
 
 	@Override

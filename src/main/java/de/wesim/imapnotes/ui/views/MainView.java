@@ -214,10 +214,10 @@ public class MainView extends Application {
 
 		});
 		newFolder.setOnAction(e -> {
-			this.noteController.createNewMessage(true);
+			this.noteController.createNewMessage(true, null);
 		});
 		newMenu.setOnAction(e -> {
-			this.noteController.createNewMessage(false);
+			this.noteController.createNewMessage(false, null);
 		});
 		delete.setOnAction(e -> {
 			// FIXME

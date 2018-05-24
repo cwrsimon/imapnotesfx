@@ -10,12 +10,12 @@ public interface INoteProvider {
 	public void init(Account account) throws Exception;
 	
 	// TODO Create dedicated exception type !!!
-    public Note createNewNote(String subject) throws Exception;
+    public Note createNewNote(String subject, Note parentFolder) throws Exception;
 
-    public Note createNewFolder(String name) throws Exception;
+    public Note createNewFolder(String name, Note parentFolder) throws Exception;
 
     public void renameNote(Note note, String newName) throws Exception;
-	void renameFolder(Note note, String newName) throws Exception;
+	public void renameFolder(Note note, String newName) throws Exception;
 
     @Deprecated
     public void openFolder(Note folder) throws Exception;

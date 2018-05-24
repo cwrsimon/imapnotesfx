@@ -368,8 +368,8 @@ public class NoteController {
 //		return plainContent;
 //	}
 
-	public void createNewMessage(boolean createFolder) {
-		final Dialog dialog = new TextInputDialog("Bla");
+	public void createNewMessage(boolean createFolder, Note parent) {
+		final Dialog<String> dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("What title is the new note going to have?");
 		final Optional<String> result = dialog.showAndWait();
@@ -377,6 +377,7 @@ public class NoteController {
 		if (result.isPresent()) {
 			entered = result.get();
 		}
+		newNoteService.setParentFolder(parent);
 		newNoteService.setCreateFolder(createFolder);
 		newNoteService.setSubject(entered);
 		newNoteService.reset();

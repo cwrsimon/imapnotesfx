@@ -51,15 +51,19 @@ public class IMAPBackend {
 		return this.session;
 	}
 	
-	// TODO Absoluten Pfad angeben
-	public Note createFolder(String name, Map<String, Folder> folderMap) throws MessagingException {
-		Folder newFolder = this.notesFolder.getFolder(name);
+	public Note createFolder(String name, Folder parentFolder, Map<String, Folder> folderMap) throws MessagingException {
+		startTransaction((IMAPFolder) parentFolder);
+		Folder newFolder = parentFolder.getFolder(name);
 		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
-		final Note newNote = new Note(name);
+		final Note newNote = new Note(newFolder.getFullName());
 		newNote.setSubject(name);
 		newNote.setDate(new Date());
-		folderMap.put(name, newFolder);
 		newNote.setIsFolder(true);
+
+		folderMap.put(newNote.getUuid(), newFolder);
+
+		endTransaction((IMAPFolder) parentFolder);
+
 		return newNote;
 	}
 	
@@ -264,13 +268,14 @@ public class IMAPBackend {
 		message.setFlag(Flag.DELETED, true);
 	}
 
-	public Message createNewMessage(String subject, String newContent) throws MessagingException {
-	//	startTransaction();
-		final MimeMessage newMsg = createNewMessageObject(subject, newContent, true);
+	public Message createNewMessage(String subject, Folder parentFolder) throws MessagingException {
+		IMAPFolder folder = (IMAPFolder) parentFolder;
+		startTransaction(folder);
+		final MimeMessage newMsg = createNewMessageObject(subject, "", true);
 		newMsg.setFlag(Flag.SEEN, true);
 		final Message[] newIMAPMessage = new Message[]{newMsg};
-		final Message[] resultMessage = this.notesFolder.addMessages(newIMAPMessage);
-	//	endTransaction();
+		final Message[] resultMessage = folder.addMessages(newIMAPMessage);
+		endTransaction(folder);
 		return resultMessage[0];
 	}
 
@@ -292,9 +297,9 @@ public class IMAPBackend {
 	}
 
 	public String getUUIDForMessage(Message msg) throws MessagingException {
-		//this.startTransaction();
+		this.startTransaction((IMAPFolder) msg.getFolder());
 	    final String uuid =  msg.getHeader("X-Universally-Unique-Identifier")[0];	
-	   // this.endTransaction();
+	    this.endTransaction((IMAPFolder) msg.getFolder());
 	    return uuid;
 	}
 	

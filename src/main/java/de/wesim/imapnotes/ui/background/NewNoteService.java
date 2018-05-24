@@ -3,7 +3,9 @@ package de.wesim.imapnotes.ui.background;
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
@@ -25,6 +27,20 @@ public class NewNoteService extends AbstractNoteService<Note> {
         this.createFolder.set(flag);
     }
 
+    private ObjectProperty<Note> parentFolder = new SimpleObjectProperty<Note>(this, "parentFolder");
+
+    public final void setParentFolder(Note value) {
+        parentFolder.set(value);
+    }
+
+    public final Note getParentFolder() {
+        return parentFolder.get();
+    }
+
+    public final ObjectProperty<Note> parentFolderProperty() {
+        return parentFolder;
+    }
+
     public NewNoteService( NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
@@ -40,10 +56,9 @@ public class NewNoteService extends AbstractNoteService<Note> {
 
                 final Note newNote;
                 if (createFolder.getValue()) {
-                    newNote = controller.getBackend().createNewFolder(subject.getValue());
+                    newNote = controller.getBackend().createNewFolder(subject.getValue(), parentFolder.getValue());
                 } else {
-                    System.out.println("Erstelle Notiz");
-                    newNote = controller.getBackend().createNewNote(subject.getValue());
+                    newNote = controller.getBackend().createNewNote(subject.getValue(), parentFolder.getValue());
                 }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);

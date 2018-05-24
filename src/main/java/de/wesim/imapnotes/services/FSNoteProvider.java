@@ -39,7 +39,8 @@ public class FSNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public Note createNewNote(String subject) throws Exception {
+	public Note createNewNote(String subject, Note parentFolder) throws Exception {
+		// TODO !!!
 		final UUID uuid = UUID.randomUUID();
 		final Path newFile = this.currentDirectory.resolve(uuid.toString() + ".imapnote");
 		// TODO Subject ...
@@ -168,7 +169,8 @@ public class FSNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public Note createNewFolder(String name) throws Exception {
+	public Note createNewFolder(String name, Note parent) throws Exception {
+		// TODO FIXME 
 		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
 		final Path newFolderPath = this.currentDirectory.resolve(name);
 		Files.createDirectory(newFolderPath);
