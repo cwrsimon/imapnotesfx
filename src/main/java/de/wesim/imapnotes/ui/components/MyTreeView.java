@@ -16,8 +16,13 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.shape.Rectangle;
 
 public class MyTreeView extends TreeCell<Note> {
 
@@ -31,7 +36,6 @@ public class MyTreeView extends TreeCell<Note> {
 
 	private EventHandler<? super MouseEvent> eventHandler;
 	public MyTreeView (NoteController caller) {
-		
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
 			caller.deleteCurrentMessage(getItem(), false);
@@ -64,10 +68,10 @@ public class MyTreeView extends TreeCell<Note> {
 		final MenuItem newSubfolder = new MenuItem("Add subfolder");
 		final MenuItem newFolderNote = new MenuItem("Add note to folder");
 		newFolderNote.setOnAction(e -> {
-			caller.createNewMessage(false, getItem());                
+			caller.createNewMessage(false, getTreeItem());                
 		});
 		newSubfolder.setOnAction(e -> {
-			caller.createNewMessage(true, getItem());                
+			caller.createNewMessage(true, getTreeItem());                
 		});
 		folderMenu.getItems().add(newSubfolder);
 		folderMenu.getItems().add(newFolderNote);
@@ -135,38 +139,39 @@ public class MyTreeView extends TreeCell<Note> {
 	public void updateItem(Note item, boolean empty) {
 		super.updateItem(item, empty);
 	//	setStyle("-fx-control-inner-background: white;");		
+	setUnderline(false);
 
 		if (empty || item == null) {
 			setText(null);
 			setGraphic(null);
 			//setOnMouseClicked( null );
 			setContextMenu(genericMenu);
+			setBorder(null);
 
 		} else {
 			if (item.isFolder()) {
-				//Circle newRect = new Circle(10, Color.RED);
-				final Polygon polygon = new Polygon();
-				if (! item.getUuid().startsWith("BACKTOPARENT")) {
-				polygon.getPoints().addAll(new Double[]{
-					0.0, 0.0,
-					20.0, 10.0,
-					0.0, 20.0 });
-				} else {
-					polygon.getPoints().addAll(new Double[]{
-						20.0, 0.0,
-						0.0, 10.0,
-						20.0, 20.0 });
-				}
-				polygon.setFill(Color.LIGHTBLUE);
-                setGraphic(polygon);
+				//Rectangle newRect = new Rectangle(15, 15, Color.AQUA);
+				Polygon polygon = new Polygon();
+polygon.getPoints().addAll(new Double[]{
+    0.0, 0.0,
+					10.0, 5.0,
+					0.0, 10.0 });
+				polygon.setFill(Color.BLUE);
+				//setGraphic(polygon);
 				setContextMenu(folderMenu);
+				//setTextFill(Color.AQUAMARINE);
+				setUnderline(true);
 
+				//setBackground(new Background(new BackgroundFill(Color.BLUE, null, null)));
 			} else { 
 				setContextMenu(noteMenu);
-
+				setGraphic(null);
+				
+				setBorder(null);
+				//setTextFill(Color.BLACK);
 			 }
 			setText(item.getSubject());
-			setGraphic(null);
+			//setTextFill(Color.AQUAMARINE);
 
 			//setOnMouseClicked( eventHandler);
 		}

@@ -130,8 +130,18 @@ public class NoteController {
 		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded(e -> {
 			// FIXME
-			//this.noteCB.getItems().add(newNoteService.getValue());
-			openNote(newNoteService.getValue());
+			TreeItem<Note> pTreeItem = newNoteService.getParentFolder();
+			final Note newNote = newNoteService.getValue();
+			final TreeItem<Note> newTreeItem = new TreeItem<Note>( newNote );
+			if (newNote.isFolder()) {
+				newTreeItem.getChildren().add(new TreeItem<Note>(null));
+			}
+			if (pTreeItem != null) {
+				pTreeItem.getChildren().add(newTreeItem);
+			} else {
+				this.noteCB.getRoot().getChildren().add( newTreeItem );
+			}
+			openNote(newNote);
 		});
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
 				.or(this.deleteNoteService.runningProperty())
@@ -368,7 +378,7 @@ public class NoteController {
 //		return plainContent;
 //	}
 
-	public void createNewMessage(boolean createFolder, Note parent) {
+	public void createNewMessage(boolean createFolder, TreeItem<Note> parent) {
 		final Dialog<String> dialog = new TextInputDialog("Bla");
 		dialog.setTitle("Enter a subject!");
 		dialog.setHeaderText("What title is the new note going to have?");

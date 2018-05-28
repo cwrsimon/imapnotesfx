@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TreeItem;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 public class NewNoteService extends AbstractNoteService<Note> {
@@ -27,17 +28,17 @@ public class NewNoteService extends AbstractNoteService<Note> {
         this.createFolder.set(flag);
     }
 
-    private ObjectProperty<Note> parentFolder = new SimpleObjectProperty<Note>(this, "parentFolder");
+    private ObjectProperty<TreeItem<Note>> parentFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "parentFolder");
 
-    public final void setParentFolder(Note value) {
+    public final void setParentFolder(TreeItem<Note> value) {
         parentFolder.set(value);
     }
 
-    public final Note getParentFolder() {
+    public final TreeItem<Note> getParentFolder() {
         return parentFolder.get();
     }
 
-    public final ObjectProperty<Note> parentFolderProperty() {
+    public final ObjectProperty<TreeItem<Note>> parentFolderProperty() {
         return parentFolder;
     }
 
@@ -53,12 +54,16 @@ public class NewNoteService extends AbstractNoteService<Note> {
             protected Note call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Creating new note ...");
+                Note parentFolderParam = null;
+                if (parentFolder.getValue() != null) {
+                    parentFolderParam = parentFolder.getValue().getValue();
+                }
 
                 final Note newNote;
                 if (createFolder.getValue()) {
-                    newNote = controller.getBackend().createNewFolder(subject.getValue(), parentFolder.getValue());
+                        newNote = controller.getBackend().createNewFolder(subject.getValue(), parentFolderParam);
                 } else {
-                    newNote = controller.getBackend().createNewNote(subject.getValue(), parentFolder.getValue());
+                    newNote = controller.getBackend().createNewNote(subject.getValue(), parentFolderParam);
                 }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
