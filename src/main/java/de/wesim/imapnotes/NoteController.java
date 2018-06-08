@@ -74,7 +74,7 @@ public class NoteController {
 		this.status = status;
 		this.refreshConfig();
 		this.initAsyncTasks();
-		
+
 	}
 
 	public HostServices getHostServices() {
@@ -118,7 +118,6 @@ public class NoteController {
 		this.currentAccount.set(first.getAccount_name());
 		loadMessages(null);
 	}
-	
 
 	private void initAsyncTasks() {
 		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
@@ -132,22 +131,21 @@ public class NoteController {
 			// FIXME
 			TreeItem<Note> pTreeItem = newNoteService.getParentFolder();
 			final Note newNote = newNoteService.getValue();
-			final TreeItem<Note> newTreeItem = new TreeItem<Note>( newNote );
+			final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
 			if (newNote.isFolder()) {
 				newTreeItem.getChildren().add(new TreeItem<Note>(null));
 			}
 			if (pTreeItem != null) {
 				pTreeItem.getChildren().add(newTreeItem);
 			} else {
-				this.noteCB.getRoot().getChildren().add( newTreeItem );
+				this.noteCB.getRoot().getChildren().add(newTreeItem);
 			}
 			openNote(newNote);
 		});
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
-				.or(this.deleteNoteService.runningProperty())
-				.or(this.newNoteService.runningProperty()).or(this.openFolderTask.runningProperty())
-				.or(this.renameNoteService.runningProperty());
-		// TODO openFolderTask	
+				.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
+				.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
+		// TODO openFolderTask
 
 		newLoadTask.setOnSucceeded(e -> {
 			final ObservableList<Note> loadedItems = newLoadTask.getValue();
@@ -156,30 +154,35 @@ public class NoteController {
 				final TreeItem<Note> newItem = new TreeItem<Note>(n);
 				if (n.isFolder()) {
 					newItem.getChildren().add(new TreeItem<Note>());
-					// TODO https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
+					// TODO
+					// https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
 					newItem.setExpanded(false);
 					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 						@Override
 						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
 								Boolean newValue) {
-								if (!newValue) { return; }
-								
-								BooleanProperty bb = (BooleanProperty) observable;
+							if (!newValue) {
+								return;
+							}
 
-								TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
-								if (callee.getChildren().size() != 1) return;
-								// nur bei einem einzigen leeren Kind
-								if (callee.getChildren().get(0).getValue() != null) return;
-								openFolder(callee);
-								
-						}		
+							BooleanProperty bb = (BooleanProperty) observable;
+
+							TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+							if (callee.getChildren().size() != 1)
+								return;
+							// nur bei einem einzigen leeren Kind
+							if (callee.getChildren().get(0).getValue() != null)
+								return;
+							openFolder(callee);
+
+						}
 					});
 				}
 				noteCB.getRoot().getChildren().add(newItem);
 			}
-			//noteCB.setItems(loadedItems);
-			//currentlyOPen = null;
+			// noteCB.setItems(loadedItems);
+			// currentlyOPen = null;
 			// das erste Element öffnen
 			final Note firstELement = loadedItems.get(0);
 			if (!firstELement.isFolder()) {
@@ -193,23 +196,25 @@ public class NoteController {
 			Tab editorTab = new EditorTab(this, openedNote);
 			tp.getTabs().add(editorTab);
 			tp.getSelectionModel().select(editorTab);
-			
-			//qe.setHtmlText(openMessageTask.getValue());
-			// FIXME
-			//noteCB.getSelectionModel().select(openedNote);
+
+			// FIXME ???
+			// noteCB.getSelectionModel().select(openedNote);
 		});
-		
+
 		deleteNoteService.setOnSucceeded(e -> {
-//			final Note deleted = deleteNoteService.getNote();
-//			int index = this.noteCB.getItems().indexOf(deleted);
-//			this.noteCB.getItems().remove(deleted);
-//			final int previousItem = Math.max(0, index - 1);
-//			final Note previous = this.noteCB.getItems().get(previousItem);
-//			openNote(previous);
+			final TreeItem<Note> parentNote = deleteNoteService.getParentFolder();
+			final TreeItem<Note> deletedItem = deleteNoteService.getNote();
+			parentNote.getChildren().remove(deletedItem);
+
+			final int index = parentNote.getChildren().indexOf(deletedItem);
+			final int previousItem = Math.max(0, index - 1);
+			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
+			openNote(previous.getValue());
 		});
 		moveNoteService.setOnSucceeded(e -> {
 			final Note moved = moveNoteService.getNote();
-			deleteCurrentMessage(moved, true);
+			// FIXME TODO
+			//deleteCurrentMessage(moved, true);
 		});
 		openFolderTask.setOnSucceeded(e -> {
 			TreeItem<Note> containedTreeItem = openFolderTask.noteFolderProperty().get();
@@ -219,24 +224,29 @@ public class NoteController {
 				final TreeItem<Note> newItem = new TreeItem<Note>(n);
 				if (n.isFolder()) {
 					newItem.getChildren().add(new TreeItem<Note>());
-					// TODO https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
+					// TODO
+					// https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
 					newItem.setExpanded(false);
 					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
 
 						@Override
 						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
 								Boolean newValue) {
-								if (!newValue) { return; }
-								
-								BooleanProperty bb = (BooleanProperty) observable;
+							if (!newValue) {
+								return;
+							}
 
-								TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
-								if (callee.getChildren().size() != 1) return;
-								// nur bei einem einzigen leeren Kind
-								if (callee.getChildren().get(0).getValue() != null) return;
-								openFolder(callee);
-								
-						}		
+							BooleanProperty bb = (BooleanProperty) observable;
+
+							TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+							if (callee.getChildren().size() != 1)
+								return;
+							// nur bei einem einzigen leeren Kind
+							if (callee.getChildren().get(0).getValue() != null)
+								return;
+							openFolder(callee);
+
+						}
 					});
 				}
 
@@ -245,7 +255,7 @@ public class NoteController {
 
 			openFolderTask.noteFolderProperty().set(null);
 
-			//loadMessages(null);
+			// loadMessages(null);
 		});
 		renameNoteService.setOnSucceeded(e -> {
 			noteCB.refresh();
@@ -265,17 +275,19 @@ public class NoteController {
 		moveNoteService.restart();
 	}
 
-	public void deleteCurrentMessage(Note curMsg, boolean dontTask) {
+	public void deleteCurrentMessage(TreeItem<Note> treeItem, boolean dontTask) {
+		final Note deleteItem = treeItem.getValue();
 		if (!dontTask) {
 			Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 			alert.setTitle("Echt jetzt?");
-			alert.setContentText("Do really want to delete '" + curMsg.getSubject() + "' ?");
+			alert.setContentText("Do really want to delete '" + deleteItem.getSubject() + "' ?");
 			Optional<ButtonType> result = alert.showAndWait();
 			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 				return;
 			}
 		}
-		deleteNoteService.noteProperty().set(curMsg);
+		deleteNoteService.parentFolderProperty().set(treeItem.getParent());
+		deleteNoteService.noteProperty().set(treeItem);
 		deleteNoteService.reset();
 		deleteNoteService.restart();
 	}
@@ -314,8 +326,9 @@ public class NoteController {
 
 	// Aufgerufen beim Klick aufs ListViewItem
 	public void openNote(Note m) {
-		if (m == null) return;
-		
+		if (m == null)
+			return;
+
 		if (m.isFolder()) {
 			logger.warn("Opening folders like this not supported, yet.");
 			return;
@@ -328,21 +341,22 @@ public class NoteController {
 				return;
 			}
 		}
-		
+
 		logger.info("Opening {}", m.getSubject());
-		//if (m.isFolder() == false) {
-			this.openMessageTask.noteProperty().set(m);
-			this.openMessageTask.restart();
-		//} 
+		// if (m.isFolder() == false) {
+		this.openMessageTask.noteProperty().set(m);
+		this.openMessageTask.restart();
+		// }
 		// else {
-		// 	this.openFolderTask.noteFolderProperty().set(m);
-		// 	this.openFolderTask.restart();
+		// this.openFolderTask.noteFolderProperty().set(m);
+		// this.openFolderTask.restart();
 		// }
 	}
 
 	// Aufgerufen beim Klick aufs ListViewItem
 	public void openFolder(TreeItem<Note> m) {
-		if (m == null) return;
+		if (m == null)
+			return;
 		// TODO Brauchen wir das noch ????
 		// Böse, aber funktioniert ...
 		for (Tab t : this.tp.getTabs()) {
@@ -352,31 +366,31 @@ public class NoteController {
 				return;
 			}
 		}
-		
+
 		logger.info("Opening Folder {}", m.getValue().getSubject());
-		
-			this.openFolderTask.noteFolderProperty().set(m);
-			this.openFolderTask.restart();
-		
+
+		this.openFolderTask.noteFolderProperty().set(m);
+		this.openFolderTask.restart();
+
 	}
-//	private boolean hasContentChanged(Note curMsg) {
-//		return this.contentUpdated;
-//		//if (curMsg == null) return false;
+	// private boolean hasContentChanged(Note curMsg) {
+	// return this.contentUpdated;
+	// //if (curMsg == null) return false;
 
-		// String oldContent = curMsg.getContent();
-		// if (oldContent == null) return false;
-		// oldContent = parse(oldContent);
-		// String newContent = myText.getHtmlText();
-		// if (newContent == null) return false;
-		// newContent = parse(newContent);
+	// String oldContent = curMsg.getContent();
+	// if (oldContent == null) return false;
+	// oldContent = parse(oldContent);
+	// String newContent = myText.getHtmlText();
+	// if (newContent == null) return false;
+	// newContent = parse(newContent);
 
-		// return !oldContent.equals(newContent);
-//	}
+	// return !oldContent.equals(newContent);
+	// }
 
-//	private String parse(String htmlContent) {
-//		final String plainContent = Jsoup.parse(htmlContent).text();
-//		return plainContent;
-//	}
+	// private String parse(String htmlContent) {
+	// final String plainContent = Jsoup.parse(htmlContent).text();
+	// return plainContent;
+	// }
 
 	public void createNewMessage(boolean createFolder, TreeItem<Note> parent) {
 		final Dialog<String> dialog = new TextInputDialog("Bla");
@@ -410,10 +424,11 @@ public class NoteController {
 			@Override
 			public void changed(ObservableValue<? extends TreeItem<Note>> observable, TreeItem<Note> oldValue,
 					TreeItem<Note> newValue) {
-					if (newValue == null) return;
-					if (oldValue != newValue) {
-						openNote(newValue.getValue());
-					}
+				if (newValue == null)
+					return;
+				if (oldValue != newValue) {
+					openNote(newValue.getValue());
+				}
 
 			}
 		});
@@ -429,7 +444,8 @@ public class NoteController {
 			EditorTab et = (EditorTab) t;
 			noUnsavedChanges = noUnsavedChanges && !(et.getQe().getContentUpdate());
 		}
-		if (noUnsavedChanges) return true;
+		if (noUnsavedChanges)
+			return true;
 		final Optional<ButtonType> result = demandConfirmation();
 		return (result.isPresent() && result.get() == ButtonType.OK);
 	}

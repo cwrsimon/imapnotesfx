@@ -7,23 +7,37 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TreeItem;
 
 public class DeleteMessageTask extends AbstractNoteService<Void> {
     
-    private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
+    private ObjectProperty<TreeItem<Note>> note = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
 
-    public final void setNote(Note value) {
+    public final void setNote(TreeItem<Note> value) {
         note.set(value);
     }
 
-    public final Note getNote() {
+    public final TreeItem<Note> getNote() {
         return note.get();
     }
 
-    public final ObjectProperty<Note> noteProperty() {
+    public final ObjectProperty<TreeItem<Note>> noteProperty() {
         return note;
     }
 
+    private ObjectProperty<TreeItem<Note>> parentFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "parentFolder");
+
+    public final void setParentFolder(TreeItem<Note> value) {
+        parentFolder.set(value);
+    }
+
+    public final TreeItem<Note> getParentFolder() {
+        return parentFolder.get();
+    }
+
+    public final ObjectProperty<TreeItem<Note>> parentFolderProperty() {
+        return parentFolder;
+    }
     
     public DeleteMessageTask( NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
@@ -38,7 +52,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Deleting " + note.getValue().toString() + "...");
 
-                controller.getBackend().delete(getNote());
+                controller.getBackend().delete(getNote().getValue());
 
                 updateMessage("Deleting was successful! :-)");
                 updateProgress(1, 1);

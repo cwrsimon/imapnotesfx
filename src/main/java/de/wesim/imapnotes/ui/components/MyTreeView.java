@@ -38,18 +38,24 @@ public class MyTreeView extends TreeCell<Note> {
 	public MyTreeView (NoteController caller) {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
-			caller.deleteCurrentMessage(getItem(), false);
+			caller.deleteCurrentMessage(getTreeItem(), false);
 		});
 
 		final MenuItem renameItem = new MenuItem("Rename");
-		noteMenu.getItems().add(renameItem);
 		renameItem.setOnAction(e -> {
 			caller.renameCurrentMessage(getItem());                
 		});
-		//noteMenu.getItems().add(newItem);
-		final MenuItem delete2 = new MenuItem("deleteme");
-		noteMenu.getItems().add(delete2);
 
+		final MenuItem delete2 = new MenuItem("deleteme");
+		final MenuItem renameNote = new MenuItem("renameme");
+		noteMenu.getItems().add(renameNote);
+		noteMenu.getItems().add(delete2);
+		delete2.setOnAction(e -> {
+			caller.deleteCurrentMessage(getTreeItem(), false);
+		});
+		renameNote.setOnAction(e -> {
+			caller.renameCurrentMessage(getItem());                
+		});
 
 		final MenuItem newItem = new MenuItem("New Root Note");
 		newItem.setOnAction(e -> {
