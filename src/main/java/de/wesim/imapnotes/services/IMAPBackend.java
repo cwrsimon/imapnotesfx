@@ -74,18 +74,18 @@ public class IMAPBackend {
 	}
 
 	// TODO
-	// public Folder renameFolder(String oldName, String newName) throws MessagingException {
-	// 	endTransaction();
-	// 	Folder oldFolder = this.notesFolder.getFolder(oldName);
-
-	// 	Folder newFolder = this.notesFolder.getFolder(newName);
-	// 	try {
-	// 	boolean retValue = oldFolder.renameTo(newFolder);
-	// 	} catch (Exception e) {
-	// 		e.printStackTrace();
-	// 	}
-	// 	return newFolder;
-	// }
+	public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
+		//endTransaction();
+		// Sicherstellen, dass Folder geschlossen ist
+		Folder parentFolder = oldFolder.getParent();
+		Folder newFolder = parentFolder.getFolder(newName);
+		try {
+		boolean retValue = oldFolder.renameTo(newFolder);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return newFolder;
+	}
 
 	
 	private void setFromAddress(String fromAddress) {

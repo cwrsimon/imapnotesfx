@@ -96,6 +96,10 @@ public class NoteController {
 	}
 
 	private void openAccount(Account first) {
+		if (!exitPossible()) {
+			return;
+		}
+		this.tp.getTabs().clear();
 		if (this.backend != null) {
 			try {
 				this.backend.destroy();
@@ -204,9 +208,11 @@ public class NoteController {
 		deleteNoteService.setOnSucceeded(e -> {
 			final TreeItem<Note> parentNote = deleteNoteService.getParentFolder();
 			final TreeItem<Note> deletedItem = deleteNoteService.getNote();
-			parentNote.getChildren().remove(deletedItem);
 
 			final int index = parentNote.getChildren().indexOf(deletedItem);
+
+			parentNote.getChildren().remove(deletedItem);
+
 			final int previousItem = Math.max(0, index - 1);
 			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
 			openNote(previous.getValue());
@@ -443,6 +449,7 @@ public class NoteController {
 		for (Tab t : this.tp.getTabs()) {
 			EditorTab et = (EditorTab) t;
 			noUnsavedChanges = noUnsavedChanges && !(et.getQe().getContentUpdate());
+			
 		}
 		if (noUnsavedChanges)
 			return true;

@@ -137,14 +137,18 @@ public class IMAPNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public void renameFolder(Note note, String newName) throws Exception {
-		// System.out.println("Renaming IMAP FOlder ...");
-		// // TODO Folders mit einer anderen UUID versehen ...
-		// Folder newFolder = this.backend.renameFolder(note.getUuid(), newName);
-		// // note.setImapMessage();
-		// this.folderMap.put(note.getUuid(), newFolder);
-		// note.setSubject(newName);
-		// note.setUuid(newName);
+	public void renameFolder(Note folder, String newName) throws Exception {
+		// TODO Folders mit einer anderen UUID versehen ...
+		String oldUUID = folder.getUuid();
+		Folder oldFolder = this.folderMap.get(oldUUID);
+
+		Folder newFolder = this.backend.renameFolder(oldFolder, newName);
+		String newUUID = newFolder.getFullName();
+		// note.setImapMessage();
+		this.folderMap.put(newUUID, newFolder);
+		this.folderMap.remove(oldUUID);
+		folder.setSubject(newName);
+		folder.setUuid(newUUID);
 
 	}
 

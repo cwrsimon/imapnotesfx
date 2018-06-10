@@ -12,6 +12,8 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.skin.TabPaneSkin;
 
 public class EditorTab extends Tab {
 
@@ -37,9 +39,11 @@ public class EditorTab extends Tab {
 		setContent(this.qe);
 		this.note = note;
 		setOnCloseRequest(e-> {
-			// TODO Confirmation dialog öffnen wenn true
 			// Speicherstatus auslesen
 			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
+			if (!this.qe.getContentUpdate()) {
+				return;
+			}
 			final Optional<ButtonType> result = demandConfirmation();
 			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
 				e.consume();
@@ -54,9 +58,7 @@ public class EditorTab extends Tab {
 						return note.getSubject();
 					}
 				}
-
 				, this.qe.contentUpdateProperty()
-
 						)
 				);	
 
@@ -91,5 +93,7 @@ public class EditorTab extends Tab {
 		};
 		task.run();
 	}
+
+	
 
 }
