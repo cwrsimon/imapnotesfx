@@ -27,10 +27,12 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void init(Account account) throws Exception {
-		PasswordProvider pp = new PasswordProvider();
-		pp.init();
+//		PasswordProvider pp = new PasswordProvider();
+//		pp.init();
 		final String accountName = account.getAccount_name();
-		String pw = pp.retrievePassword(accountName);
+		//String pw = pp.retrievePassword(accountName);
+		// TODO FIXME
+		String pw = null;
 		// TODO FIXME
 		if (pw == null) {
 			pw = account.getPassword();
