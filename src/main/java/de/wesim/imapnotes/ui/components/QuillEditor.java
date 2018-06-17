@@ -54,7 +54,7 @@ public class QuillEditor extends StackPane {
 		log.info("Setting neu content: {}", content);
 		this.setHTMLContent(content);
 	}
-	
+
 	private BooleanProperty contentUpdate = new SimpleBooleanProperty(false);
 	
 	public final BooleanProperty contentUpdateProperty() {
@@ -66,10 +66,9 @@ public class QuillEditor extends StackPane {
 		contentUpdate.set(newValue);
 	}
 
-	public final boolean getContentUpdate() { return contentUpdate.get();
-	 }
-	
-
+	public final boolean getContentUpdate() {
+		return contentUpdate.get();
+	}
 
 	public QuillEditor(HostServices hostServices, String string) {
 		final QuillEditor backReference = this;
@@ -116,6 +115,9 @@ public class QuillEditor extends StackPane {
 					}, false);
 				}
 			}
+		});
+		webview.setOnKeyPressed( e-> {
+			log.info("Key: {}", e.getCode().toString());
 		});
 	}
 }

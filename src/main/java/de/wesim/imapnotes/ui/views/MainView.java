@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.views;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +112,7 @@ public class MainView extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
+		//Locale.setDefault(Locale.GERMANY);
 		this.noteController = new NoteController(p1, status, getHostServices());
 //		this.noteCB = new TreeVi(this.noteController);
 
@@ -139,7 +142,7 @@ public class MainView extends Application {
 		MenuItem delete = new MenuItem("Delete current Note");
 
 		MenuItem update  = new MenuItem("Save current Note");
-		update.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
+		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 		MenuItem renameNote  = new MenuItem("Rename current Note");
 
 		menuBar.getMenus().add(menu);
@@ -207,6 +210,7 @@ public class MainView extends Application {
 		});
 
 		update.setOnAction(e -> {
+			// FIXME TODO ????
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}

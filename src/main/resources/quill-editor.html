@@ -26,11 +26,36 @@
 ];
 
     var quill = new Quill('#editor', {
-    modules: {toolbar: toolbarOptions},
+    modules: {toolbar: toolbarOptions,
+        history: {
+      delay: 2000,
+      maxStack: 500,
+      userOnly: true
+    }
+    
+    },
       theme: 'snow'
     });
+
+    quill.keyboard.addBinding({
+      key: 'Y',
+      shortKey: true,
+      handler: function(range, context) {
+        quill.history.undo();
+     }
+    });
+
+    quill.keyboard.addBinding({
+      key: 'Y',
+      shortKey: true,
+      shiftKey: true,
+      handler: function(range, context) {
+        this.quill.history.redo();
+     }
+    });
+
     quill.on("text-change", function() {
-        app.setContentUpdate(true);
+       app.setContentUpdate(true);
     });
 
     getQuillContent = function() {
@@ -40,6 +65,14 @@
     setQuillContent = function(content) {
         quill.setText("");
         quill.clipboard.dangerouslyPasteHTML(content, "api");
+    }
+
+    undo = function() {
+      quill.history.undo();
+    }
+
+    redo = function() {
+      quill.history.redo();
     }
   </script>
 </body>

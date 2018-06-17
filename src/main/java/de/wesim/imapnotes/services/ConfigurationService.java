@@ -37,6 +37,8 @@ public class ConfigurationService {
 			addProp(imapSettings, "login", acc.getLogin(), i);
 			addProp(imapSettings, "root_folder", acc.getRoot_folder(), i);
 			addProp(imapSettings, "from_address", acc.getFrom_address(), i);
+			addProp(imapSettings, "password", acc.getPassword(), i);
+
 		}
 		try {
 			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
