@@ -204,9 +204,9 @@ public class FSNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public boolean move(Note msg, Note folder) {
+	public Note move(Note msg, Note folder) {
 		// TODO 
-		return false;
+		return null;
 	}
 
 	@Override

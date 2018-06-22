@@ -7,8 +7,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.TreeItem;
 
-public class MoveNoteService extends AbstractNoteService<Boolean> {
+public class MoveNoteService extends AbstractNoteService<Note> {
     
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
@@ -24,35 +25,35 @@ public class MoveNoteService extends AbstractNoteService<Boolean> {
         return note;
     }
 
-    private ObjectProperty<Note> folder = new SimpleObjectProperty<Note>(this, "folder");
+    private ObjectProperty<TreeItem<Note>> parentFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "parentFolder");
 
-    public final void setFolder(Note value) {
-        folder.set(value);
+    public final void setParentFolder(TreeItem<Note> value) {
+        parentFolder.set(value);
     }
 
-    public final Note getFolder() {
-        return folder.get();
+    public final TreeItem<Note> getParentFolder() {
+        return parentFolder.get();
     }
 
-    public final ObjectProperty<Note> folderProperty() {
-        return folder;
+    public final ObjectProperty<TreeItem<Note>> parentFolderProperty() {
+        return parentFolder;
     }
 
-    
     public MoveNoteService( NoteController backend, ProgressBar progress, Label status ) {
         super(backend, progress, status);
     }
 
     @Override
-    protected Task<Boolean> createTask() {
-        Task<Boolean> task = new Task<Boolean>() {
+    protected Task<Note> createTask() {
+        Task<Note> task = new Task<Note>() {
 
             @Override
-            protected Boolean call() throws Exception {
+            protected Note call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Moving " + note.getValue().toString() + "...");
 
-                boolean retValue = controller.getBackend().move(getNote(), getFolder());
+                Note retValue = 
+                    controller.getBackend().move(getNote(), parentFolder.get().getValue());
 
                 updateMessage("Moving was successful! :-)");
                 updateProgress(1, 1);

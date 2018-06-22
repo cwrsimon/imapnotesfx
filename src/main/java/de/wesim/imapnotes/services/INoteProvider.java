@@ -35,7 +35,7 @@ public interface INoteProvider {
 
     public void destroy() throws Exception;
 
-    public boolean move(Note msg, Note folder);
+    public Note move(Note msg, Note folder);
     // TODO
     // public void rename(Note note, String newTitle); 
 }

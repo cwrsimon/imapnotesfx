@@ -1,32 +1,29 @@
 
 package de.wesim.imapnotes.ui.components;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeView;
+import javafx.scene.control.TreeItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BackgroundFill;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Polygon;
-import javafx.scene.shape.Rectangle;
 
 public class MyTreeView extends TreeCell<Note> {
 
+	private static final Logger logger = LoggerFactory.getLogger(MyTreeView.class);
+
     private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
+    //private static final DataFormat myNotes = new DataFormat("javafx.scene.control.TreeItem");
 
 	private NoteController caller;
 	private final ContextMenu noteMenu = new ContextMenu();
@@ -38,6 +35,7 @@ public class MyTreeView extends TreeCell<Note> {
 	public MyTreeView (NoteController caller) {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
+			final TreeItem<Note> treeItem =  getTreeItem();
 			caller.deleteCurrentMessage(getTreeItem(), false);
 		});
 
@@ -84,59 +82,61 @@ public class MyTreeView extends TreeCell<Note> {
 		folderMenu.getItems().add(renameItem);
 		folderMenu.getItems().add(deleteItem);
 
-		/*
-		eventHandler = e-> {
-			if (e.getButton() == MouseButton.PRIMARY 
-					&& e.getClickCount() == 2) {
-				caller.openNote(getItem());
-			}
-		};
-		*/
-
-		/*
 		this.setOnDragDetected(e -> {
-			Dragboard db = this.startDragAndDrop( TransferMode.MOVE );
-            ClipboardContent content = new ClipboardContent();
-                content.put(myNotes, getItem());
-                db.setContent( content );
-                e.consume();
+			final Dragboard db = this.startDragAndDrop( TransferMode.MOVE );
+			final ClipboardContent content = new ClipboardContent();			
+			content.put(myNotes, getItem());
+			db.setContent( content );
+			e.consume();
+			logger.info("Drage Detected");
+
 		});
 		this.setOnDragOver( ( DragEvent event ) ->
 		{
-			Dragboard db = event.getDragboard();
-			if ( db.hasContent(myNotes) && getItem().isFolder())
-			{
-				System.out.println("onDragOver:" + getItem());
+			logger.info("Drage Over");
 
+			final Dragboard db = event.getDragboard();
+			if ( db.hasContent(myNotes) 
+			  && getItem().isFolder() && getTreeItem().getValue().isFolder())
+			{
+				logger.info("onDragOver:" + getItem());
 				event.acceptTransferModes( TransferMode.MOVE );
 			}
 			event.consume();
 		} );
 		this.setOnDragEntered(( DragEvent event ) -> {
-			
+			logger.info("Drag Entered");
+
 				 if (event.getGestureSource() != getItem() &&
 						 event.getDragboard().hasContent(myNotes)
-						 && getItem().isFolder()) {
-					 this.setUnderline(true);
-				 }
+						
+						 && getTreeItem().getValue().isFolder()) {
+							this.setTextFill(Color.RED);
+						}
 						
 				 event.consume();
 			}
 		);
 		this.setOnDragExited(( DragEvent event ) -> {
-				 this.setUnderline(false);
+			logger.info("setOnDragExited");
+
+				 //this.setUnderline(false);
+				 this.setTextFill(Color.BLACK);
+				 //items.pop();
 				 event.consume();
 			}
 		);
 		// Beim Ziel, hier muss dann verschoben werden ...
 		this.setOnDragDropped(( DragEvent event ) -> {
-			Dragboard db = event.getDragboard();
-			Note source = (Note) db.getContent(myNotes);
-			caller.move(source, getItem());
+			logger.info("setOnDragDropped");
+
+			final Dragboard db = event.getDragboard();
+			final Note source = (Note) db.getContent(myNotes);
+			caller.move(source, getTreeItem());
         	event.setDropCompleted(true);    
 	        event.consume();
 	   });
-*/
+
 	}
 
 	
@@ -150,36 +150,19 @@ public class MyTreeView extends TreeCell<Note> {
 		if (empty || item == null) {
 			setText(null);
 			setGraphic(null);
-			//setOnMouseClicked( null );
 			setContextMenu(genericMenu);
 			setBorder(null);
 
 		} else {
 			if (item.isFolder()) {
-				//Rectangle newRect = new Rectangle(15, 15, Color.AQUA);
-				Polygon polygon = new Polygon();
-polygon.getPoints().addAll(new Double[]{
-    0.0, 0.0,
-					10.0, 5.0,
-					0.0, 10.0 });
-				polygon.setFill(Color.BLUE);
-				//setGraphic(polygon);
 				setContextMenu(folderMenu);
-				//setTextFill(Color.AQUAMARINE);
 				setUnderline(true);
-
-				//setBackground(new Background(new BackgroundFill(Color.BLUE, null, null)));
 			} else { 
 				setContextMenu(noteMenu);
-				setGraphic(null);
-				
+				setGraphic(null);				
 				setBorder(null);
-				//setTextFill(Color.BLACK);
 			 }
 			setText(item.getSubject());
-			//setTextFill(Color.AQUAMARINE);
-
-			//setOnMouseClicked( eventHandler);
 		}
 	}
 }

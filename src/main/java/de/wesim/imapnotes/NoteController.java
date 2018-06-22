@@ -218,9 +218,14 @@ public class NoteController {
 			openNote(previous.getValue());
 		});
 		moveNoteService.setOnSucceeded(e -> {
-			final Note moved = moveNoteService.getNote();
+			final Note moved = moveNoteService.getValue();
+			final TreeItem<Note> parentFolder = moveNoteService.getParentFolder();
 			// FIXME TODO
 			//deleteCurrentMessage(moved, true);
+			parentFolder.getChildren().add(new TreeItem<Note>(moved));
+
+			noteCB.refresh();
+
 		});
 		openFolderTask.setOnSucceeded(e -> {
 			TreeItem<Note> containedTreeItem = openFolderTask.noteFolderProperty().get();
@@ -260,8 +265,6 @@ public class NoteController {
 			}
 
 			openFolderTask.noteFolderProperty().set(null);
-
-			// loadMessages(null);
 		});
 		renameNoteService.setOnSucceeded(e -> {
 			noteCB.refresh();
@@ -273,12 +276,28 @@ public class NoteController {
 		openAccount(first);
 	}
 
-	public void move(Note msg, Note target) {
+	private TreeItem<Note> searchTreeItem(Note searchItem, TreeItem<Note> parent) {
+		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
+			return parent;
+		}
+		if (parent.getChildren().isEmpty()) return null;
+		for (TreeItem<Note> child : parent.getChildren()) {
+			TreeItem<Note> found = searchTreeItem(searchItem, child);
+			if (found != null) return found;
+		}
+		return null;
+	}
+
+	public void move(Note msg, TreeItem<Note> target) {
 		logger.info("Moving {} to {}", msg, target);
+		// TODO Suchen
 		this.moveNoteService.setNote(msg);
-		this.moveNoteService.setFolder(target);
+		this.moveNoteService.setParentFolder(target);
+		// TODO Refresh des Trees
 		moveNoteService.reset();
 		moveNoteService.restart();
+		TreeItem<Note> foundTreeItem = searchTreeItem(msg, this.noteCB.getRoot()); 
+		deleteCurrentMessage(foundTreeItem, true);
 	}
 
 	public void deleteCurrentMessage(TreeItem<Note> treeItem, boolean dontTask) {

@@ -329,14 +329,12 @@ public class IMAPBackend {
 	
 	public boolean moveMessage(Message msg, Folder folder) {
 		try {
-			//this.startTransaction();
-
-			getNotesFolder().copyMessages(new Message[]{msg}, folder);
-			//this.endTransaction();
-
+			final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+			this.startTransaction(sourceFolder);
+			sourceFolder.copyMessages(new Message[]{msg}, folder);
+			this.endTransaction(sourceFolder);
 			return true;
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}

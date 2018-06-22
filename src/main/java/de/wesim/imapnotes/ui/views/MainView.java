@@ -35,6 +35,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+// https://github.com/FibreFoX/javafx-gradle-plugin
 // Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
 // https://github.com/revelc/gnome-keyring-java
