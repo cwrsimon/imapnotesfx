@@ -123,6 +123,14 @@ public class NoteController {
 		loadMessages(null);
 	}
 
+	private boolean isEmptyTreeItem(TreeItem<Note> treeItem) {
+		if (treeItem.isLeaf()) return false;
+		if (treeItem.getChildren().isEmpty()) return true;
+		if (treeItem.getChildren().size() > 1) return false;
+		TreeItem<Note> firstItem = treeItem.getChildren().get(0);
+		return firstItem.getValue() == null;
+	}
+
 	private void initAsyncTasks() {
 		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
 		this.newLoadTask = new LoadMessageTask(this, this.progressBar, this.status);
@@ -137,9 +145,15 @@ public class NoteController {
 			final Note newNote = newNoteService.getValue();
 			final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
 			if (newNote.isFolder()) {
+				if (isEmptyTreeItem(newTreeItem)) {
+					newTreeItem.getChildren().clear();
+				}
 				newTreeItem.getChildren().add(new TreeItem<Note>(null));
 			}
 			if (pTreeItem != null) {
+				if (isEmptyTreeItem(pTreeItem)) {
+					pTreeItem.getChildren().clear();
+				}
 				pTreeItem.getChildren().add(newTreeItem);
 			} else {
 				this.noteCB.getRoot().getChildren().add(newTreeItem);
@@ -188,6 +202,7 @@ public class NoteController {
 			// noteCB.setItems(loadedItems);
 			// currentlyOPen = null;
 			// das erste Element öffnen
+			if (loadedItems.isEmpty()) return;
 			final Note firstELement = loadedItems.get(0);
 			if (!firstELement.isFolder()) {
 				openNote(firstELement);
@@ -214,6 +229,7 @@ public class NoteController {
 			parentNote.getChildren().remove(deletedItem);
 
 			final int previousItem = Math.max(0, index - 1);
+			if (parentNote.getChildren().isEmpty()) return;
 			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
 			openNote(previous.getValue());
 		});
@@ -221,11 +237,8 @@ public class NoteController {
 			final Note moved = moveNoteService.getValue();
 			final TreeItem<Note> parentFolder = moveNoteService.getParentFolder();
 			// FIXME TODO
-			//deleteCurrentMessage(moved, true);
 			parentFolder.getChildren().add(new TreeItem<Note>(moved));
-
 			noteCB.refresh();
-
 		});
 		openFolderTask.setOnSucceeded(e -> {
 			TreeItem<Note> containedTreeItem = openFolderTask.noteFolderProperty().get();
@@ -260,10 +273,8 @@ public class NoteController {
 						}
 					});
 				}
-
 				containedTreeItem.getChildren().add(newItem);
 			}
-
 			openFolderTask.noteFolderProperty().set(null);
 		});
 		renameNoteService.setOnSucceeded(e -> {

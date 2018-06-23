@@ -194,7 +194,9 @@ public class MainView extends Application {
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}
-			this.noteController.loadMessages(null);
+			if (this.noteController.exitPossible()) {
+				this.noteController.loadMessages(null);
+			}
 		});
 
 		exit.setOnAction(event -> {

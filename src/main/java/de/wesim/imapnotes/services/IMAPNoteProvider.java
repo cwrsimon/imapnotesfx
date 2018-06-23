@@ -79,7 +79,8 @@ public class IMAPNoteProvider implements INoteProvider {
 	public void delete(Note note) throws Exception  {
 		if (note.isFolder()) {
 			// TODO verify me
-			System.out.println(backend.deleteFolder(note.getUuid()));
+			Folder folder = this.folderMap.get(note.getUuid());
+			System.out.println(backend.deleteFolder(folder));
 		} else {
 			backend.deleteMessage( this.msgMap.get(note.getUuid()) );			
 		}
@@ -132,9 +133,11 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void renameNote(Note note, String newName) throws Exception {
-		note.setSubject(newName);
-
 		System.out.println("Calling " + note.getSubject() + " with new Name " + newName);
+		// final Message oldMsg = this.msgMap.get(note.getUuid());
+		// this.backend.changeSubject(oldMsg, newName);
+		load(note);
+		note.setSubject(newName);
 		update(note);
 	}
 
