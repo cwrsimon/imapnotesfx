@@ -269,8 +269,12 @@ public class NoteController {
 	}
 
 	public void startup() {
+		try {
 		final Account first = this.config.getAccountList().get(0);
 		openAccount(first);
+		} catch (Exception e) {
+			;
+		}
 	}
 
 	public void move(Note msg, Note target) {
