@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.views;
 
+import java.util.Locale;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +35,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+// https://github.com/FibreFoX/javafx-gradle-plugin
 // Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
 // https://github.com/revelc/gnome-keyring-java
@@ -110,6 +113,7 @@ public class MainView extends Application {
 	@Override
 	public void init() throws Exception {
 		super.init();
+		//Locale.setDefault(Locale.GERMANY);
 		this.noteController = new NoteController(p1, status, getHostServices());
 //		this.noteCB = new TreeVi(this.noteController);
 
@@ -139,7 +143,7 @@ public class MainView extends Application {
 		MenuItem delete = new MenuItem("Delete current Note");
 
 		MenuItem update  = new MenuItem("Save current Note");
-		update.setAccelerator(KeyCombination.keyCombination("Ctrl+S"));
+		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 		MenuItem renameNote  = new MenuItem("Rename current Note");
 
 		menuBar.getMenus().add(menu);
@@ -190,7 +194,9 @@ public class MainView extends Application {
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}
-			this.noteController.loadMessages(null);
+			if (this.noteController.exitPossible()) {
+				this.noteController.loadMessages(null);
+			}
 		});
 
 		exit.setOnAction(event -> {
@@ -207,6 +213,7 @@ public class MainView extends Application {
 		});
 
 		update.setOnAction(e -> {
+			// FIXME TODO ????
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}

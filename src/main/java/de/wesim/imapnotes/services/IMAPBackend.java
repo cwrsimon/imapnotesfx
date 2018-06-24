@@ -68,9 +68,10 @@ public class IMAPBackend {
 	}
 	
 	// TODO Absoluten Pfad angeben
-	public boolean deleteFolder(String name) throws MessagingException {
-		Folder newFolder = this.notesFolder.getFolder(name);
-		return newFolder.delete(false);
+	public boolean deleteFolder(Folder folder) throws MessagingException {
+		this.endTransaction((IMAPFolder) folder);
+		//Folder newFolder = this.notesFolder.getFolder(folder);
+		return folder.delete(true);
 	}
 
 	// TODO
@@ -169,6 +170,7 @@ public class IMAPBackend {
 		}
 		Folder[] folders = folder.list();
 		for (Folder f : folders) {
+
 			logger.info("Folder full name: {}", f.getFullName());
 			final String name = f.getName();
 			final Note newNote = new Note(f.getFullName());
@@ -329,16 +331,25 @@ public class IMAPBackend {
 	
 	public boolean moveMessage(Message msg, Folder folder) {
 		try {
-			//this.startTransaction();
-
-			getNotesFolder().copyMessages(new Message[]{msg}, folder);
-			//this.endTransaction();
-
+			final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+			this.startTransaction(sourceFolder);
+			sourceFolder.copyMessages(new Message[]{msg}, folder);
+			this.endTransaction(sourceFolder);
 			return true;
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
+	}
+
+	public void changeSubject(Message msg, String newName) throws MessagingException {
+		final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+			this.startTransaction(sourceFolder);
+
+			msg.setSubject(newName);
+			//msg.saveChanges();
+
+			this.endTransaction(sourceFolder);
+
 	}
 }
