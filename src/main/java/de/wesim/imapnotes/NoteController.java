@@ -283,8 +283,12 @@ public class NoteController {
 	}
 
 	public void startup() {
+		try {
 		final Account first = this.config.getAccountList().get(0);
 		openAccount(first);
+		} catch (Exception e) {
+			;
+		}
 	}
 
 	private TreeItem<Note> searchTreeItem(Note searchItem, TreeItem<Note> parent) {
