@@ -89,9 +89,9 @@ public class QuillEditor extends StackPane {
 			event.getException().printStackTrace();
 			log.error("{}",e.getMessage() );
 		});
-		webview.getEngine().setOnAlert(e-> {
-			log.error("Neuer Alert event");
-		});
+//		webview.getEngine().setOnAlert(e-> {
+//			log.error("Neuer Alert event");
+//		});
 		String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
 		webview.getEngine().load(content);
 		// FIXME
@@ -105,8 +105,10 @@ public class QuillEditor extends StackPane {
 				if (newValue == State.SUCCEEDED) {
 					JSObject window = (JSObject) webview.getEngine().executeScript("window");
 					window.setMember("app", backReference);
-					webview.getEngine().executeScript("app.logMe('Gallo');");
-
+					//webview.getEngine().executeScript("app.logMe('Gallo');");
+					// TODO Auf diese Weise von außen Schriftfamilie und Schriftgröße anpassen ...
+					webview.getEngine().executeScript("document.getElementById('editor').style['font-family']='serif';");
+					
 					setHtmlText(string);
 
 					Element nodeList = webview.getEngine().getDocument().getElementById("editor");

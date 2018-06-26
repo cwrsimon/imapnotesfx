@@ -94,10 +94,10 @@ public class NoteController {
 			openAccount(result.get());
 		}
 	}
-
-	private void openAccount(Account first) {
+	
+	public boolean closeAccount() {
 		if (!exitPossible()) {
-			return;
+			return false;
 		}
 		this.tp.getTabs().clear();
 		if (this.backend != null) {
@@ -107,6 +107,13 @@ public class NoteController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		return true;
+	}
+
+	private void openAccount(Account first) {
+		if (!closeAccount()) {
+			return;
 		}
 		if (first.getType() == Account_Type.FS) {
 			this.backend = new FSNoteProvider();

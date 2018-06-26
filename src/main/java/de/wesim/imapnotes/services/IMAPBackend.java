@@ -5,13 +5,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Stack;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -25,7 +23,6 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
-import javax.mail.UIDFolder;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
@@ -44,15 +41,12 @@ public class IMAPBackend {
 	private Session session;
 	private Store store;
 	private IMAPFolder notesFolder;
-	private Stack<String> folderStack;
 	private String from_address;
 
 	
 	private IMAPBackend() throws IOException {
 		Properties props = System.getProperties();
 		this.session = Session.getInstance(props, null);
-		this.folderStack = new Stack<String>();
-
 	}
 
 	public Session getSession() {

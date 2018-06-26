@@ -1,21 +1,17 @@
 package de.wesim.imapnotes.ui.views;
 
-import java.util.Locale;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.ui.components.MyListView;
-import de.wesim.imapnotes.ui.components.MyTreeView;
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -24,7 +20,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
@@ -43,7 +38,6 @@ import javafx.stage.WindowEvent;
 // JSOUP durch etwas Sinnvolleres ersetzen ...
 // Asynchron gestalten
 // Sortierung nach Datum
-// Verzeichniswechsel: Editor clearen
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
 // https://github.com/bpark/weldse-javafx-integration
@@ -66,7 +60,6 @@ import javafx.stage.WindowEvent;
 // optional: Passwort erfragen ...
 // Icon
 // Zu Applikation bündeln
-// Umstellung auf TreeView in separatem Branch
 // Tabs fertig implementieren
 // Geöffneten Zustand abspeichern
 // Schließen der Preferences
@@ -94,7 +87,7 @@ import javafx.stage.WindowEvent;
 // oben -> komplette IMAP-Pfade als UUID speichern
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 // Copy , Paste, Historie ans Menü binden ...
-
+// Support für Tiff Bilder
 public class MainView extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
@@ -131,23 +124,26 @@ public class MainView extends Application {
 		
 		MenuBar menuBar = new MenuBar();
 
-		Menu about = new Menu("About");
 
 		Menu menu = new Menu("File");
-		MenuItem reset   = new MenuItem("Switch Account ...");
-		MenuItem loadMenu = new MenuItem("Reload");
-		MenuItem preferences = new MenuItem("Preferences");
+		
+		MenuItem about = new MenuItem("About");
+
+		MenuItem switchAccountMenuItem   = new Menu("Switch Account ...");
+		MenuItem reloadMenuTask = new MenuItem("Reload");
+		MenuItem preferences = new Menu("Preferences");
 
 		MenuItem exit = new MenuItem("Exit");
+		exit.setAccelerator(KeyCombination.keyCombination("Shortcut+Q"));
+
 
 
 		MenuItem update  = new MenuItem("Save current Note");
 		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 
 		menuBar.getMenus().add(menu);
-		menuBar.getMenus().add(about);
 
-		menu.getItems().addAll(loadMenu, update, reset, preferences, new SeparatorMenuItem(), exit);
+		menu.getItems().addAll(about, new SeparatorMenuItem(), update, switchAccountMenuItem, preferences, new SeparatorMenuItem(), exit);
 		
 //		this.running.textProperty().bind(
 //				Bindings.createStringBinding( () -> 
@@ -183,11 +179,18 @@ public class MainView extends Application {
 		myPane.setBottom(hbox);
 		myPane.setTop(menuBar);
 		
-		loadMenu.setOnAction(e -> {
+		about.setOnAction( e-> {
+			Alert alert = new Alert(AlertType.INFORMATION, "ImapNotesFX 0.0.1");
+			alert.setHeaderText("Irgendein Header Text");
+			alert.setTitle("Irgendein Titel");
+			alert.showAndWait();
+		});
+		
+		reloadMenuTask.setOnAction(e -> {
 			if (this.noteController.allRunning.getValue() == true) {
 				return;
 			}
-			if (this.noteController.exitPossible()) {
+			if (this.noteController.closeAccount()) {
 				this.noteController.loadMessages(null);
 			}
 		});
@@ -214,7 +217,7 @@ public class MainView extends Application {
 
 		});
 		
-		reset.setOnAction( e -> {
+		switchAccountMenuItem.setOnAction( e -> {
 			this.noteController.chooseAccount();
 		});
 		preferences.setOnAction( e-> {

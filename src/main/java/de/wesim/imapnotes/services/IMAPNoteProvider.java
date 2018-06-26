@@ -1,15 +1,16 @@
 package de.wesim.imapnotes.services;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import de.wesim.imapnotes.Consts;
-import de.wesim.imapnotes.models.Account;
-import de.wesim.imapnotes.models.Note;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.mail.Folder;
+import javax.mail.Message;
+
+import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Note;
 
 
 public class IMAPNoteProvider implements INoteProvider {
