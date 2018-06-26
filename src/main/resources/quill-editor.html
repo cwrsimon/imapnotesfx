@@ -15,7 +15,7 @@
 	
   ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
   ['blockquote', 'code-block'],
-  ['link'],
+  ['link', 'image'],
   [{ 'list': 'ordered'}, { 'list': 'bullet' }],
   [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
   
@@ -51,8 +51,13 @@
       shiftKey: true,
       handler: function(range, context) {
         this.quill.history.redo();
+        app.logMe("Bla");
+
+        app.logMe(window);
      }
     });
+
+    console.log = function(message) { app.logMe(message); }
 
     quill.on("text-change", function() {
        app.setContentUpdate(true);

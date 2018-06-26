@@ -130,6 +130,9 @@ public class MainView extends Application {
 	
 		
 		MenuBar menuBar = new MenuBar();
+
+		Menu about = new Menu("About");
+
 		Menu menu = new Menu("File");
 		MenuItem reset   = new MenuItem("Switch Account ...");
 		MenuItem loadMenu = new MenuItem("Reload");
@@ -137,19 +140,14 @@ public class MainView extends Application {
 
 		MenuItem exit = new MenuItem("Exit");
 
-		Menu msgMenu = new Menu("Notes");
-		MenuItem newFolder = new MenuItem("New Folder");
-		MenuItem newMenu = new MenuItem("New Note");
-		MenuItem delete = new MenuItem("Delete current Note");
 
 		MenuItem update  = new MenuItem("Save current Note");
 		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
-		MenuItem renameNote  = new MenuItem("Rename current Note");
 
 		menuBar.getMenus().add(menu);
-		menuBar.getMenus().add(msgMenu);
-		menu.getItems().addAll(loadMenu, reset, preferences, new SeparatorMenuItem(), exit);
-		msgMenu.getItems().addAll(newFolder, new SeparatorMenuItem(), newMenu, delete, update, renameNote);
+		menuBar.getMenus().add(about);
+
+		menu.getItems().addAll(loadMenu, update, reset, preferences, new SeparatorMenuItem(), exit);
 		
 //		this.running.textProperty().bind(
 //				Bindings.createStringBinding( () -> 
@@ -184,11 +182,6 @@ public class MainView extends Application {
 		myPane.setCenter(sp);
 		myPane.setBottom(hbox);
 		myPane.setTop(menuBar);
-
-		renameNote.setOnAction( e -> {
-			// FIXME
-			//this.noteController.renameCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem());
-		});
 		
 		loadMenu.setOnAction(e -> {
 			if (this.noteController.allRunning.getValue() == true) {
@@ -220,16 +213,7 @@ public class MainView extends Application {
 			this.noteController.saveCurrentMessage();
 
 		});
-		newFolder.setOnAction(e -> {
-			this.noteController.createNewMessage(true, null);
-		});
-		newMenu.setOnAction(e -> {
-			this.noteController.createNewMessage(false, null);
-		});
-		delete.setOnAction(e -> {
-			// FIXME
-		//	this.noteController.deleteCurrentMessage(this.noteCB.getSelectionModel().getSelectedItem(), false);
-		});
+		
 		reset.setOnAction( e -> {
 			this.noteController.chooseAccount();
 		});

@@ -1,5 +1,9 @@
 package de.wesim.imapnotes.ui.components;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +20,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.scene.layout.StackPane;
+import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
@@ -51,7 +56,7 @@ public class QuillEditor extends StackPane {
 	}
 
 	public void setHtmlText(String content) {
-		log.info("Setting neu content: {}", content);
+		//log.info("Setting neu content: {}", content);
 		this.setHTMLContent(content);
 	}
 
@@ -61,8 +66,12 @@ public class QuillEditor extends StackPane {
 		 return contentUpdate; 
 	}
 
+	public void logMe(String message) {
+		log.error("{}", message);
+	}
+
 	public final void setContentUpdate(boolean newValue) {	
-			log.info("Updating content for  {} with {}", toString(), newValue); 
+		//	log.info("Updating content for  {} with {}", toString(), newValue); 
 		contentUpdate.set(newValue);
 	}
 
@@ -75,9 +84,18 @@ public class QuillEditor extends StackPane {
 		// TODO WebView muss sich dem verfügbaren Platz anpassen
 		webview.setPrefSize(650, 325);
 		webview.setMinSize(650, 325);
+		webview.getEngine().setOnError( e-> {
+			WebErrorEvent event = (WebErrorEvent) e;
+			event.getException().printStackTrace();
+			log.error("{}",e.getMessage() );
+		});
+		webview.getEngine().setOnAlert(e-> {
+			log.error("Neuer Alert event");
+		});
 		String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
 		webview.getEngine().load(content);
-
+		// FIXME
+		// https://bugs.java.com/view_bug.do?bug_id=8197790
 		this.getChildren().add(webview);
 		// TODO Hübscher machen ...
 		webview.getEngine().getLoadWorker().stateProperty().addListener(new ChangeListener<State>() {
@@ -87,6 +105,8 @@ public class QuillEditor extends StackPane {
 				if (newValue == State.SUCCEEDED) {
 					JSObject window = (JSObject) webview.getEngine().executeScript("window");
 					window.setMember("app", backReference);
+					webview.getEngine().executeScript("app.logMe('Gallo');");
+
 					setHtmlText(string);
 
 					Element nodeList = webview.getEngine().getDocument().getElementById("editor");
@@ -116,8 +136,8 @@ public class QuillEditor extends StackPane {
 				}
 			}
 		});
-		webview.setOnKeyPressed( e-> {
-			log.info("Key: {}", e.getCode().toString());
-		});
+		// webview.setOnKeyPressed( e-> {
+		// 	log.info("Key: {}", e.getCode().toString());
+		// });
 	}
 }

@@ -304,10 +304,9 @@ public class NoteController {
 		// TODO Suchen
 		this.moveNoteService.setNote(msg);
 		this.moveNoteService.setParentFolder(target);
-		// TODO Refresh des Trees
 		moveNoteService.reset();
 		moveNoteService.restart();
-		TreeItem<Note> foundTreeItem = searchTreeItem(msg, this.noteCB.getRoot()); 
+		final TreeItem<Note> foundTreeItem = searchTreeItem(msg, this.noteCB.getRoot()); 
 		deleteCurrentMessage(foundTreeItem, true);
 	}
 
