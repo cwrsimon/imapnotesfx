@@ -60,8 +60,7 @@ public class EditorTab extends Tab {
 				}
 				, this.qe.contentUpdateProperty()
 						)
-				);	
-
+				);
 	}
 
 	public QuillEditor getQe() {
@@ -93,7 +92,4 @@ public class EditorTab extends Tab {
 		};
 		task.run();
 	}
-
-	
-
 }

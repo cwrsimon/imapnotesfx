@@ -143,7 +143,7 @@ public class MainView extends Application {
 
 		menuBar.getMenus().add(menu);
 
-		menu.getItems().addAll(about, new SeparatorMenuItem(), update, switchAccountMenuItem, preferences, new SeparatorMenuItem(), exit);
+		menu.getItems().addAll(about, new SeparatorMenuItem(), reloadMenuTask, update, switchAccountMenuItem,new SeparatorMenuItem(),  preferences, exit);
 		
 //		this.running.textProperty().bind(
 //				Bindings.createStringBinding( () -> 
