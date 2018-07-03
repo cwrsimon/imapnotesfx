@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.services.ConfigurationService;
+import de.wesim.imapnotes.ui.components.FSTab;
 import de.wesim.imapnotes.ui.components.IMAPTab;
 import impl.org.controlsfx.skin.PropertySheetSkin;
 import javafx.application.Application;
@@ -25,6 +26,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -90,7 +92,7 @@ public class Preferences extends Application {
 
         final Tab generalTab = new  Tab("General");
         final Tab imapTab = new  IMAPTab();
-        final Tab fsTab = new Tab("FS");
+        final Tab fsTab = new FSTab();
 
         final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
         
@@ -107,7 +109,7 @@ public class Preferences extends Application {
 
 
         final VBox myPane = new VBox(tabPane, buttonBar);
-       
+        VBox.setVgrow(tabPane, Priority.ALWAYS);
 
         this.myScene = new Scene(myPane);
     }
