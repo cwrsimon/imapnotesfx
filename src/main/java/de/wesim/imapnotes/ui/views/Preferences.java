@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.ui.components.FSTab;
@@ -92,7 +93,7 @@ public class Preferences extends Application {
 
         final Tab generalTab = new  Tab("General");
         final Tab imapTab = new  IMAPTab();
-        final Tab fsTab = new FSTab();
+        final FSTab fsTab = new FSTab();
 
         final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
         
@@ -111,6 +112,12 @@ public class Preferences extends Application {
         final VBox myPane = new VBox(tabPane, buttonBar);
         VBox.setVgrow(tabPane, Priority.ALWAYS);
 
+        for (Account account : configuration.getAccountList()) {
+        	if (account.getType() == Account_Type.FS) {
+        		fsTab.addAccount(account);
+        	}
+        }
+        
         this.myScene = new Scene(myPane);
     }
 

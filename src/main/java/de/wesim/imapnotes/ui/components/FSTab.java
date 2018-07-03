@@ -1,11 +1,13 @@
 package de.wesim.imapnotes.ui.components;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
 import javafx.beans.binding.Bindings;
@@ -41,93 +43,109 @@ public class FSTab extends Tab {
 
 	private class FSForm extends GridPane {
 
+		final TextField nameField;
+		final TextField pathField;
+	
 		// TODO Name als Property
 		// UNd mit Name der TitledPane verbinden
 		public FSForm() {
 			//this.setAlignment(Pos.);
 			this.setHgap(10);
 			this.setVgap(10);
-			//this.setPadding(new Insets(25, 25, 25, 25));
+			this.setPadding(new Insets(5, 5, 5, 5));
 
 			Label nameLabel = new Label("Name");
 			this.add(nameLabel, 0,0);
-			TextField nameField = new TextField();
+			nameField = new TextField();
 			this.add(nameField, 1,0);
 
 			Label pathLabel = new Label("File Path");
 			this.add(pathLabel, 0,1);
 
-			TextField pathField = new TextField();
+			pathField = new TextField();
 			Button dirButton = new Button("...");
 			HBox hbox = new HBox(pathField, dirButton);
 			this.add(hbox, 1,1);
 			
 			dirButton.setOnAction( e-> {
 				DirectoryChooser dirChooser = new DirectoryChooser();
-				dirChooser.showDialog(getScene().getWindow());
+				File selectedDir = dirChooser.showDialog(getScene().getWindow());
+				if (selectedDir != null) {
+					pathField.setText(selectedDir.getAbsolutePath());
+				}
 			});
 		}
-
+		
 
 	}
 
+	private TitledPane createTitledPane(String name, String path) {
+		FSForm newForm = new FSForm();
+		final TitledPane tp = new TitledPane();
+		tp.setContent(newForm);
+		tp.textProperty().bind(newForm.nameField.textProperty());
+		newForm.nameField.textProperty().set(name);
+		newForm.pathField.textProperty().set(path);
+		return tp;
+	}
+	
+	final Accordion acco;
+	
 	public FSTab() {
 		super("FS");
-	//	this.controller = noteController;
-	
+
 		final VBox vbox = new VBox();
 		setContent(vbox);
-
-
-		final Accordion acco = new Accordion();
-		final TitledPane tp = new TitledPane("Bla", new FSForm());
-		acco.getPanes().add(tp);
-
-		final Button button = new Button("New");
-        final Button delete = new Button("Delete");
-		final Button save = new Button("Save");
+		vbox.setPadding(new Insets(5, 5, 5, 5));
 		
+		acco = new Accordion();
+		
+		final Button button = new Button("New");
+        final Button delete = new Button("Remove");
+		final Button save = new Button("Save");
+		save.setDisable(true);
 
 		final HBox accountButtons = new HBox(button, delete, save);
 
 		vbox.getChildren().add(acco);
 		vbox.getChildren().add(accountButtons);
-		//this.note = note;
 		
-		// this.textProperty().bind(
-		// 		Bindings.createStringBinding( () -> 
-		// 		{
-		// 			if (this.qe.contentUpdateProperty().get()) {
-		// 				return "* " + note.getSubject();
-		// 			} else {
-		// 				return note.getSubject();
-		// 			}
-		// 		}
-		// 		, this.qe.contentUpdateProperty()
-		// 				)
-		// 		);
 		save.setOnAction(e -> {
             // TODO Asynchron auslagren ???
            // ConfigurationService.writeConfig(configuration);
         });
         button.setOnAction(e -> {
+    		acco.getPanes().add(createTitledPane("", ""));
+    		save.setDisable(false);
+
             //final Account newAccount = configuration.createNewAccount();
            // ps.getItems().addAll(createPrefItemsFromAccount(newAccount));
 
         });
         delete.setOnAction(e -> {
+    		save.setDisable(false);
 
-            // Skin<?> skin = ps.getSkin();
-            // PropertySheetSkin pss = (PropertySheetSkin) skin;
-            // BorderPane np = (BorderPane) pss.getChildren().get(0);
-            // ScrollPane scroller = (ScrollPane) np.getCenter();
+//             Skin<?> skin = ps.getSkin();
+//             PropertySheetSkin pss = (PropertySheetSkin) skin;
+//             BorderPane np = (BorderPane) pss.getChildren().get(0);
+//             ScrollPane scroller = (ScrollPane) np.getCenter();
             // Accordion categories = (Accordion) scroller.getContent();
             // String currentAccount = categories.getExpandedPane().getText();
+             TitledPane currentAccount = acco.getExpandedPane();
+             acco.getPanes().remove(currentAccount);
+             
             // configuration.deleteAccount(currentAccount);
             // ps.getItems().clear();
             // updateEverything(ps, configuration);
         });
 	}
 
+	public void addAccount(Account account) {
+		// TODO Auto-generated method stub
+		final String name = account.getAccount_name();
+		final String path = account.getRoot_folder();
+		acco.getPanes().add(createTitledPane(name, path));
+	}
 
+	
 }
