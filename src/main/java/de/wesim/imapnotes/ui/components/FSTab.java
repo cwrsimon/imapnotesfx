@@ -1,6 +1,8 @@
 package de.wesim.imapnotes.ui.components;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -8,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Account;
+import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
 import javafx.beans.binding.Bindings;
@@ -33,10 +36,6 @@ import javafx.stage.Window;
 public class FSTab extends Tab {
 
 	// private final QuillEditor qe;
-
-	private Note note;
-
-	private NoteController controller;
 
 	private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
@@ -76,7 +75,13 @@ public class FSTab extends Tab {
 			});
 		}
 		
-
+		public Account getAccount() {
+			Account account = new Account();
+			account.setAccount_name(nameField.getText());
+			account.setRoot_folder(pathField.getText());
+			account.setType(Account_Type.FS);
+			return account;
+		}
 	}
 
 	private TitledPane createTitledPane(String name, String path) {
@@ -102,50 +107,39 @@ public class FSTab extends Tab {
 		
 		final Button button = new Button("New");
         final Button delete = new Button("Remove");
-		final Button save = new Button("Save");
-		save.setDisable(true);
 
-		final HBox accountButtons = new HBox(button, delete, save);
+		final HBox accountButtons = new HBox(button, delete);
 
-		vbox.getChildren().add(acco);
 		vbox.getChildren().add(accountButtons);
+		vbox.getChildren().add(acco);
 		
-		save.setOnAction(e -> {
-            // TODO Asynchron auslagren ???
-           // ConfigurationService.writeConfig(configuration);
-        });
         button.setOnAction(e -> {
     		acco.getPanes().add(createTitledPane("", ""));
-    		save.setDisable(false);
+    		//save.setDisable(false);
 
             //final Account newAccount = configuration.createNewAccount();
            // ps.getItems().addAll(createPrefItemsFromAccount(newAccount));
 
         });
         delete.setOnAction(e -> {
-    		save.setDisable(false);
-
-//             Skin<?> skin = ps.getSkin();
-//             PropertySheetSkin pss = (PropertySheetSkin) skin;
-//             BorderPane np = (BorderPane) pss.getChildren().get(0);
-//             ScrollPane scroller = (ScrollPane) np.getCenter();
-            // Accordion categories = (Accordion) scroller.getContent();
-            // String currentAccount = categories.getExpandedPane().getText();
-             TitledPane currentAccount = acco.getExpandedPane();
-             acco.getPanes().remove(currentAccount);
-             
-            // configuration.deleteAccount(currentAccount);
-            // ps.getItems().clear();
-            // updateEverything(ps, configuration);
+			final TitledPane currentAccount = acco.getExpandedPane();
+        	acco.getPanes().remove(currentAccount);
         });
 	}
 
 	public void addAccount(Account account) {
-		// TODO Auto-generated method stub
 		final String name = account.getAccount_name();
 		final String path = account.getRoot_folder();
 		acco.getPanes().add(createTitledPane(name, path));
 	}
 
+	public List<Account> getAccounts() {
+		final List<Account> accounts = new ArrayList<>();
+		for ( TitledPane tp : acco.getPanes()) {
+			final FSForm form = (FSForm) tp.getContent();
+			accounts.add(form.getAccount());
+		}
+		return accounts;
+	}
 	
 }

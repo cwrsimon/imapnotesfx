@@ -107,7 +107,7 @@ public class ConfigurationService {
             		break;
             }
 		}
-		newConfig.getAccountList().addAll(accounts.values());
+		newConfig.setAccounts(accounts.values());
 
         return newConfig;
     }

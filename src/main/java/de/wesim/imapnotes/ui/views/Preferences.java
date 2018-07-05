@@ -17,6 +17,8 @@ import de.wesim.imapnotes.ui.components.IMAPTab;
 import impl.org.controlsfx.skin.PropertySheetSkin;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Accordion;
@@ -25,6 +27,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Skin;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -83,7 +86,6 @@ public class Preferences extends Application {
 
     private void updateEverything(PropertySheet ps, Configuration config) {
         for (Account a : config.getAccountList()) {
-
             ps.getItems().addAll(createPrefItemsFromAccount(a));
         }
     }
@@ -92,11 +94,11 @@ public class Preferences extends Application {
         Configuration configuration = ConfigurationService.readConfig();
 
         final Tab generalTab = new  Tab("General");
-        final Tab imapTab = new  IMAPTab();
+        final IMAPTab imapTab = new  IMAPTab();
         final FSTab fsTab = new FSTab();
 
         final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
-        
+        tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         // PropertySheet ps = new PropertySheet();
         // ps.setModeSwitcherVisible(false);
         // ps.setSearchBoxVisible(false);
@@ -104,20 +106,39 @@ public class Preferences extends Application {
         // TODO verlagern
         //updateEverything(ps, configuration);
         
-        final Button ok = new Button("OK");
+      //  final Button ok = new Button("OK");
         final Button cancel = new Button("Cancel");
-        final HBox buttonBar = new HBox(ok, cancel);
+        final Button save = new Button("Apply");
+		//save.setDisable(true);
+        final HBox buttonBar = new HBox(save, cancel);
 
 
         final VBox myPane = new VBox(tabPane, buttonBar);
-        VBox.setVgrow(tabPane, Priority.ALWAYS);
+        myPane.setSpacing(5);
+		myPane.setPadding(new Insets(5, 5, 5, 5));
+
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        VBox.setVgrow(tabPane, Priority.SOMETIMES);
+
+        // ScrollPane scrollPane = new ScrollPane(myPane);
+        // scrollPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
         for (Account account : configuration.getAccountList()) {
         	if (account.getType() == Account_Type.FS) {
         		fsTab.addAccount(account);
-        	}
+            } else {
+                imapTab.addAccount(account);
+            }
         }
-        
+        save.setOnAction(e -> {
+            logger.info("{}", fsTab.getAccounts().size());
+            configuration.getFSAccounts().clear();
+            configuration.getFSAccounts().addAll(fsTab.getAccounts());
+            configuration.getIMAPAccounts().clear();
+            configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
+            // TODO Asynchron auslagren ???
+            ConfigurationService.writeConfig(configuration);
+        });
         this.myScene = new Scene(myPane);
     }
 
