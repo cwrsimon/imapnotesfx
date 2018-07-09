@@ -74,7 +74,6 @@ public class NoteController {
 		this.status = status;
 		this.refreshConfig();
 		this.initAsyncTasks();
-
 	}
 
 	public HostServices getHostServices() {
@@ -511,5 +510,9 @@ public class NoteController {
 
 	public void setTabPane(TabPane tp) {
 		this.tp = tp;
+	}
+
+	public Configuration getConfiguration() {
+		return this.config;
 	}
 }

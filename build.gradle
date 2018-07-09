@@ -61,8 +61,8 @@ dependencies {
 
 // Define the main class for the application
 //mainClassName = 'de.wesim.imapnotes.HelloWorld'
-//mainClassName = 'de.wesim.imapnotes.ui.views.MainView'
-mainClassName = 'de.wesim.imapnotes.ui.views.Preferences'
+mainClassName = 'de.wesim.imapnotes.ui.views.MainView'
+//mainClassName = 'de.wesim.imapnotes.ui.views.Preferences'
 
 buildscript {
     dependencies {

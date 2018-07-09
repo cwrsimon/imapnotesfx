@@ -13,6 +13,7 @@ import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 
+import de.wesim.imapnotes.models.Configuration;
 import javafx.application.HostServices;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -79,7 +80,12 @@ public class QuillEditor extends StackPane {
 		return contentUpdate.get();
 	}
 
-	public QuillEditor(HostServices hostServices, String string) {
+	public void setCssStyle(String styleName, String value) {
+		webview.getEngine().executeScript("document.getElementById('editor').style['" + styleName + "']='" 
+			+ value + "';");
+	}
+
+	public QuillEditor(HostServices hostServices, String string, Configuration configuration) {
 		final QuillEditor backReference = this;
 		// TODO WebView muss sich dem verfügbaren Platz anpassen
 		webview.setPrefSize(650, 325);
@@ -108,7 +114,7 @@ public class QuillEditor extends StackPane {
 					//webview.getEngine().executeScript("app.logMe('Gallo');");
 					// TODO Auf diese Weise von außen Schriftfamilie und Schriftgröße anpassen ...
 					webview.getEngine().executeScript("document.getElementById('editor').style['font-family']='serif';");
-					
+					setCssStyle("font-size", configuration.getFontSize());
 					setHtmlText(string);
 
 					Element nodeList = webview.getEngine().getDocument().getElementById("editor");

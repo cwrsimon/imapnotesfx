@@ -225,11 +225,18 @@ public class MainView extends Application {
 			final Stage newStage = new Stage();
 			newStage.initModality(Modality.APPLICATION_MODAL);
 			newStage.initOwner(primaryStage);
+			newStage.setHeight(500);
 			newStage.setScene(prefs.getScene());
+			prefs.getCancelButton().setOnAction( e2-> {
+				newStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			});
+			prefs.getApplyButton().setOnAction( e2-> {
+				prefs.savePreferences();
+				newStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			});
 			newStage.showAndWait();
 			this.noteController.refreshConfig();
 		});
-
 		final Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
 		primaryStage.setWidth(1024);
@@ -241,11 +248,9 @@ public class MainView extends Application {
 			logger.info("Quitting application.");
 		});
 		this.noteController.startup();;
-		
 	}
 
 	public static void main(String[] args) {
 		launch(args);
 	}
-
 }

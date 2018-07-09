@@ -13,6 +13,7 @@ import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.ui.components.FSTab;
+import de.wesim.imapnotes.ui.components.GeneralTab;
 import de.wesim.imapnotes.ui.components.IMAPTab;
 import impl.org.controlsfx.skin.PropertySheetSkin;
 import javafx.application.Application;
@@ -33,14 +34,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 // TODO
 // Passwort-Felder verschlüsseln
 // 2. Passwort-Feld
 // Tab-Reiter:
 // Generic (Schriftgröße, etc.)
-// IMAP-Accounts
-// FS-Accounts
+// Validierungen einbauen
+/// FS-Accounts
 // Dedizierte Account-Klassen für FS und IMAP
 // Layout hübscher machen
 
@@ -66,6 +68,13 @@ public class Preferences extends Application {
 
     private static Logger logger = LoggerFactory.getLogger(Preferences.class);
 
+    Button cancel;
+    Button save2;
+    FSTab fsTab;
+    GeneralTab generalTab;
+    IMAPTab imapTab;
+    Configuration configuration;
+
     public Preferences() {
         initScene();
     }
@@ -75,54 +84,29 @@ public class Preferences extends Application {
         launch(args);
     }
 
-    private ObservableList<Item> createPrefItemsFromAccount(Account a) {
-        ObservableList<Item> list = BeanPropertyUtils.getProperties(a);
-        for (Item i : list) {
-            BeanProperty prop = (BeanProperty) i;
-            prop.getPropertyDescriptor().setValue(BeanProperty.CATEGORY_LABEL_KEY, a.toString());
-        }
-        return list;
-    }
-
-    private void updateEverything(PropertySheet ps, Configuration config) {
-        for (Account a : config.getAccountList()) {
-            ps.getItems().addAll(createPrefItemsFromAccount(a));
-        }
-    }
-
     private void initScene() {
-        Configuration configuration = ConfigurationService.readConfig();
+        this.configuration = ConfigurationService.readConfig();
 
-        final Tab generalTab = new  Tab("General");
-        final IMAPTab imapTab = new  IMAPTab();
-        final FSTab fsTab = new FSTab();
+        this.generalTab = new GeneralTab();
+        this.imapTab = new  IMAPTab();
+        this.fsTab = new FSTab();
 
         final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-        // PropertySheet ps = new PropertySheet();
-        // ps.setModeSwitcherVisible(false);
-        // ps.setSearchBoxVisible(false);
-        // ps.setMode(Mode.CATEGORY);
-        // TODO verlagern
-        //updateEverything(ps, configuration);
         
-      //  final Button ok = new Button("OK");
-        final Button cancel = new Button("Cancel");
-        final Button save = new Button("Apply");
-		//save.setDisable(true);
-        final HBox buttonBar = new HBox(save, cancel);
+        this.cancel = new Button("Cancel");
+        this.save2 = new Button("Apply");
+        final HBox buttonBar = new HBox(save2, cancel);
 
-
-        final VBox myPane = new VBox(tabPane, buttonBar);
-        myPane.setSpacing(5);
+        final BorderPane myPane = new BorderPane();
+        
+        myPane.setCenter(tabPane);
+        myPane.setBottom(buttonBar);
 		myPane.setPadding(new Insets(5, 5, 5, 5));
 
         buttonBar.setAlignment(Pos.CENTER_RIGHT);
         VBox.setVgrow(tabPane, Priority.SOMETIMES);
-
-        // ScrollPane scrollPane = new ScrollPane(myPane);
-        // scrollPane.setPrefSize(Double.MAX_VALUE, Double.MAX_VALUE);
-
+        
         for (Account account : configuration.getAccountList()) {
         	if (account.getType() == Account_Type.FS) {
         		fsTab.addAccount(account);
@@ -130,16 +114,20 @@ public class Preferences extends Application {
                 imapTab.addAccount(account);
             }
         }
-        save.setOnAction(e -> {
-            logger.info("{}", fsTab.getAccounts().size());
-            configuration.getFSAccounts().clear();
-            configuration.getFSAccounts().addAll(fsTab.getAccounts());
-            configuration.getIMAPAccounts().clear();
-            configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
-            // TODO Asynchron auslagren ???
-            ConfigurationService.writeConfig(configuration);
-        });
+        generalTab.setFontSize(configuration.getFontSize());
+       
+        fsTab.openAccordion();
         this.myScene = new Scene(myPane);
+    }
+
+    public void savePreferences() {
+        logger.info("{}", fsTab.getAccounts().size());
+        configuration.getFSAccounts().clear();
+        configuration.getFSAccounts().addAll(fsTab.getAccounts());
+        configuration.getIMAPAccounts().clear();
+        configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
+        configuration.setFontSize(generalTab.getFontSize());
+        ConfigurationService.writeConfig(configuration);
     }
 
     @Override
@@ -151,10 +139,26 @@ public class Preferences extends Application {
         primaryStage.setOnCloseRequest(e -> {
             logger.info("Quitting application.");
         });
+        
+        this.cancel.setOnAction( e-> {
+            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+
+        this.save2.setOnAction( e-> {
+             savePreferences();
+            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
     }
 
     public Scene getScene() {
         return this.myScene;
+    }
+
+    public Button getCancelButton() {
+        return this.cancel;
+    }
+    public Button getApplyButton() {
+        return this.save2;
     }
 
 }

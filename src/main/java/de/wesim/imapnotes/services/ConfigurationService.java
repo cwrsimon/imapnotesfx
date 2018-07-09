@@ -20,6 +20,8 @@ public class ConfigurationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
 
+	private static final String NO_ACCOUNT_KEY = String.valueOf(Integer.MAX_VALUE);
+
 	private static void addProp(Properties props, String name, String value, int i) {
 		if (value == null) return;
 		if (value.trim().length() == 0) return;
@@ -40,6 +42,7 @@ public class ConfigurationService {
 			addProp(imapSettings, "password", acc.getPassword(), i);
 
 		}
+		addProp(imapSettings, "font_size", config.getFontSize(), Integer.MAX_VALUE);
 		try {
 			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
 						"Update ImapNotesFX configuration");
@@ -75,12 +78,15 @@ public class ConfigurationService {
         	//logger.debug("key:" + key);
 
             Account acc = accounts.get(key);
-            if (acc == null) {
+            if (acc == null && !key.equals(NO_ACCOUNT_KEY)) {
             	acc = new Account();
             	accounts.put(key, acc);
             }
 			final String propertyValue = imapSettings.getProperty(propertyName);
             switch (items[0]) {
+				case "font_size":
+					newConfig.setFontSize(propertyValue);
+					break;
             	case "account_type":
             		acc.setType(Account_Type.valueOf(propertyValue));
             		break;

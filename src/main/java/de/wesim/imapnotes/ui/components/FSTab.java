@@ -14,29 +14,23 @@ import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.skin.TabPaneSkin;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Window;
 
 public class FSTab extends Tab {
 
 	// private final QuillEditor qe;
-
 	private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
 
@@ -44,9 +38,9 @@ public class FSTab extends Tab {
 
 		final TextField nameField;
 		final TextField pathField;
+
+		Hyperlink removeMe = new Hyperlink("Remove");
 	
-		// TODO Name als Property
-		// UNd mit Name der TitledPane verbinden
 		public FSForm() {
 			//this.setAlignment(Pos.);
 			this.setHgap(10);
@@ -65,7 +59,8 @@ public class FSTab extends Tab {
 			Button dirButton = new Button("...");
 			HBox hbox = new HBox(pathField, dirButton);
 			this.add(hbox, 1,1);
-			
+			this.add(removeMe, 0, 2);
+
 			dirButton.setOnAction( e-> {
 				DirectoryChooser dirChooser = new DirectoryChooser();
 				File selectedDir = dirChooser.showDialog(getScene().getWindow());
@@ -91,6 +86,9 @@ public class FSTab extends Tab {
 		tp.textProperty().bind(newForm.nameField.textProperty());
 		newForm.nameField.textProperty().set(name);
 		newForm.pathField.textProperty().set(path);
+		newForm.removeMe.setOnAction(e -> {
+			acco.getPanes().remove(tp);
+		});
 		return tp;
 	}
 	
@@ -105,26 +103,20 @@ public class FSTab extends Tab {
 		
 		acco = new Accordion();
 		
-		final Button button = new Button("New");
-        final Button delete = new Button("Remove");
+		final Hyperlink button = new Hyperlink("New");
 
-		final HBox accountButtons = new HBox(button, delete);
-
-		vbox.getChildren().add(accountButtons);
+		vbox.getChildren().add(button);
 		vbox.getChildren().add(acco);
 		
         button.setOnAction(e -> {
     		acco.getPanes().add(createTitledPane("", ""));
-    		//save.setDisable(false);
-
-            //final Account newAccount = configuration.createNewAccount();
-           // ps.getItems().addAll(createPrefItemsFromAccount(newAccount));
-
         });
-        delete.setOnAction(e -> {
-			final TitledPane currentAccount = acco.getExpandedPane();
-        	acco.getPanes().remove(currentAccount);
-        });
+	}
+
+	public void openAccordion() {
+		if (acco.getPanes().isEmpty()) return;
+		final TitledPane first = acco.getPanes().get(0);
+		acco.setExpandedPane(first);
 	}
 
 	public void addAccount(Account account) {

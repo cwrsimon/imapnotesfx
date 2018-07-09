@@ -14,7 +14,15 @@ public class Configuration {
 
     private final List<Account> fsAccounts;
     private final List<Account> imapAccounts;
+    private String fontSize;
 
+    public String getFontSize() {
+        return this.fontSize;
+    }
+
+    public void setFontSize(String fontSize) {
+        this.fontSize = fontSize;
+    }
 
     public Configuration() {
         this.fsAccounts = new ArrayList<>();

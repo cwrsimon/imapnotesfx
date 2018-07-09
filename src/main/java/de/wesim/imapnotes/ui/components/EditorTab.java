@@ -35,7 +35,7 @@ public class EditorTab extends Tab {
 	public EditorTab(NoteController noteController, Note note) {
 		super(note.getSubject());
 		this.controller = noteController;
-		this.qe = new QuillEditor(noteController.getHostServices(),  note.getContent());
+		this.qe = new QuillEditor(noteController.getHostServices(),  note.getContent(), noteController.getConfiguration());
 		setContent(this.qe);
 		this.note = note;
 		setOnCloseRequest(e-> {
