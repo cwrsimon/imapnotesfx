@@ -15,8 +15,19 @@ public class Configuration {
     private final List<Account> fsAccounts;
     private final List<Account> imapAccounts;
     private String fontSize;
+    private String fontFamily;
 
-    public String getFontSize() {
+    
+    
+    public String getFontFamily() {
+		return fontFamily;
+	}
+
+	public void setFontFamily(String fontFamily) {
+		this.fontFamily = fontFamily;
+	}
+
+	public String getFontSize() {
         return this.fontSize;
     }
 
@@ -52,27 +63,6 @@ public class Configuration {
         returnList.addAll(imapAccounts);
         return returnList;
     }
-
-    // public  Account createNewAccount() {
-    //     Account newAccount = new Account();
-    //     newAccountCounter++;
-    //     newAccount.setAccount_name("New account " + String.valueOf(newAccountCounter));
-    //     newAccount.setType(Account_Type.FS);
-    //     this.accounts.add(newAccount);
-    //     return newAccount;
-    // }
-
-    // public void deleteAccount(String accountName) {
-    //     logger.info("Trying to delete account:" + accountName);
-    //     Iterator<Account> accountIterator = this.accounts.iterator();
-    //     while (accountIterator.hasNext()) {
-    //         Account next = accountIterator.next();
-    //         if (next.getAccount_name().equals(accountName)) {
-    //             accountIterator.remove();
-    //             break;
-    //         }
-    //     }
-    // }
 
 	public void setAccounts(Collection<Account> values) {
         for (Account account : values) {

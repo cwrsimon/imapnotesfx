@@ -2,7 +2,6 @@ package de.wesim.imapnotes.services;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -42,6 +41,7 @@ public class ConfigurationService {
 			addProp(imapSettings, "password", acc.getPassword(), i);
 
 		}
+		addProp(imapSettings, "font_family", config.getFontFamily(), Integer.MAX_VALUE);
 		addProp(imapSettings, "font_size", config.getFontSize(), Integer.MAX_VALUE);
 		try {
 			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
@@ -87,6 +87,9 @@ public class ConfigurationService {
 				case "font_size":
 					newConfig.setFontSize(propertyValue);
 					break;
+				case "font_family":
+					newConfig.setFontFamily(propertyValue);
+					break;	
             	case "account_type":
             		acc.setType(Account_Type.valueOf(propertyValue));
             		break;

@@ -3,30 +3,22 @@ package de.wesim.imapnotes.ui.components;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
-import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.services.ConfigurationService;
-import javafx.beans.binding.Bindings;
-import javafx.concurrent.Task;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.skin.TabPaneSkin;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -37,6 +29,9 @@ public class IMAPTab extends Tab {
 	private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
 	private class IMAPForm extends GridPane {
+
+		
+		Hyperlink removeMe = new Hyperlink("Remove");
 
 		final TextField nameField;
 		final TextField pathField;
@@ -81,6 +76,9 @@ public class IMAPTab extends Tab {
 			Button dirButton = new Button("...");
 			HBox hbox = new HBox(pathField, dirButton);
 			this.add(hbox, 1,6);
+
+			this.add(removeMe, 0, 7);
+
 			
 			dirButton.setOnAction( e-> {
 				DirectoryChooser dirChooser = new DirectoryChooser();
@@ -117,6 +115,10 @@ public class IMAPTab extends Tab {
 		newForm.pwField.textProperty().set(account.getPassword());
 		newForm.pwConfField.textProperty().set(account.getPassword());
 		newForm.addressField.textProperty().set(account.getFrom_address());
+		
+		newForm.removeMe.setOnAction(e -> {
+			acco.getPanes().remove(tp);
+		});
 		return tp;
 	}
 
@@ -134,38 +136,21 @@ public class IMAPTab extends Tab {
 
 		acco = new Accordion();
 		
-		final Button button = new Button("New");
-        final Button delete = new Button("Remove");
+		final Hyperlink button = new Hyperlink("New");
+		final ToolBar toolbar = new ToolBar(button);
 
-		final HBox accountButtons = new HBox(button, delete);
-
-		vbox.getChildren().add(accountButtons);
+		vbox.getChildren().add(toolbar);
 		vbox.getChildren().add(acco);
 
         button.setOnAction(e -> {
     		acco.getPanes().add(createTitledPane(new Account()));
-    		//save.setDisable(false);
-
-            //final Account newAccount = configuration.createNewAccount();
-           // ps.getItems().addAll(createPrefItemsFromAccount(newAccount));
-
         });
-        delete.setOnAction(e -> {
-    		//save.setDisable(false);
-
-//             Skin<?> skin = ps.getSkin();
-//             PropertySheetSkin pss = (PropertySheetSkin) skin;
-//             BorderPane np = (BorderPane) pss.getChildren().get(0);
-//             ScrollPane scroller = (ScrollPane) np.getCenter();
-            // Accordion categories = (Accordion) scroller.getContent();
-            // String currentAccount = categories.getExpandedPane().getText();
-             TitledPane currentAccount = acco.getExpandedPane();
-             acco.getPanes().remove(currentAccount);
-             
-            // configuration.deleteAccount(currentAccount);
-            // ps.getItems().clear();
-            // updateEverything(ps, configuration);
-        });	//	this.controller = noteController;
+	}
+	
+	public void openAccordion() {
+		if (acco.getPanes().isEmpty()) return;
+		final TitledPane first = acco.getPanes().get(0);
+		acco.setExpandedPane(first);
 	}
 
 	public void addAccount(Account account) {

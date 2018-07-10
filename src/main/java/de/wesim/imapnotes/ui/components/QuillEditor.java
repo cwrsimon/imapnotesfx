@@ -113,7 +113,8 @@ public class QuillEditor extends StackPane {
 					window.setMember("app", backReference);
 					//webview.getEngine().executeScript("app.logMe('Gallo');");
 					// TODO Auf diese Weise von außen Schriftfamilie und Schriftgröße anpassen ...
-					webview.getEngine().executeScript("document.getElementById('editor').style['font-family']='serif';");
+//					webview.getEngine().executeScript("document.getElementById('editor').style['font-family']='serif';");
+					setCssStyle("font-family", configuration.getFontFamily());
 					setCssStyle("font-size", configuration.getFontSize());
 					setHtmlText(string);
 

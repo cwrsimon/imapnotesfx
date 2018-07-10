@@ -23,6 +23,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,7 +31,6 @@ import javafx.stage.DirectoryChooser;
 
 public class FSTab extends Tab {
 
-	// private final QuillEditor qe;
 	private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
 
@@ -103,9 +103,11 @@ public class FSTab extends Tab {
 		
 		acco = new Accordion();
 		
+		
 		final Hyperlink button = new Hyperlink("New");
-
-		vbox.getChildren().add(button);
+		final ToolBar toolbar = new ToolBar(button);
+		
+		vbox.getChildren().add(toolbar);
 		vbox.getChildren().add(acco);
 		
         button.setOnAction(e -> {

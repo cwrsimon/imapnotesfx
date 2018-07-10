@@ -28,8 +28,10 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
+// Interface für Logger-Klassen
 // https://github.com/FibreFoX/javafx-gradle-plugin
 // Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
@@ -62,7 +64,6 @@ import javafx.stage.WindowEvent;
 // Zu Applikation bündeln
 // Tabs fertig implementieren
 // Geöffneten Zustand abspeichern
-// Schließen der Preferences
 // Gmail-Integration
 // Umgangt mit LEEREM Account
 // Sortierung nach Änderungsdatum?
@@ -81,13 +82,10 @@ import javafx.stage.WindowEvent;
 // Zurück nicht  als Note implementieren
 // Löschen ohne Reload ...
 // Exceptions als Benutzermeldung bis nach oben propagieren
-// Neues Feature: Verschieben per Drag und Drop
-// Zurückfolder: Nur Subject heißt "Subject",
-// sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
-// oben -> komplette IMAP-Pfade als UUID speichern
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 // Copy , Paste, Historie ans Menü binden ...
-// Support für Tiff Bilder
+// Wichtig für den Mac: Support für Tiff Bilder
+// https://stackoverflow.com/questions/10121991/javafx-application-icon
 public class MainView extends Application {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
@@ -239,14 +237,17 @@ public class MainView extends Application {
 		});
 		final Scene myScene = new Scene(myPane);
 		primaryStage.setScene(myScene);
-		primaryStage.setWidth(1024);
-		primaryStage.setHeight(500);
+		primaryStage.setMinWidth(1024);
+		primaryStage.setMinHeight(500);
 		primaryStage.setResizable(true);
 		primaryStage.setTitle("ImapNotesFX");
-		primaryStage.show();
+		//primaryStage.initModality(Modality.APPLICATION_MODAL);
+		primaryStage.initStyle(StageStyle.DECORATED);
 		primaryStage.setOnCloseRequest(e -> {
 			logger.info("Quitting application.");
 		});
+		primaryStage.show();
+
 		this.noteController.startup();;
 	}
 

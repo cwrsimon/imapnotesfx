@@ -1,10 +1,5 @@
 package de.wesim.imapnotes.ui.views;
 
-import org.controlsfx.control.PropertySheet;
-import org.controlsfx.control.PropertySheet.Item;
-import org.controlsfx.control.PropertySheet.Mode;
-import org.controlsfx.property.BeanProperty;
-import org.controlsfx.property.BeanPropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,18 +10,11 @@ import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.ui.components.FSTab;
 import de.wesim.imapnotes.ui.components.GeneralTab;
 import de.wesim.imapnotes.ui.components.IMAPTab;
-import impl.org.controlsfx.skin.PropertySheetSkin;
 import javafx.application.Application;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Skin;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.layout.BorderPane;
@@ -37,10 +25,6 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 // TODO
-// Passwort-Felder verschlüsseln
-// 2. Passwort-Feld
-// Tab-Reiter:
-// Generic (Schriftgröße, etc.)
 // Validierungen einbauen
 /// FS-Accounts
 // Dedizierte Account-Klassen für FS und IMAP
@@ -49,19 +33,6 @@ import javafx.stage.WindowEvent;
 // Logger log = Logger.getLogger("myApp");
 // log.setLevel(Level.ALL);
 // log.info("initializing - trying to load configuration file ...");
-
-// //Properties preferences = new Properties();
-// try {
-//     //FileInputStream configFile = new //FileInputStream("/path/to/app.properties");
-//     //preferences.load(configFile);
-//     InputStream configFile = myApp.class.getResourceAsStream("app.properties");
-//     LogManager.getLogManager().readConfiguration(configFile);
-// } catch (IOException ex)
-// {
-//     System.out.println("WARNING: Could not open configuration file");
-//     System.out.println("WARNING: Logging not configured (console output only)");
-// }
-// log.info("starting myApp");
 public class Preferences extends Application {
 
     private Scene myScene;
@@ -115,7 +86,9 @@ public class Preferences extends Application {
             }
         }
         generalTab.setFontSize(configuration.getFontSize());
-       
+        generalTab.setFontFamily(configuration.getFontFamily());
+
+        imapTab.openAccordion();
         fsTab.openAccordion();
         this.myScene = new Scene(myPane);
     }
@@ -127,6 +100,7 @@ public class Preferences extends Application {
         configuration.getIMAPAccounts().clear();
         configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
         configuration.setFontSize(generalTab.getFontSize());
+        configuration.setFontFamily(generalTab.getFontFamily());
         ConfigurationService.writeConfig(configuration);
     }
 
