@@ -6,15 +6,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 
+//@Component
 public class ConfigurationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
