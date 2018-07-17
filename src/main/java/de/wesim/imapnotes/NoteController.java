@@ -3,8 +3,13 @@ package de.wesim.imapnotes;
 import java.util.List;
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
@@ -43,6 +48,7 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
+@Component
 public class NoteController {
 
 	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
@@ -50,8 +56,17 @@ public class NoteController {
 	private MoveNoteService moveNoteService;
 	private NewNoteService newNoteService;
 	private INoteProvider backend;
-	private final ProgressBar progressBar;
-	private final Label status;
+	
+	
+	
+	@Autowired
+	@Qualifier("p1")
+	private ProgressBar progressBar;
+	
+	
+	@Autowired
+	private Label status;
+
 	public BooleanBinding allRunning;
 	private OpenMessageTask openMessageTask;
 	private DeleteMessageTask deleteNoteService;
@@ -68,16 +83,24 @@ public class NoteController {
 
 	private HostServices hostServices;
 
-	public NoteController(ProgressBar progressBar, Label status, HostServices hostServices) {
-		this.hostServices = hostServices;
-		this.progressBar = progressBar;
-		this.status = status;
+	public NoteController() {
+
+	}
+
+	@PostConstruct
+	public void init() {
 		this.refreshConfig();
 		this.initAsyncTasks();
 	}
-
+	
 	public HostServices getHostServices() {
 		return hostServices;
+	}
+	
+	
+
+	public void setHostServices(HostServices hostServices) {
+		this.hostServices = hostServices;
 	}
 
 	public void refreshConfig() {

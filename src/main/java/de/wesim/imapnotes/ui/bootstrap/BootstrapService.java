@@ -1,20 +1,44 @@
 package de.wesim.imapnotes.ui.bootstrap;
 
-import javafx.stage.Stage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.ui.views.MainView;
+import de.wesim.imapnotes.ui.views.Preferences;
+import javafx.application.HostServices;
+import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
+@Service
 public class BootstrapService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
+	private static final Logger logger = LoggerFactory.getLogger(BootstrapService.class);
 
 	
+	@Autowired
+	private Label status;
+	
+	@Autowired
+	private ProgressBar p1;
+	
+	@Autowired
+	private MainView mainView;
+	
+	@Autowired
 	private NoteController noteController;
 
 
     public void init(Stage stage) {
-        MainView mainView = new MainView();
 
-		this.noteController = new NoteController(mainView.getP1(), 
-					mainView.getStatus(), getHostServices());
+//		this.noteController = new NoteController(p1, 
+//				status, hostServices);
 
 		// TODO als PostConstruct
 		mainView.init(this.noteController);
@@ -64,11 +88,11 @@ public class BootstrapService {
 			newStage.setHeight(500);
 			newStage.setScene(prefs.getScene());
 			prefs.getCancelButton().setOnAction( e2-> {
-				newStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+				newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			});
 			prefs.getApplyButton().setOnAction( e2-> {
 				prefs.savePreferences();
-				newStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+				newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			});
 			newStage.showAndWait();
 			this.noteController.refreshConfig();

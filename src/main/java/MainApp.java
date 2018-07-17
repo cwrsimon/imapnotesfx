@@ -1,14 +1,10 @@
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import de.wesim.imapnotes.NoteController;
-import de.wesim.imapnotes.ui.views.MainView;
-import de.wesim.imapnotes.ui.views.Preferences;
+import de.wesim.imapnotes.ui.bootstrap.BootstrapService;
 import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 
 // https://github.com/bpark/weldse-javafx-integration/blob/master/src/main/java/com/github/bpark/weld/fx/StageInitService.java
 // https://github.com/FibreFoX/javafx-gradle-plugin
@@ -80,8 +76,20 @@ public class MainApp extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
-				
+		try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
+			NoteController noteController = ctx.getBean(NoteController.class);
+			noteController.setHostServices(getHostServices());
+			final BootstrapService myService = ctx.getBean(BootstrapService.class);
+	        myService.init(primaryStage);				
+		}
+	}
+
 	
+	
+	@Override
+	public void stop() throws Exception {
+		super.stop();
+		
 	}
 
 	public static void main(String[] args) {

@@ -2,6 +2,8 @@ package de.wesim.imapnotes.ui.views;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
@@ -25,12 +27,17 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 
+@Component
 public class MainView extends BorderPane {
 
 	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
-	private final ProgressBar p1 = new ProgressBar();
-	private final Label status = new Label();
+	@Autowired
+	private ProgressBar p1;
+
+	@Autowired
+	private Label status;
+	
 	//private final Label running = new Label();
 	private final Label account = new Label();
 	private final TabPane tp = new TabPane();
@@ -123,15 +130,7 @@ public class MainView extends BorderPane {
 	public MenuItem getSwitchAccountMenuItem() {
 		return this.switchAccountMenuItem;
 	}
-
-	public ProgressBar getP1() {
-		return this.p1;
-	}
-
-	public Label getStatus() {
-		return this.status;
-	}
-
+	
 	public Label getAccount() {
 		return this.account;
 	}
