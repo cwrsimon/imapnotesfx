@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.background;
 
+import org.springframework.stereotype.Component;
+
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
@@ -9,6 +11,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 
+@Component
 public class DeleteMessageTask extends AbstractNoteService<Void> {
     
     private ObjectProperty<TreeItem<Note>> note = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
@@ -39,8 +42,8 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
         return parentFolder;
     }
     
-    public DeleteMessageTask( NoteController backend, ProgressBar progress, Label status ) {
-        super(backend, progress, status);
+    public DeleteMessageTask() {
+        super();
     }
 
     @Override

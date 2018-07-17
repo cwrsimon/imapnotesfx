@@ -27,7 +27,6 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.components.EditorTab;
-import de.wesim.imapnotes.ui.views.MainView;
 import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
@@ -58,29 +57,37 @@ import javafx.stage.WindowEvent;
 public class NoteController {
 
 	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
-
-	private MoveNoteService moveNoteService;
-	private NewNoteService newNoteService;
+	
 	private INoteProvider backend;
+		
+	@Autowired
+	private MoveNoteService moveNoteService;
 	
-	
+	@Autowired
+	private NewNoteService newNoteService;
 	
 	@Autowired
 	@Qualifier("p1")
 	private ProgressBar progressBar;
 	
-	
-	@Autowired
-	private Label status;
-	
 	@Autowired
 	private Label account;
 
 	public BooleanBinding allRunning;
+	
+	@Autowired
 	private OpenMessageTask openMessageTask;
+
+	@Autowired
 	private DeleteMessageTask deleteNoteService;
+
+	@Autowired
 	private RenameNoteService renameNoteService;
+
+	@Autowired
 	private LoadMessageTask newLoadTask;
+
+	@Autowired
 	private OpenFolderTask openFolderTask;
 
 	public StringProperty currentAccount = new SimpleStringProperty("");
@@ -261,14 +268,8 @@ public class NoteController {
 		return firstItem.getValue() == null;
 	}
 
+	// TODO kann in den Service-Code migriert werden !!!
 	private void initAsyncTasks() {
-		this.moveNoteService = new MoveNoteService(this, this.progressBar, this.status);
-		this.newLoadTask = new LoadMessageTask(this, this.progressBar, this.status);
-		this.openMessageTask = new OpenMessageTask(this, this.progressBar, this.status);
-		this.openFolderTask = new OpenFolderTask(this, this.progressBar, this.status);
-		this.renameNoteService = new RenameNoteService(this, this.progressBar, this.status);
-		this.deleteNoteService = new DeleteMessageTask(this, this.progressBar, this.status);
-		this.newNoteService = new NewNoteService(this, this.progressBar, this.status);
 		this.newNoteService.setOnSucceeded(e -> {
 			// FIXME
 			TreeItem<Note> pTreeItem = newNoteService.getParentFolder();
@@ -339,16 +340,7 @@ public class NoteController {
 			}
 		});
 
-		openMessageTask.setOnSucceeded(e -> {
-			final Note openedNote = openMessageTask.getValue();
-
-			Tab editorTab = new EditorTab(this, openedNote);
-			tp.getTabs().add(editorTab);
-			tp.getSelectionModel().select(editorTab);
-
-			// FIXME ???
-			// noteCB.getSelectionModel().select(openedNote);
-		});
+		
 
 		deleteNoteService.setOnSucceeded(e -> {
 			final TreeItem<Note> parentNote = deleteNoteService.getParentFolder();
@@ -410,6 +402,12 @@ public class NoteController {
 		renameNoteService.setOnSucceeded(e -> {
 			noteCB.refresh();
 		});
+	}
+
+	public void openEditor(final Note openedNote) {
+		Tab editorTab = new EditorTab(this, openedNote);
+		tp.getTabs().add(editorTab);
+		tp.getSelectionModel().select(editorTab);
 	}
 
 	public void startup() {

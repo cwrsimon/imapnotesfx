@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.background;
 
+import org.springframework.stereotype.Component;
+
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.BooleanProperty;
@@ -14,6 +16,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
+@Component
 public class NewNoteService extends AbstractNoteService<Note> {
 
     private StringProperty subject = new SimpleStringProperty();
@@ -42,8 +45,8 @@ public class NewNoteService extends AbstractNoteService<Note> {
         return parentFolder;
     }
 
-    public NewNoteService( NoteController backend, ProgressBar progress, Label status ) {
-        super(backend, progress, status);
+    public NewNoteService( ) {
+        super();
     }
 
     @Override

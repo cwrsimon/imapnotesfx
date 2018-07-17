@@ -1,13 +1,13 @@
 package de.wesim.imapnotes.ui.background;
 
-import de.wesim.imapnotes.NoteController;
+import org.springframework.stereotype.Component;
+
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 
+@Component
 public class OpenMessageTask extends AbstractNoteService<Note> {
     
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
@@ -25,11 +25,19 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
     }
 
     
-    public OpenMessageTask(  NoteController backend, ProgressBar progress, Label status ) {
-        super(backend, progress, status);
+    public OpenMessageTask(  ) {
+        super();
     }
+    
+    
 
     @Override
+	protected void succeeded() {
+    	final Note openedNote = getValue();
+		controller.openEditor(openedNote);
+	}
+
+	@Override
     protected Task<Note> createTask() {
         Task<Note> task = new Task<Note>() {
 

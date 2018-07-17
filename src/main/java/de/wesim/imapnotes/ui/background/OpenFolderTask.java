@@ -2,6 +2,8 @@ package de.wesim.imapnotes.ui.background;
 
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
@@ -13,6 +15,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 
+@Component
 public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
     
     private ObjectProperty<TreeItem<Note>> noteFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
@@ -30,8 +33,8 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
     }
 
     
-    public OpenFolderTask(  NoteController backend, ProgressBar progress, Label status ) {
-        super(backend, progress, status);
+    public OpenFolderTask( ) {
+        super();
     }
 
     @Override
