@@ -23,12 +23,6 @@ public class BootstrapService {
 
 	
 	@Autowired
-	private Label status;
-	
-	@Autowired
-	private ProgressBar p1;
-	
-	@Autowired
 	private MainView mainView;
 	
 	@Autowired
@@ -37,14 +31,7 @@ public class BootstrapService {
 
     public void init(Stage stage) {
 
-//		this.noteController = new NoteController(p1, 
-//				status, hostServices);
-
-		// TODO als PostConstruct
-		mainView.init(this.noteController);
-
 		this.noteController.setListView(mainView.getNoteCB());		
-		this.noteController.setTabPane(mainView.getTP());
 
 		mainView.getAccount().textProperty().bind(this.noteController.currentAccount);
 

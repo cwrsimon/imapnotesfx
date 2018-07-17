@@ -79,6 +79,7 @@ public class NoteController {
 
 	private Configuration config;
 
+	@Autowired
 	private TabPane tp;
 
 	private HostServices hostServices;
@@ -529,10 +530,6 @@ public class NoteController {
 	public INoteProvider getBackend() {
 		// TODO Auto-generated method stub
 		return this.backend;
-	}
-
-	public void setTabPane(TabPane tp) {
-		this.tp = tp;
 	}
 
 	public Configuration getConfiguration() {

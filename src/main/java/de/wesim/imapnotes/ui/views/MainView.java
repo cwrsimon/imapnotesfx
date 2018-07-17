@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.views;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,10 +39,15 @@ public class MainView extends BorderPane {
 
 	@Autowired
 	private Label status;
+
+	@Autowired
+	private NoteController noteController;
 	
 	//private final Label running = new Label();
 	private final Label account = new Label();
-	private final TabPane tp = new TabPane();
+	
+	@Autowired
+	private TabPane tp;
 
 	private MenuItem reloadMenuTask;
 	private MenuItem exit;
@@ -65,7 +72,8 @@ public class MainView extends BorderPane {
 		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 	}
 
-	public void init(NoteController noteController) {
+	@PostConstruct
+	public void init() {
 		noteCB = new MyListView(noteController);
 		noteCB.setShowRoot(false);
 						
@@ -92,8 +100,7 @@ public class MainView extends BorderPane {
 		
 		noteCB.setPrefWidth(150);
 		
-		this.tp.setMinWidth(500);
-		this.tp.setPrefWidth(500);
+
 		final SplitPane sp = new SplitPane(new StackPane(noteCB),    tp);
 		sp.setOrientation(Orientation.HORIZONTAL);
 		sp.setDividerPositions(0.3);
@@ -135,9 +142,6 @@ public class MainView extends BorderPane {
 		return this.account;
 	}
 
-	public TabPane getTP() {
-		return this.tp;
-	}
 
 	public TreeView<Note> getNoteCB() {
 		return this.noteCB;

@@ -77,7 +77,8 @@ public class MainApp extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			NoteController noteController = ctx.getBean(NoteController.class);
+			final NoteController noteController = ctx.getBean(NoteController.class);
+			// FIXME EVIL ...
 			noteController.setHostServices(getHostServices());
 			final BootstrapService myService = ctx.getBean(BootstrapService.class);
 	        myService.init(primaryStage);				
