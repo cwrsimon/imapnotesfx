@@ -2,14 +2,12 @@ package de.wesim.imapnotes.ui.views;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Alert;
@@ -23,59 +21,53 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 
 @Component
-public class MainView extends BorderPane {
+public class MainView extends BorderPane implements HasLogger {
 
-	private static final Logger logger = LoggerFactory.getLogger(MainView.class);
 
 	@Autowired
 	private ProgressBar p1;
 
 	@Autowired
 	private Label status;
-
-	@Autowired
-	private NoteController noteController;
 	
-	//private final Label running = new Label();
-	private final Label account = new Label();
+	@Autowired
+	private Label account;
 	
 	@Autowired
 	private TabPane tp;
-
-	private MenuItem reloadMenuTask;
-	private MenuItem exit;
-	private MenuItem update;
-	private MenuItem switchAccountMenuItem;
+	
+	@Autowired
+	@Qualifier("myListView")
 	private TreeView<Note> noteCB;
 
+	@Autowired
+	private MenuItem reloadMenuTask;
+
+	@Autowired
+	private MenuItem exit;
+
+	@Autowired
+	private MenuItem update;
+	
+	@Autowired
+	private MenuItem switchAccountMenuItem;
+
+	@Autowired
 	private MenuItem preferences;
 
 
 	public MainView () {
 		super();
-
-		switchAccountMenuItem   = new Menu("Switch Account ...");
-		reloadMenuTask = new MenuItem("Reload");
-		preferences = new Menu("Preferences");
-
-		exit = new MenuItem("Exit");
-		exit.setAccelerator(KeyCombination.keyCombination("Shortcut+Q"));
-
-		update  = new MenuItem("Save current Note");
-		update.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 	}
 
 	@PostConstruct
 	public void init() {
-		noteCB = new MyListView(noteController);
-		noteCB.setShowRoot(false);
 						
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu("File");
@@ -98,8 +90,6 @@ public class MainView extends BorderPane {
 		//GridPane.setHgrow(running, Priority.ALWAYS);
 		GridPane.setHalignment(p1, HPos.RIGHT);
 		
-		noteCB.setPrefWidth(150);
-		
 
 		final SplitPane sp = new SplitPane(new StackPane(noteCB),    tp);
 		sp.setOrientation(Orientation.HORIZONTAL);
@@ -116,34 +106,5 @@ public class MainView extends BorderPane {
 			alert.showAndWait();
 		});
 
-	}
-
-	public MenuItem getReloadMenuItem() {
-		return this.reloadMenuTask;
-	}
-
-	public MenuItem getExit() {
-		return this.exit;
-	}
-
-	public MenuItem getUpdate() {
-		return this.update;
-	}
-
-	public MenuItem getPreferences() {
-		return this.preferences;
-	}
-
-	public MenuItem getSwitchAccountMenuItem() {
-		return this.switchAccountMenuItem;
-	}
-	
-	public Label getAccount() {
-		return this.account;
-	}
-
-
-	public TreeView<Note> getNoteCB() {
-		return this.noteCB;
 	}
 }

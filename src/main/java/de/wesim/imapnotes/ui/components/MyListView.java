@@ -18,6 +18,8 @@ public class MyListView extends TreeView<Note> {
 	
 	public MyListView() {
 		super(new TreeItem<Note>());
+		setShowRoot(false);
+		setPrefWidth(150);
     }
 	
 	@PostConstruct

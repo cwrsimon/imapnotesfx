@@ -27,6 +27,8 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.components.EditorTab;
+import de.wesim.imapnotes.ui.views.MainView;
+import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -41,12 +43,16 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
 @Component
 public class NoteController {
@@ -66,6 +72,9 @@ public class NoteController {
 	
 	@Autowired
 	private Label status;
+	
+	@Autowired
+	private Label account;
 
 	public BooleanBinding allRunning;
 	private OpenMessageTask openMessageTask;
@@ -73,7 +82,6 @@ public class NoteController {
 	private RenameNoteService renameNoteService;
 	private LoadMessageTask newLoadTask;
 	private OpenFolderTask openFolderTask;
-	private TreeView<Note> noteCB;
 
 	public StringProperty currentAccount = new SimpleStringProperty("");
 
@@ -81,9 +89,31 @@ public class NoteController {
 
 	@Autowired
 	private TabPane tp;
+	
+	@Autowired
+	@Qualifier("myListView")
+	private TreeView<Note> noteCB;
+	
+	@Autowired
+	private MenuItem reloadMenuTask;
 
+	@Autowired
+	private MenuItem exit;
+
+	@Autowired
+	private MenuItem update;
+	
+	@Autowired
+	private MenuItem switchAccountMenuItem;
+
+	@Autowired
+	private MenuItem preferences;
+	
+	// must be set manually
 	private HostServices hostServices;
-
+	private Stage stage;
+	
+	
 	public NoteController() {
 
 	}
@@ -92,16 +122,86 @@ public class NoteController {
 	public void init() {
 		this.refreshConfig();
 		this.initAsyncTasks();
+		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
+
+			@Override
+			public void changed(ObservableValue<? extends TreeItem<Note>> observable, TreeItem<Note> oldValue,
+					TreeItem<Note> newValue) {
+				if (newValue == null)
+					return;
+				if (oldValue != newValue) {
+					openNote(newValue.getValue());
+				}
+
+			}
+		});
+		// Bindings
+		account.textProperty().bind(currentAccount);
+		
+		// Actions
+		switchAccountMenuItem.setOnAction( e -> {
+			chooseAccount();
+		});
+		
+		reloadMenuTask.setOnAction(e -> {
+			if (allRunning.getValue() == true) {
+				return;
+			}
+			if (closeAccount()) {
+				loadMessages(null);
+			}
+		});
+		
+		update.setOnAction(e -> {
+			if (allRunning.getValue() == true) {
+				return;
+			}
+			saveCurrentMessage();
+		});
+		
+		exit.setOnAction(event -> {
+			if (exitPossible()) {
+				try {
+					destroy();
+				} catch (Exception e) {
+					logger.error("Destroying the backend has failed ...", e);
+				}
+				stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			} else {
+				logger.error("exitPossible returned false ...");
+			}
+		});
+		
+		preferences.setOnAction( e-> {
+			final Preferences prefs = new Preferences();
+			final Stage newStage = new Stage();
+			newStage.initModality(Modality.APPLICATION_MODAL);
+			newStage.initOwner(stage);
+			newStage.setHeight(500);
+			newStage.setScene(prefs.getScene());
+			prefs.getCancelButton().setOnAction( e2-> {
+				newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			});
+			prefs.getApplyButton().setOnAction( e2-> {
+				prefs.savePreferences();
+				newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+			});
+			newStage.showAndWait();
+			refreshConfig();
+		});
 	}
 	
 	public HostServices getHostServices() {
 		return hostServices;
 	}
 	
-	
-
 	public void setHostServices(HostServices hostServices) {
 		this.hostServices = hostServices;
+	}
+	
+	
+	public void setStage(Stage stage) {
+		this.stage = stage;
 	}
 
 	public void refreshConfig() {
@@ -484,27 +584,6 @@ public class NoteController {
 
 		et.getNote().setContent(newContent);
 		et.saveContents();
-	}
-
-	public void setListView(TreeView noteCB) {
-		this.noteCB = noteCB;
-		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
-
-			@Override
-			public void changed(ObservableValue<? extends TreeItem<Note>> observable, TreeItem<Note> oldValue,
-					TreeItem<Note> newValue) {
-				if (newValue == null)
-					return;
-				if (oldValue != newValue) {
-					openNote(newValue.getValue());
-				}
-
-			}
-		});
-	}
-
-	public TreeView getListView() {
-		return this.noteCB;
 	}
 
 	public boolean exitPossible() {

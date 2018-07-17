@@ -1,4 +1,3 @@
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 import de.wesim.imapnotes.NoteController;
@@ -80,6 +79,7 @@ public class MainApp extends Application {
 			final NoteController noteController = ctx.getBean(NoteController.class);
 			// FIXME EVIL ...
 			noteController.setHostServices(getHostServices());
+			noteController.setStage(primaryStage);
 			final BootstrapService myService = ctx.getBean(BootstrapService.class);
 	        myService.init(primaryStage);				
 		}
