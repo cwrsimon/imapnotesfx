@@ -5,24 +5,22 @@ import de.wesim.imapnotes.ui.bootstrap.BootstrapService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-// https://github.com/bpark/weldse-javafx-integration/blob/master/src/main/java/com/github/bpark/weld/fx/StageInitService.java
+// Tree-View-Logik im Rahmen von ListView implementieren ...
+// ERROR-Handling !!
+// FS-Anbindung
+// TIFF-Image-Support
+// Aotmatisches Setzen des Subjects durch erste Zeile
 // https://github.com/FibreFoX/javafx-gradle-plugin
 // Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
 // https://github.com/revelc/gnome-keyring-java
 // Neuer Editor:
 // JSOUP durch etwas Sinnvolleres ersetzen ...
-// Asynchron gestalten
 // Sortierung nach Datum
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
-// https://github.com/bpark/weldse-javafx-integration
 // 1a. Locking
-// 2. Kontextmenüs
-// 3. Refaktorisierung: Dependency-Injection !!!
 // Für verschiedene Fensterebenen:
-// http://www.javafxtutorials.com/tutorials/creating-a-pop-up-window-in-javafx/
-// https://stackoverflow.com/questions/22166610/how-to-create-a-popup-windows-in-javafx
 // Einarbeiten:
 // http://code.makery.ch/library/javafx-8-tutorial/part2/
 // Where to go from here:
@@ -38,7 +36,6 @@ import javafx.stage.Stage;
 // Zu Applikation bündeln
 // Tabs fertig implementieren
 // Geöffneten Zustand abspeichern
-// Schließen der Preferences
 // Gmail-Integration
 // Umgangt mit LEEREM Account
 // Sortierung nach Änderungsdatum?
@@ -57,17 +54,12 @@ import javafx.stage.Stage;
 // Zurück nicht  als Note implementieren
 // Löschen ohne Reload ...
 // Exceptions als Benutzermeldung bis nach oben propagieren
-// Neues Feature: Verschieben per Drag und Drop
-// Zurückfolder: Nur Subject heißt "Subject",
+// Fixen: Verschieben per Drag und Drop
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
-// oben -> komplette IMAP-Pfade als UUID speichern
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 // Copy , Paste, Historie ans Menü binden ...
-// Support für Tiff Bilder
 public class MainApp extends Application {
 
-
-	
 	@Override
 	public void init() throws Exception {
 		super.init();

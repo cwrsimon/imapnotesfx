@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.background;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.NoteController;
@@ -10,10 +12,15 @@ import javafx.concurrent.Task;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 @Component
 public class MoveNoteService extends AbstractNoteService<Note> {
     
+    @Autowired
+	@Qualifier("myListView")
+	private TreeView<Note> noteCB;
+
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
     public final void setNote(Note value) {
@@ -55,7 +62,7 @@ public class MoveNoteService extends AbstractNoteService<Note> {
                 updateProgress(0, 1);
                 updateMessage("Moving " + note.getValue().toString() + "...");
 
-                Note retValue = 
+                final Note retValue = 
                     controller.getBackend().move(getNote(), parentFolder.get().getValue());
 
                 updateMessage("Moving was successful! :-)");
@@ -67,5 +74,13 @@ public class MoveNoteService extends AbstractNoteService<Note> {
         return task;
     }
    
+    @Override
+	protected void succeeded() {
+		final Note moved = getValue();
+        final TreeItem<Note> parentFolder = getParentFolder();
+        // TODO hübscher machen
+		parentFolder.getChildren().add(new TreeItem<Note>(moved));
+		noteCB.refresh();
+	}
 }
 

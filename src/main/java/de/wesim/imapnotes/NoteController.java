@@ -2,15 +2,10 @@ package de.wesim.imapnotes;
 
 import java.util.List;
 import java.util.Optional;
-
 import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
@@ -54,9 +49,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 @Component
-public class NoteController {
-
-	private static final Logger logger = LoggerFactory.getLogger(NoteController.class);
+public class NoteController implements HasLogger {
 	
 	private INoteProvider backend;
 		
@@ -128,7 +121,12 @@ public class NoteController {
 	@PostConstruct
 	public void init() {
 		this.refreshConfig();
-		this.initAsyncTasks();
+
+		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
+		.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
+		.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
+
+
 		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
 
 			@Override
@@ -171,11 +169,11 @@ public class NoteController {
 				try {
 					destroy();
 				} catch (Exception e) {
-					logger.error("Destroying the backend has failed ...", e);
+					getLogger().error("Destroying the backend has failed ...", e);
 				}
 				stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			} else {
-				logger.error("exitPossible returned false ...");
+				getLogger().error("exitPossible returned false ...");
 			}
 		});
 		
@@ -260,152 +258,9 @@ public class NoteController {
 		loadMessages(null);
 	}
 
-	private boolean isEmptyTreeItem(TreeItem<Note> treeItem) {
-		if (treeItem.isLeaf()) return false;
-		if (treeItem.getChildren().isEmpty()) return true;
-		if (treeItem.getChildren().size() > 1) return false;
-		TreeItem<Note> firstItem = treeItem.getChildren().get(0);
-		return firstItem.getValue() == null;
-	}
-
-	// TODO kann in den Service-Code migriert werden !!!
-	private void initAsyncTasks() {
-		this.newNoteService.setOnSucceeded(e -> {
-			// FIXME
-			TreeItem<Note> pTreeItem = newNoteService.getParentFolder();
-			final Note newNote = newNoteService.getValue();
-			final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
-			if (newNote.isFolder()) {
-				if (isEmptyTreeItem(newTreeItem)) {
-					newTreeItem.getChildren().clear();
-				}
-				newTreeItem.getChildren().add(new TreeItem<Note>(null));
-			}
-			if (pTreeItem != null) {
-				if (isEmptyTreeItem(pTreeItem)) {
-					pTreeItem.getChildren().clear();
-				}
-				pTreeItem.getChildren().add(newTreeItem);
-			} else {
-				this.noteCB.getRoot().getChildren().add(newTreeItem);
-			}
-			openNote(newNote);
-		});
-		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
-				.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
-				.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
-		// TODO openFolderTask
-
-		newLoadTask.setOnSucceeded(e -> {
-			final ObservableList<Note> loadedItems = newLoadTask.getValue();
-			noteCB.getRoot().getChildren().clear();
-			for (Note n : loadedItems) {
-				final TreeItem<Note> newItem = new TreeItem<Note>(n);
-				if (n.isFolder()) {
-					newItem.getChildren().add(new TreeItem<Note>());
-					// TODO
-					// https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
-					newItem.setExpanded(false);
-					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
-
-						@Override
-						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-								Boolean newValue) {
-							if (!newValue) {
-								return;
-							}
-
-							BooleanProperty bb = (BooleanProperty) observable;
-
-							TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
-							if (callee.getChildren().size() != 1)
-								return;
-							// nur bei einem einzigen leeren Kind
-							if (callee.getChildren().get(0).getValue() != null)
-								return;
-							openFolder(callee);
-
-						}
-					});
-				}
-				noteCB.getRoot().getChildren().add(newItem);
-			}
-			// noteCB.setItems(loadedItems);
-			// currentlyOPen = null;
-			// das erste Element öffnen
-			if (loadedItems.isEmpty()) return;
-			final Note firstELement = loadedItems.get(0);
-			if (!firstELement.isFolder()) {
-				openNote(firstELement);
-			}
-		});
-
-		
-
-		deleteNoteService.setOnSucceeded(e -> {
-			final TreeItem<Note> parentNote = deleteNoteService.getParentFolder();
-			final TreeItem<Note> deletedItem = deleteNoteService.getNote();
-
-			final int index = parentNote.getChildren().indexOf(deletedItem);
-
-			parentNote.getChildren().remove(deletedItem);
-
-			final int previousItem = Math.max(0, index - 1);
-			if (parentNote.getChildren().isEmpty()) return;
-			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-			openNote(previous.getValue());
-		});
-		moveNoteService.setOnSucceeded(e -> {
-			final Note moved = moveNoteService.getValue();
-			final TreeItem<Note> parentFolder = moveNoteService.getParentFolder();
-			// FIXME TODO
-			parentFolder.getChildren().add(new TreeItem<Note>(moved));
-			noteCB.refresh();
-		});
-		openFolderTask.setOnSucceeded(e -> {
-			TreeItem<Note> containedTreeItem = openFolderTask.noteFolderProperty().get();
-			containedTreeItem.getChildren().clear();
-			final ObservableList<Note> loadedItems = openFolderTask.getValue();
-			for (Note n : loadedItems) {
-				final TreeItem<Note> newItem = new TreeItem<Note>(n);
-				if (n.isFolder()) {
-					newItem.getChildren().add(new TreeItem<Note>());
-					// TODO
-					// https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
-					newItem.setExpanded(false);
-					newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
-
-						@Override
-						public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-								Boolean newValue) {
-							if (!newValue) {
-								return;
-							}
-
-							BooleanProperty bb = (BooleanProperty) observable;
-
-							TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
-							if (callee.getChildren().size() != 1)
-								return;
-							// nur bei einem einzigen leeren Kind
-							if (callee.getChildren().get(0).getValue() != null)
-								return;
-							openFolder(callee);
-
-						}
-					});
-				}
-				containedTreeItem.getChildren().add(newItem);
-			}
-			openFolderTask.noteFolderProperty().set(null);
-		});
-		renameNoteService.setOnSucceeded(e -> {
-			noteCB.refresh();
-		});
-	}
 
 	public void openEditor(final Note openedNote) {
-		Tab editorTab = new EditorTab(this, openedNote);
+		final Tab editorTab = new EditorTab(this, openedNote);
 		tp.getTabs().add(editorTab);
 		tp.getSelectionModel().select(editorTab);
 	}
@@ -415,6 +270,7 @@ public class NoteController {
 		final Account first = this.config.getAccountList().get(0);
 		openAccount(first);
 		} catch (Exception e) {
+			// TODO
 			;
 		}
 	}
@@ -432,7 +288,7 @@ public class NoteController {
 	}
 
 	public void move(Note msg, TreeItem<Note> target) {
-		logger.info("Moving {} to {}", msg, target);
+		getLogger().info("Moving {} to {}", msg, target);
 		// TODO Suchen
 		this.moveNoteService.setNote(msg);
 		this.moveNoteService.setParentFolder(target);
@@ -478,7 +334,7 @@ public class NoteController {
 	}
 
 	public void loadMessages(Note messageToOpen) {
-		System.out.println(messageToOpen);
+		getLogger().info("Loading message {}", messageToOpen);
 		newLoadTask.setNote(messageToOpen);
 		newLoadTask.reset();
 		newLoadTask.restart();
@@ -497,7 +353,7 @@ public class NoteController {
 			return;
 
 		if (m.isFolder()) {
-			logger.warn("Opening folders like this not supported, yet.");
+			getLogger().warn("Opening folders like this not supported, yet.");
 			return;
 		}
 		// Böse, aber funktioniert ...
@@ -509,15 +365,10 @@ public class NoteController {
 			}
 		}
 
-		logger.info("Opening {}", m.getSubject());
-		// if (m.isFolder() == false) {
+		getLogger().info("Opening {}", m.getSubject());
+
 		this.openMessageTask.noteProperty().set(m);
 		this.openMessageTask.restart();
-		// }
-		// else {
-		// this.openFolderTask.noteFolderProperty().set(m);
-		// this.openFolderTask.restart();
-		// }
 	}
 
 	// Aufgerufen beim Klick aufs ListViewItem
@@ -534,7 +385,7 @@ public class NoteController {
 			}
 		}
 
-		logger.info("Opening Folder {}", m.getValue().getSubject());
+		getLogger().info("Opening Folder {}", m.getValue().getSubject());
 
 		this.openFolderTask.noteFolderProperty().set(m);
 		this.openFolderTask.restart();
@@ -578,7 +429,7 @@ public class NoteController {
 	public void saveCurrentMessage() {
 		final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
 		final String newContent = et.getQe().getHtmlText();
-		logger.info("Saving new content: {}", newContent);
+		getLogger().info("Saving new content: {}", newContent);
 
 		et.getNote().setContent(newContent);
 		et.saveContents();

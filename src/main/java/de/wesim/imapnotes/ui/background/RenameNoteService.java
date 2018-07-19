@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.ui.background;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.models.Note;
@@ -8,10 +10,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
+import javafx.scene.control.TreeView;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 @Component
 public class RenameNoteService extends AbstractNoteService<Void> {
+
+    @Autowired
+	@Qualifier("myListView")
+	private TreeView<Note> noteCB;
 
     private StringProperty subject = new SimpleStringProperty();
 
@@ -63,5 +70,10 @@ public class RenameNoteService extends AbstractNoteService<Void> {
         };
         return task;
     }
+
+    @Override
+	protected void succeeded() {
+		noteCB.refresh();
+	}
 
 }

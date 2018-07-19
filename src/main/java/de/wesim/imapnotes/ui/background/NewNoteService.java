@@ -1,9 +1,11 @@
 package de.wesim.imapnotes.ui.background;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -11,13 +13,17 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 @Component
 public class NewNoteService extends AbstractNoteService<Note> {
+
+    @Autowired
+	@Qualifier("myListView")
+	private TreeView<Note> noteCB;
+
 
     private StringProperty subject = new SimpleStringProperty();
 
@@ -76,5 +82,30 @@ public class NewNoteService extends AbstractNoteService<Note> {
         };
         return task;
     }
+    
+    @Override
+	protected void succeeded() {
+        // FIXME
+        // Das alles nach ListView verschieben ...
+        final TreeItem<Note> pTreeItem = getParentFolder();
+        final Note newNote = getValue();
+        final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
+        if (newNote.isFolder()) {
+            if (MyListView.isEmptyTreeItem(newTreeItem)) {
+                newTreeItem.getChildren().clear();
+            }
+            newTreeItem.getChildren().add(new TreeItem<Note>(null));
+        }
+        if (pTreeItem != null) {
+            if (MyListView.isEmptyTreeItem(pTreeItem)) {
+                pTreeItem.getChildren().clear();
+            }
+            pTreeItem.getChildren().add(newTreeItem);
+        } else {
+            this.noteCB.getRoot().getChildren().add(newTreeItem);
+        }
+        controller.openNote(newNote);
+	}
+
 
 }

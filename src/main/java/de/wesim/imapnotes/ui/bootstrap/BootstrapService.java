@@ -10,6 +10,8 @@ import de.wesim.imapnotes.ui.views.MainView;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+// TODO
+// Umbenennen und verschieben
 @Service
 public class BootstrapService {
 
