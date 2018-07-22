@@ -116,11 +116,6 @@ public class IMAPNoteProvider implements INoteProvider {
 	}
 
 	@Override
-	public void openFolder(Note folder) throws Exception {
-		//this.backend.switchToSubFolder(folder.getUuid());
-	}
-
-	@Override
 	public Note createNewFolder(String name, Note parent) throws Exception {
 		final Folder parentFolder;
 		if (parent != null) {
@@ -164,6 +159,7 @@ public class IMAPNoteProvider implements INoteProvider {
 		Message msg = this.msgMap.get(message.getUuid());
 		Folder imapFolder = this.folderMap.get(folder.getUuid());
 		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
+		
 		return message;
 	}	
 	

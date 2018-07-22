@@ -16,4 +16,9 @@ public final class Consts {
 	public static final String EMPTY_NOTE = 
 			"<html dir=\"ltr\"><head></head><body contenteditable=\"true\"></body></html>";	
 
+            	// private String parse(String htmlContent) {
+	// final String plainContent = Jsoup.parse(htmlContent).text();
+	// return plainContent;
+	// }
+
 }

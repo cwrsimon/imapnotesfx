@@ -12,7 +12,6 @@ import javafx.scene.control.ProgressBar;
 
 
 public abstract class AbstractNoteService<T> extends Service<T> {
-    
 	
 	@Autowired
 	@Qualifier("noteController")
@@ -26,7 +25,6 @@ public abstract class AbstractNoteService<T> extends Service<T> {
 	private Label status;
     
     public AbstractNoteService( ) {
-       // this.controller = parent;
        
     }
 
@@ -39,8 +37,10 @@ public abstract class AbstractNoteService<T> extends Service<T> {
  			status.textProperty().bind( this.messageProperty());
          });
          this.setOnFailed(e-> {
-         	// TODO
-             getException().printStackTrace();
+			status.textProperty().unbind();
+			// FIXME
+         	status.setText(getException().getMessage());
+            getException().printStackTrace();
          });
     }
 }

@@ -16,13 +16,7 @@ public interface INoteProvider {
 
     public void renameNote(Note note, String newName) throws Exception;
 	public void renameFolder(Note note, String newName) throws Exception;
-
-    @Deprecated
-    public void openFolder(Note folder) throws Exception;
-
-    // @Deprecated
-	// public void returnToParent() throws Exception;
-
+    
     public void load(Note note) throws Exception;
 
     public void update(Note note) throws Exception;
@@ -35,7 +29,5 @@ public interface INoteProvider {
 
     public void destroy() throws Exception;
 
-    public Note move(Note msg, Note folder);
-    // TODO
-    // public void rename(Note note, String newTitle); 
+    public Note move(Note msg, Note folder) throws Exception;
 }

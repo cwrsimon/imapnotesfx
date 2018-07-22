@@ -22,6 +22,7 @@ import de.wesim.imapnotes.ui.background.OpenFolderTask;
 import de.wesim.imapnotes.ui.background.OpenMessageTask;
 import de.wesim.imapnotes.ui.background.RenameNoteService;
 import de.wesim.imapnotes.ui.components.EditorTab;
+import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
@@ -119,25 +120,11 @@ public class NoteController implements HasLogger {
 	@PostConstruct
 	public void init() {
 		this.refreshConfig();
-
+		// TODO Was machen wir damit???
 		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
 		.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
 		.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
 
-		// TODO raus da
-		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
-
-			@Override
-			public void changed(ObservableValue<? extends TreeItem<Note>> observable, TreeItem<Note> oldValue,
-					TreeItem<Note> newValue) {
-				if (newValue == null)
-					return;
-				if (oldValue != newValue) {
-					openNote(newValue.getValue());
-				}
-
-			}
-		});
 		// Bindings
 		account.textProperty().bind(currentAccount);
 		
@@ -273,18 +260,6 @@ public class NoteController implements HasLogger {
 		}
 	}
 
-	private TreeItem<Note> searchTreeItem(Note searchItem, TreeItem<Note> parent) {
-		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
-			return parent;
-		}
-		if (parent.getChildren().isEmpty()) return null;
-		for (TreeItem<Note> child : parent.getChildren()) {
-			TreeItem<Note> found = searchTreeItem(searchItem, child);
-			if (found != null) return found;
-		}
-		return null;
-	}
-
 	public void move(Note msg, TreeItem<Note> target) {
 		getLogger().info("Moving {} to {}", msg, target);
 		// TODO Suchen
@@ -292,7 +267,7 @@ public class NoteController implements HasLogger {
 		this.moveNoteService.setParentFolder(target);
 		moveNoteService.reset();
 		moveNoteService.restart();
-		final TreeItem<Note> foundTreeItem = searchTreeItem(msg, this.noteCB.getRoot()); 
+		final TreeItem<Note> foundTreeItem = MyListView.searchTreeItem(msg, this.noteCB.getRoot()); 
 		deleteCurrentMessage(foundTreeItem, true);
 	}
 
@@ -389,24 +364,7 @@ public class NoteController implements HasLogger {
 		this.openFolderTask.restart();
 
 	}
-	// private boolean hasContentChanged(Note curMsg) {
-	// return this.contentUpdated;
-	// //if (curMsg == null) return false;
 
-	// String oldContent = curMsg.getContent();
-	// if (oldContent == null) return false;
-	// oldContent = parse(oldContent);
-	// String newContent = myText.getHtmlText();
-	// if (newContent == null) return false;
-	// newContent = parse(newContent);
-
-	// return !oldContent.equals(newContent);
-	// }
-
-	// private String parse(String htmlContent) {
-	// final String plainContent = Jsoup.parse(htmlContent).text();
-	// return plainContent;
-	// }
 
 	public void createNewMessage(boolean createFolder, TreeItem<Note> parent) {
 		final Dialog<String> dialog = new TextInputDialog("Bla");

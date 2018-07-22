@@ -7,14 +7,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.ui.components.MyListView;
-import de.wesim.imapnotes.ui.components.MyTreeItemChangeListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 
 @Component
 public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
@@ -54,14 +52,8 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
 
                 final TreeItem<Note> openedItem = getNoteFolder();
                 final Note folderToOpen = openedItem.getValue();
-                // TODO Konstante extrahieren
-                // if (folderToOpen.getUuid().startsWith("BACKTOPARENT")) {
-                //     System.out.println("OpenFolderTAsk: Return");
-                //     controller.getBackend().returnToParent();
-                // } else {
                 final List<Note> messages  = controller.getBackend().getNotesFromFolder(folderToOpen);
-                //}
-
+                
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
                 updateProgress(1, 1);
 

@@ -56,6 +56,8 @@ import javafx.stage.Stage;
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 // Copy , Paste, Historie ans Menü binden ...
+// BEim Löschen des Tab schließen
+// Beim Umbennen einen Reload des Ordners machen 
 public class MainApp extends Application {
 
 	@Override
