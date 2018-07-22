@@ -6,8 +6,6 @@ import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import javafx.util.Callback;
@@ -28,7 +26,7 @@ public class ListCellFactory implements Callback<TreeView<Note>, TreeCell<Note>>
 
 	@Override
 	public TreeCell<Note> call(TreeView<Note> param) {
-		return new MyTreeView(caller);
+		return new MyTreeCell(caller);
 	}
 
 }

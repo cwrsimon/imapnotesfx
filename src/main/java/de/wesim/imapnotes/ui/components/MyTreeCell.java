@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import de.wesim.imapnotes.NoteController;
 import de.wesim.imapnotes.models.Note;
-import javafx.event.EventHandler;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
@@ -14,25 +13,21 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 
-public class MyTreeView extends TreeCell<Note> {
+public class MyTreeCell extends TreeCell<Note> {
 
-	private static final Logger logger = LoggerFactory.getLogger(MyTreeView.class);
+	private static final Logger logger = LoggerFactory.getLogger(MyTreeCell.class);
 
 	private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
 	//private static final DataFormat myNotes = new DataFormat("javafx.scene.control.TreeItem");
 
-	private NoteController caller;
 	private final ContextMenu noteMenu = new ContextMenu();
 	private final ContextMenu genericMenu = new ContextMenu();
 	private final ContextMenu folderMenu = new ContextMenu();
 
-
-	private EventHandler<? super MouseEvent> eventHandler;
-	public MyTreeView (NoteController caller) {
+	public MyTreeCell (NoteController caller) {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
 			final TreeItem<Note> treeItem =  getTreeItem();

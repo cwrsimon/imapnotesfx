@@ -2,15 +2,11 @@ package de.wesim.imapnotes.models;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.wesim.imapnotes.HasLogger;
 
-public class Configuration {
-
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class.getName());
+public class Configuration implements HasLogger {
 
     private final List<Account> fsAccounts;
     private final List<Account> imapAccounts;

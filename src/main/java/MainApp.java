@@ -5,7 +5,8 @@ import de.wesim.imapnotes.ui.bootstrap.BootstrapService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-// Tree-View-Logik im Rahmen von ListView implementieren ...
+// i18n
+// den letzten geöffneten Account speichern
 // ERROR-Handling !!
 // FS-Anbindung
 // TIFF-Image-Support
@@ -48,11 +49,8 @@ import javafx.stage.Stage;
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
 // Beim Löschen: Nächstes Element auswählen
-// Rückwärtsgehen anders implementieren
 // Bessere Farben für Back-Folder (Symbole???)
 // Aktuellen Pfad anzeigen
-// Zurück nicht  als Note implementieren
-// Löschen ohne Reload ...
 // Exceptions als Benutzermeldung bis nach oben propagieren
 // Fixen: Verschieben per Drag und Drop
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
@@ -76,13 +74,10 @@ public class MainApp extends Application {
 	        myService.init(primaryStage);				
 		}
 	}
-
-	
 	
 	@Override
 	public void stop() throws Exception {
-		super.stop();
-		
+		super.stop();	
 	}
 
 	public static void main(String[] args) {

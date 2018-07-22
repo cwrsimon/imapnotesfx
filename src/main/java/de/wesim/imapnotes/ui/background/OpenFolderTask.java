@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.models.Note;
-import javafx.beans.property.BooleanProperty;
+import de.wesim.imapnotes.ui.components.MyListView;
+import de.wesim.imapnotes.ui.components.MyTreeItemChangeListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -22,7 +21,7 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
     
     @Autowired
 	@Qualifier("myListView")
-	private TreeView<Note> noteCB;
+	private MyListView noteCB;
 
 
     private ObjectProperty<TreeItem<Note>> noteFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
@@ -75,41 +74,9 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
     @Override
 	protected void succeeded() {
         TreeItem<Note> containedTreeItem = noteFolderProperty().get();
-        containedTreeItem.getChildren().clear();
         final ObservableList<Note> loadedItems = getValue();
-        for (Note n : loadedItems) {
-            final TreeItem<Note> newItem = new TreeItem<Note>(n);
-            if (n.isFolder()) {
-                newItem.getChildren().add(new TreeItem<Note>());
-                // TODO
-                // https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
-                newItem.setExpanded(false);
-                newItem.expandedProperty().addListener(new ChangeListener<Boolean>() {
-
-                    @Override
-                    public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-                            Boolean newValue) {
-                        if (!newValue) {
-                            return;
-                        }
-
-                        BooleanProperty bb = (BooleanProperty) observable;
-
-                        TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
-                        if (callee.getChildren().size() != 1)
-                            return;
-                        // nur bei einem einzigen leeren Kind
-                        if (callee.getChildren().get(0).getValue() != null)
-                            return;
-                        controller.openFolder(callee);
-
-                    }
-                });
-            }
-            containedTreeItem.getChildren().add(newItem);
-        }
+        this.noteCB.addChildrenToNode(loadedItems, containedTreeItem);
         noteFolderProperty().set(null);
-    
     }
 
 }

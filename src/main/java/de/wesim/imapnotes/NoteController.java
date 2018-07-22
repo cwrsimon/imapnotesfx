@@ -26,12 +26,10 @@ import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
@@ -126,7 +124,7 @@ public class NoteController implements HasLogger {
 		.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
 		.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
 
-
+		// TODO raus da
 		this.noteCB.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
 
 			@Override
@@ -452,7 +450,6 @@ public class NoteController implements HasLogger {
 		if (this.backend != null) {
 			this.backend.destroy();
 		}
-
 	}
 
 	public INoteProvider getBackend() {
