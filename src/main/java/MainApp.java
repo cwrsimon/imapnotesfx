@@ -1,14 +1,12 @@
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import de.wesim.imapnotes.NoteController;
-import de.wesim.imapnotes.ui.bootstrap.BootstrapService;
+import de.wesim.imapnotes.mainview.MainViewController;
+import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
 // i18n
-// den letzten geöffneten Account speichern
 // ERROR-Handling !!
-// FS-Anbindung
 // TIFF-Image-Support
 // Aotmatisches Setzen des Subjects durch erste Zeile
 // https://github.com/FibreFoX/javafx-gradle-plugin
@@ -68,11 +66,11 @@ public class MainApp extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
-			final NoteController noteController = ctx.getBean(NoteController.class);
+			final MainViewController mainViewController = ctx.getBean(MainViewController.class);
 			// FIXME EVIL ...
-			noteController.setHostServices(getHostServices());
-			noteController.setStage(primaryStage);
-			final BootstrapService myService = ctx.getBean(BootstrapService.class);
+			mainViewController.setHostServices(getHostServices());
+			mainViewController.setStage(primaryStage);
+			final MainViewLoaderService myService = ctx.getBean(MainViewLoaderService.class);
 	        myService.init(primaryStage);				
 		}
 	}

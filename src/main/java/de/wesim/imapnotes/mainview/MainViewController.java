@@ -1,4 +1,4 @@
-package de.wesim.imapnotes;
+package de.wesim.imapnotes.mainview;
 
 import java.util.List;
 import java.util.Optional;
@@ -6,6 +6,17 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import de.wesim.imapnotes.HasLogger;
+import de.wesim.imapnotes.mainview.components.EditorTab;
+import de.wesim.imapnotes.mainview.components.outliner.MyListView;
+import de.wesim.imapnotes.mainview.services.DeleteMessageTask;
+import de.wesim.imapnotes.mainview.services.LoadMessageTask;
+import de.wesim.imapnotes.mainview.services.MoveNoteService;
+import de.wesim.imapnotes.mainview.services.NewNoteService;
+import de.wesim.imapnotes.mainview.services.OpenFolderTask;
+import de.wesim.imapnotes.mainview.services.OpenMessageTask;
+import de.wesim.imapnotes.mainview.services.RenameNoteService;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
@@ -14,15 +25,6 @@ import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
-import de.wesim.imapnotes.ui.background.DeleteMessageTask;
-import de.wesim.imapnotes.ui.background.LoadMessageTask;
-import de.wesim.imapnotes.ui.background.MoveNoteService;
-import de.wesim.imapnotes.ui.background.NewNoteService;
-import de.wesim.imapnotes.ui.background.OpenFolderTask;
-import de.wesim.imapnotes.ui.background.OpenMessageTask;
-import de.wesim.imapnotes.ui.background.RenameNoteService;
-import de.wesim.imapnotes.ui.components.EditorTab;
-import de.wesim.imapnotes.ui.components.MyListView;
 import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
@@ -48,7 +50,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 @Component
-public class NoteController implements HasLogger {
+public class MainViewController implements HasLogger {
 	
 	private INoteProvider backend;
 		
@@ -113,7 +115,7 @@ public class NoteController implements HasLogger {
 	private Stage stage;
 	
 	
-	public NoteController() {
+	public MainViewController() {
 
 	}
 
@@ -156,6 +158,8 @@ public class NoteController implements HasLogger {
 				} catch (Exception e) {
 					getLogger().error("Destroying the backend has failed ...", e);
 				}
+				config.setLastOpenendAccount(this.currentAccount.getValue());
+				ConfigurationService.writeConfig(config);
 				stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			} else {
 				getLogger().error("exitPossible returned false ...");
@@ -251,13 +255,26 @@ public class NoteController implements HasLogger {
 	}
 
 	public void startup() {
-		try {
-		final Account first = this.config.getAccountList().get(0);
-		openAccount(first);
-		} catch (Exception e) {
-			// TODO
-			;
+		final String lastOpenedAccount = config.getLastOpenendAccount();
+		
+		Account firstAccount = null;
+		if (!this.config.getAccountList().isEmpty()) {
+			firstAccount = this.config.getAccountList().get(0);
 		}
+		
+		if (lastOpenedAccount != null) {
+			for (Account account : this.config.getAccountList()) {
+				if (account.getAccount_name().equals(lastOpenedAccount)) {
+					firstAccount = account;
+					break;
+				}
+			}
+		}
+		if (firstAccount == null) {
+			getLogger().warn("No account available for opening at startup.");
+			return;
+		}
+		openAccount(firstAccount);
 	}
 
 	public void move(Note msg, TreeItem<Note> target) {

@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components.outliner;
 
 import java.util.List;
 
@@ -8,11 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
@@ -20,8 +19,7 @@ import javafx.scene.control.TreeView;
 public class MyListView extends TreeView<Note> {
 
 	@Autowired
-	@Qualifier("noteController")
-	protected NoteController controller;
+	protected MainViewController mainViewController;
 
 	@Autowired
 	private ListCellFactory listCellFactory;
@@ -36,7 +34,7 @@ public class MyListView extends TreeView<Note> {
 	
 	@PostConstruct
 	public void init() {
-		this.changeListener = new MyTreeItemChangeListener(controller);
+		this.changeListener = new MyTreeItemChangeListener(mainViewController);
 		this.setCellFactory(listCellFactory);
 		// set default selection listener
 		getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
@@ -47,7 +45,7 @@ public class MyListView extends TreeView<Note> {
 				if (newValue == null)
 					return;
 				if (oldValue != newValue) {
-					controller.openNote(newValue.getValue());
+					mainViewController.openNote(newValue.getValue());
 				}
 
 			}

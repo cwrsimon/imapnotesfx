@@ -1,28 +1,21 @@
-package de.wesim.imapnotes.ui.bootstrap;
+package de.wesim.imapnotes.mainview;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import de.wesim.imapnotes.NoteController;
-import de.wesim.imapnotes.ui.views.MainView;
+import de.wesim.imapnotes.HasLogger;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-// TODO
-// Umbenennen und verschieben
 @Service
-public class BootstrapService {
-
-	private static final Logger logger = LoggerFactory.getLogger(BootstrapService.class);
+public class MainViewLoaderService implements HasLogger {
 
 	
 	@Autowired
 	private MainView mainView;
 	
 	@Autowired
-	private NoteController noteController;
+	private MainViewController mainViewController;
 
 
     public void init(Stage stage) {
@@ -34,8 +27,8 @@ public class BootstrapService {
 		stage.setTitle("ImapNotesFX");
 		stage.show();
 		stage.setOnCloseRequest(e -> {
-			logger.info("Quitting application.");
+			getLogger().info("Quitting application.");
 		});
-		this.noteController.startup();
+		this.mainViewController.startup();
     }
 }

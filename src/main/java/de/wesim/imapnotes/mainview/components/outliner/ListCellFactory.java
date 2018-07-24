@@ -1,10 +1,10 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components.outliner;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
@@ -16,11 +16,10 @@ import javafx.util.Callback;
 public class ListCellFactory implements Callback<TreeView<Note>, TreeCell<Note>>{
 
 	@Autowired
-	@Qualifier("noteController")
-    private NoteController caller;
+	@Qualifier("mainViewController")
+    private MainViewController caller;
 
 	public ListCellFactory() {
-      //  this.caller = caller;
     }
 
 

@@ -1,11 +1,11 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -70,9 +70,9 @@ public class NewNoteService extends AbstractNoteService<Note> {
 
                 final Note newNote;
                 if (createFolder.getValue()) {
-                        newNote = controller.getBackend().createNewFolder(subject.getValue(), parentFolderParam);
+                        newNote = mainViewController.getBackend().createNewFolder(subject.getValue(), parentFolderParam);
                 } else {
-                    newNote = controller.getBackend().createNewNote(subject.getValue(), parentFolderParam);
+                    newNote = mainViewController.getBackend().createNewNote(subject.getValue(), parentFolderParam);
                 }
                 updateMessage(String.format("Speichern von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
@@ -104,7 +104,7 @@ public class NewNoteService extends AbstractNoteService<Note> {
         } else {
             this.noteCB.getRoot().getChildren().add(newTreeItem);
         }
-        controller.openNote(newNote);
+        mainViewController.openNote(newNote);
 	}
 
 

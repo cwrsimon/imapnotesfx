@@ -12,8 +12,8 @@ public class Configuration implements HasLogger {
     private final List<Account> imapAccounts;
     private String fontSize;
     private String fontFamily;
+    private String lastOpenendAccount;
 
-    
     
     public String getFontFamily() {
 		return fontFamily;
@@ -69,5 +69,15 @@ public class Configuration implements HasLogger {
             }
         }
 	}
+
+	public String getLastOpenendAccount() {
+		return lastOpenendAccount;
+	}
+
+	public void setLastOpenendAccount(String lastOpenendAccount) {
+		this.lastOpenendAccount = lastOpenendAccount;
+	}
+	
+	
 
 }

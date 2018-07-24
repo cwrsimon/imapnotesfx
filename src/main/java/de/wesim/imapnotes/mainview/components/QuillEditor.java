@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components;
 
 import java.io.IOException;
 import java.nio.file.Files;

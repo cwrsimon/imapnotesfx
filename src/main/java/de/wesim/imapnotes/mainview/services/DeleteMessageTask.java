@@ -1,8 +1,8 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -55,7 +55,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Deleting " + note.getValue().toString() + "...");
 
-                controller.getBackend().delete(getNote().getValue());
+                mainViewController.getBackend().delete(getNote().getValue());
 
                 updateMessage("Deleting was successful! :-)");
                 updateProgress(1, 1);
@@ -77,7 +77,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
 			final int previousItem = Math.max(0, index - 1);
 			if (parentNote.getChildren().isEmpty()) return;
 			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-			controller.openNote(previous.getValue());
+			mainViewController.openNote(previous.getValue());
     }
 }
 

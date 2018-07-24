@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -53,15 +53,11 @@ public class RenameNoteService extends AbstractNoteService<Void> {
                 updateProgress(0, 1);
                 updateMessage("Rename note '' to '' ...");
                 System.out.println("Renaming ..." + subject.getValue());
-                //try {
                 if (getNote().isFolder()) {
-                	controller.getBackend().renameFolder(getNote(), subject.getValue());
+                	mainViewController.getBackend().renameFolder(getNote(), subject.getValue());
                 } else {
-                	controller.getBackend().renameNote(getNote(), subject.getValue());
+                	mainViewController.getBackend().renameNote(getNote(), subject.getValue());
                 }
-            // } catch (Exception e) {
-            //     e.printStackTrace();
-            // }
                 updateMessage(String.format("Umbennen von %s erfolgreich!", subject.getValue()));
                 updateProgress(1, 1);
 

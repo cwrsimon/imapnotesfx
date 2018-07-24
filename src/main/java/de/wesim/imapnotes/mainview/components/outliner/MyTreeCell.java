@@ -1,9 +1,10 @@
 
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components.outliner;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import de.wesim.imapnotes.NoteController;
+
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
@@ -27,7 +28,7 @@ public class MyTreeCell extends TreeCell<Note> {
 	private final ContextMenu genericMenu = new ContextMenu();
 	private final ContextMenu folderMenu = new ContextMenu();
 
-	public MyTreeCell (NoteController caller) {
+	public MyTreeCell (MainViewController caller) {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
 			final TreeItem<Note> treeItem =  getTreeItem();

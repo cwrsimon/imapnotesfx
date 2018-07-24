@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import java.util.List;
 
@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -48,7 +48,7 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
                 updateProgress(0, 1);
                 updateMessage("Beginne mit dem Laden der Notizen ...");
 
-                final List<Note> messages = controller.getBackend().getNotes();	
+                final List<Note> messages = mainViewController.getBackend().getNotes();	
                 updateMessage("Notizenladen erfolgreich!");
                 updateProgress(1, 1);
 
@@ -67,7 +67,7 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
         if (loadedItems.isEmpty()) return;
         final Note firstELement = loadedItems.get(0);
         if (!firstELement.isFolder()) {
-            controller.openNote(firstELement);
+        	mainViewController.openNote(firstELement);
         }
     }
 }

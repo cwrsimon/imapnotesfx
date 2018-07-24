@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.stereotype.Component;
 
@@ -34,7 +34,7 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
     @Override
 	protected void succeeded() {
     	final Note openedNote = getValue();
-		controller.openEditor(openedNote);
+    	mainViewController.openEditor(openedNote);
 	}
 
 	@Override
@@ -47,7 +47,7 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
                 updateProgress(0, 1);
                 updateMessage(String.format("Opening %s ...", workingItem.getSubject()));
 
-                controller.getBackend().load(workingItem);
+                mainViewController.getBackend().load(workingItem);
 
                 updateMessage(String.format("%s was successfully opened!", workingItem.getSubject()));
                 updateProgress(1, 1);

@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.views;
+package de.wesim.imapnotes.mainview;
 
 import javax.annotation.PostConstruct;
 

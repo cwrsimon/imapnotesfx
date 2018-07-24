@@ -1,12 +1,13 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.ui.components.MyListView;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -52,7 +53,7 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
 
                 final TreeItem<Note> openedItem = getNoteFolder();
                 final Note folderToOpen = openedItem.getValue();
-                final List<Note> messages  = controller.getBackend().getNotesFromFolder(folderToOpen);
+                final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
                 
                 updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
                 updateProgress(1, 1);

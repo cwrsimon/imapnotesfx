@@ -1,11 +1,11 @@
-package de.wesim.imapnotes.ui.background;
+package de.wesim.imapnotes.mainview.services;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import javafx.concurrent.Service;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -14,8 +14,7 @@ import javafx.scene.control.ProgressBar;
 public abstract class AbstractNoteService<T> extends Service<T> {
 	
 	@Autowired
-	@Qualifier("noteController")
-	protected NoteController controller;
+	protected MainViewController mainViewController;
 	
 	@Autowired
 	@Qualifier("p1")

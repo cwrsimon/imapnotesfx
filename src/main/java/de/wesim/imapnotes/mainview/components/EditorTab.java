@@ -1,19 +1,17 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components;
 
 import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TabPane;
-import javafx.scene.control.skin.TabPaneSkin;
 
 public class EditorTab extends Tab {
 
@@ -21,7 +19,7 @@ public class EditorTab extends Tab {
 
 	private Note note;
 
-	private NoteController controller;
+	private MainViewController controller;
 
 	private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
 
@@ -32,7 +30,7 @@ public class EditorTab extends Tab {
 		return alert.showAndWait();
 	}
 
-	public EditorTab(NoteController noteController, Note note) {
+	public EditorTab(MainViewController noteController, Note note) {
 		super(note.getSubject());
 		this.controller = noteController;
 		this.qe = new QuillEditor(noteController.getHostServices(),  note.getContent(), noteController.getConfiguration());

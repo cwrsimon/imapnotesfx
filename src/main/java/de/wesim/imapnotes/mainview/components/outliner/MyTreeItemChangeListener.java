@@ -1,6 +1,6 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.mainview.components.outliner;
 
-import de.wesim.imapnotes.NoteController;
+import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ChangeListener;
@@ -9,9 +9,9 @@ import javafx.scene.control.TreeItem;
 
 public class MyTreeItemChangeListener implements ChangeListener<Boolean> {
 
-    private NoteController controller;
+    private MainViewController controller;
 
-	public MyTreeItemChangeListener(NoteController controller) {
+	public MyTreeItemChangeListener(MainViewController controller) {
         this.controller = controller;
     }
 

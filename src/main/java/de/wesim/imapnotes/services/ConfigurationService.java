@@ -42,6 +42,7 @@ public class ConfigurationService {
 		}
 		addProp(imapSettings, "font_family", config.getFontFamily(), Integer.MAX_VALUE);
 		addProp(imapSettings, "font_size", config.getFontSize(), Integer.MAX_VALUE);
+		addProp(imapSettings, "last_opened_account", config.getLastOpenendAccount(), Integer.MAX_VALUE);
 		try {
 			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
 						"Update ImapNotesFX configuration");
@@ -89,6 +90,9 @@ public class ConfigurationService {
 				case "font_family":
 					newConfig.setFontFamily(propertyValue);
 					break;	
+				case "last_opened_account":
+					newConfig.setLastOpenendAccount(propertyValue);
+					break;
             	case "account_type":
             		acc.setType(Account_Type.valueOf(propertyValue));
             		break;
