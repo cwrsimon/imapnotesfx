@@ -1,9 +1,6 @@
 package de.wesim.imapnotes.services;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
@@ -11,10 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import javax.mail.BodyPart;
 import javax.mail.FetchProfile;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -24,7 +18,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,16 +95,6 @@ public class IMAPBackend {
 	private void openSubFolder(String name) throws MessagingException {
 		this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
 	}
-	
-	// public void switchToSubFolder(String name) throws MessagingException {
-	// 	openSubFolder(name);
-	// 	this.folderStack.push(name);
-	// }
-
-	// public void switchToParentFolder() throws MessagingException {
-	// 	this.notesFolder = (IMAPFolder) this.notesFolder.getParent();
-	// 	this.folderStack.pop();
-	// }
 	
 	private void connectStore(String hostname, String login, String pw) throws MessagingException {
 		logger.info("Trying to connect: {}, {}, {}", hostname, login, pw);
@@ -215,60 +198,18 @@ public class IMAPBackend {
 	public String getMessageContent(Message message) throws MessagingException, IOException {
 		IMAPFolder parentFolder = (IMAPFolder) message.getFolder();
 		startTransaction(parentFolder);
-
+		
 		final Object content = message.getContent();
+		final String returnContent;
 		if (content instanceof String) {
-			endTransaction(parentFolder);
-			return (String) content;
+			returnContent = (String) content;
+		} else {
+			final IMAPUtils utils = new IMAPUtils();
+			returnContent = utils.decodeMultipartMails(message);
 		}
-
-		// TODO MimeMultipart hier unterstützen
-		logger.info("Message class: {}", message.getClass().getName());
-
-		logger.info("Content type: {}", message.getContentType());
-		String returnMe = "MultiPart";
-		// TODO Später mal die Bilder auflösen ...
-		Pattern p = Pattern.compile("<object type.*?></object>");
-		String base64Content = "";
-		final MimeMultipart multiPart = (MimeMultipart) message.getContent();
-		for (int i=0; i<multiPart.getCount();i++) {
-			BodyPart bp = multiPart.getBodyPart(i);
-			logger.info("Index: {}, Content-Type: {}, Filename: {}, Content-Id: {}", i, 
-				bp.getContentType() , bp.getFileName(), bp.getHeader("Content-Id"));
-			Object partContent = bp.getContent();
-			if (partContent instanceof String) {
-				returnMe = (String) partContent;
-			} else {
-				// TODO CIDs auflösen
-				// TODO Konvertieren nach PNG
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				bp.getDataHandler().writeTo(bos);
-				bos.close();
-				byte[] bytes = bos.toByteArray();
-				String read = new String(Files.readAllBytes(Paths.get("/Users/christian/some-content.base64")));
-				//Files.write(Paths.get("/Users/christian/some-content"), bytes);
-				// src="data:image/png;base64,iVBOR…Fy/NYpbmRyKWAAAAAElFTkSuQmCC"
-				// base64Content = "<img src=\"data:image/jpeg;base64," 
-				// 	+ Base64.getEncoder().encodeToString(bytes) + "\"/>";
-				base64Content = "<img src=\"data:image/png;base64," 
-					+ read + "\"/>";
-				//logger.info("{}", );
-			}
-
-			logger.info("Content: {}", partContent);
-		}
-		logger.info("ReturnMe:{}", returnMe);
-
-		Matcher m = p.matcher(returnMe);
-		if (m.find()) {
-			logger.info("Found!");
-			returnMe = m.replaceAll(base64Content);
-		}
-		// <img src="data:image/jpg;base64,/*base64-data-string here*/" />
+		
 		endTransaction(parentFolder);
-		//Files.write(Paths.get("/Users/christian/bla.html"), returnMe.getBytes());
-		//logger.info("ReturnMe:{}", returnMe);
-		return returnMe;
+		return returnContent;
 	}
 
 	private void endTransaction(IMAPFolder folder) throws MessagingException {

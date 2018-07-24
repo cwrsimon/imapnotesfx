@@ -1,15 +1,12 @@
 
 package de.wesim.imapnotes.mainview.components.outliner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -17,9 +14,8 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Color;
 
-public class MyTreeCell extends TreeCell<Note> {
+public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 
-	private static final Logger logger = LoggerFactory.getLogger(MyTreeCell.class);
 
 	private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
 	//private static final DataFormat myNotes = new DataFormat("javafx.scene.control.TreeItem");
@@ -31,7 +27,6 @@ public class MyTreeCell extends TreeCell<Note> {
 	public MyTreeCell (MainViewController caller) {
 		final MenuItem deleteItem = new MenuItem("Delete");
 		deleteItem.setOnAction(e -> {
-			final TreeItem<Note> treeItem =  getTreeItem();
 			caller.deleteCurrentMessage(getTreeItem(), false);
 		});
 
@@ -84,24 +79,24 @@ public class MyTreeCell extends TreeCell<Note> {
 			content.put(myNotes, getItem());
 			db.setContent( content );
 			e.consume();
-			logger.info("Drage Detected");
+			getLogger().info("Drage Detected");
 
 		});
 		this.setOnDragOver( ( DragEvent event ) ->
 		{
-			logger.info("Drage Over");
+			getLogger().info("Drage Over");
 
 			final Dragboard db = event.getDragboard();
 			if ( db.hasContent(myNotes) 
 					&& getItem().isFolder() && getTreeItem().getValue().isFolder())
 			{
-				logger.info("onDragOver:" + getItem());
+				getLogger().info("onDragOver:" + getItem());
 				event.acceptTransferModes( TransferMode.MOVE );
 			}
 			event.consume();
 		} );
 		this.setOnDragEntered(( DragEvent event ) -> {
-			logger.info("Drag Entered");
+			getLogger().info("Drag Entered");
 
 			if (event.getGestureSource() != getItem() &&
 					event.getDragboard().hasContent(myNotes)
@@ -109,12 +104,11 @@ public class MyTreeCell extends TreeCell<Note> {
 					&& getTreeItem().getValue().isFolder()) {
 				this.setTextFill(Color.RED);
 			}
-
 			event.consume();
 		}
 				);
 		this.setOnDragExited(( DragEvent event ) -> {
-			logger.info("setOnDragExited");
+			getLogger().info("setOnDragExited");
 
 			//this.setUnderline(false);
 			this.setTextFill(Color.BLACK);
@@ -124,7 +118,7 @@ public class MyTreeCell extends TreeCell<Note> {
 				);
 		// Beim Ziel, hier muss dann verschoben werden ...
 		this.setOnDragDropped(( DragEvent event ) -> {
-			logger.info("setOnDragDropped");
+			getLogger().info("setOnDragDropped");
 
 			final Dragboard db = event.getDragboard();
 			final Note source = (Note) db.getContent(myNotes);
@@ -140,7 +134,6 @@ public class MyTreeCell extends TreeCell<Note> {
 	@Override
 	public void updateItem(Note item, boolean empty) {
 		super.updateItem(item, empty);
-		//	setStyle("-fx-control-inner-background: white;");		
 		setUnderline(false);
 		if (empty || item == null) {
 			setText(null);

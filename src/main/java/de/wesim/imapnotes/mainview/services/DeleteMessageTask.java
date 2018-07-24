@@ -2,13 +2,10 @@ package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
-import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TreeItem;
 
 @Component

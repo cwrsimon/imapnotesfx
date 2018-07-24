@@ -10,7 +10,6 @@ import javafx.stage.Stage;
 // TIFF-Image-Support
 // Aotmatisches Setzen des Subjects durch erste Zeile
 // https://github.com/FibreFoX/javafx-gradle-plugin
-// Beim Ordnerwechsel oder Reload alle geöffneten Tabs schließen
 // Neue Implementierung von Gnome Keyring:
 // https://github.com/revelc/gnome-keyring-java
 // Neuer Editor:
@@ -18,11 +17,6 @@ import javafx.stage.Stage;
 // Sortierung nach Datum
 // http://www.kurtsparber.de/?p=246
 // https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
-// 1a. Locking
-// Für verschiedene Fensterebenen:
-// Einarbeiten:
-// http://code.makery.ch/library/javafx-8-tutorial/part2/
-// Where to go from here:
 // Services implementieren:
 // https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
@@ -33,20 +27,15 @@ import javafx.stage.Stage;
 // optional: Passwort erfragen ...
 // Icon
 // Zu Applikation bündeln
-// Tabs fertig implementieren
-// Geöffneten Zustand abspeichern
 // Gmail-Integration
 // Umgangt mit LEEREM Account
 // Sortierung nach Änderungsdatum?
-// Rechtsklicks implementieren
-// About-Menü-Popup
+// About-Menü-Popup vervollständigen
 // Sinnvollere Nachrichten auf Englisch
-// Einstellungen
-// Dependency Injection
 // DMG/ZIP generieren lassen ...:
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
-// Beim Löschen: Nächstes Element auswählen
+// Beim Löschen: Nächstes Element auswählen und selbiges Element aus den tabs entfernen !!!!
 // Bessere Farben für Back-Folder (Symbole???)
 // Aktuellen Pfad anzeigen
 // Exceptions als Benutzermeldung bis nach oben propagieren
