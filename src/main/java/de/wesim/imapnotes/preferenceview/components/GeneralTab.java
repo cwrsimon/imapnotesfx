@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.components;
+package de.wesim.imapnotes.preferenceview.components;
 
 import java.util.ArrayList;
 import java.util.List;

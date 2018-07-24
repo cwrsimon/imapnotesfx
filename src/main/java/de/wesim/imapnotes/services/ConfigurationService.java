@@ -6,17 +6,37 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import org.springframework.stereotype.Service;
+
 import de.wesim.imapnotes.Consts;
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 
-//@Component
-public class ConfigurationService {
+@Service
+public class ConfigurationService implements HasLogger {
 
-	private static final Logger logger = LoggerFactory.getLogger(ConfigurationService.class);
+	private static final String LAST_OPENED_ACCOUNT = "last_opened_account";
+
+	private static final String FONT_SIZE = "font_size";
+
+	private static final String FONT_FAMILY = "font_family";
+
+	private static final String HOSTNAME = "hostname";
+
+	private static final String LOGIN = "login";
+
+	private static final String ROOT_FOLDER = "root_folder";
+
+	private static final String FROM_ADDRESS = "from_address";
+
+	private static final String PASSWORD = "password";
+
+	private static final String ACCOUNT_TYPE = "account_type";
+
+	private static final String ACCOUNT_NAME = "account_name";
 
 	private static final String NO_ACCOUNT_KEY = String.valueOf(Integer.MAX_VALUE);
 
@@ -26,57 +46,52 @@ public class ConfigurationService {
 		props.put(name + "." + String.valueOf(i), value);
 	}
 
-	public static void writeConfig(Configuration config) {
-		logger.info("Writing config ...");
+	public void writeConfig(Configuration config) {
+		getLogger().info("Writing config ...");
 		Properties imapSettings = new Properties();
 		for (int i=0; i< config.getAccountList().size(); i++) {
 			Account acc = config.getAccountList().get(i);
-			addProp(imapSettings, "account_name", acc.getAccount_name(), i);
-			addProp(imapSettings, "account_type", acc.getType().toString(), i);
-			addProp(imapSettings, "hostname", acc.getHostname(), i);
-			addProp(imapSettings, "login", acc.getLogin(), i);
-			addProp(imapSettings, "root_folder", acc.getRoot_folder(), i);
-			addProp(imapSettings, "from_address", acc.getFrom_address(), i);
-			addProp(imapSettings, "password", acc.getPassword(), i);
-
+			addProp(imapSettings, ACCOUNT_NAME, acc.getAccount_name(), i);
+			addProp(imapSettings, ACCOUNT_TYPE, acc.getType().toString(), i);
+			addProp(imapSettings, HOSTNAME, acc.getHostname(), i);
+			addProp(imapSettings, LOGIN, acc.getLogin(), i);
+			addProp(imapSettings, ROOT_FOLDER, acc.getRoot_folder(), i);
+			addProp(imapSettings, FROM_ADDRESS, acc.getFrom_address(), i);
+			addProp(imapSettings, PASSWORD, acc.getPassword(), i);
 		}
-		addProp(imapSettings, "font_family", config.getFontFamily(), Integer.MAX_VALUE);
-		addProp(imapSettings, "font_size", config.getFontSize(), Integer.MAX_VALUE);
-		addProp(imapSettings, "last_opened_account", config.getLastOpenendAccount(), Integer.MAX_VALUE);
+		addProp(imapSettings, FONT_FAMILY, config.getFontFamily(), Integer.MAX_VALUE);
+		addProp(imapSettings, FONT_SIZE, config.getFontSize(), Integer.MAX_VALUE);
+		addProp(imapSettings, LAST_OPENED_ACCOUNT, config.getLastOpenendAccount(), Integer.MAX_VALUE);
 		try {
 			imapSettings.store(Files.newOutputStream(Consts.USER_CONFIGURATION_FILE), 
 						"Update ImapNotesFX configuration");
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			getLogger().error("Writing configuration file to '{}' failed.", Consts.USER_CONFIGURATION_FILE, e );
 		}
 
 	}
 
-    public static Configuration readConfig() {
+    public Configuration readConfig() {
 
         final Configuration newConfig = new Configuration();
 
-        Properties imapSettings = new Properties();
+        final Properties imapSettings = new Properties();
 		try {
 			imapSettings.load(Files.newBufferedReader(Consts.USER_CONFIGURATION_FILE));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-            e.printStackTrace();
+			getLogger().error("Reading configuration file from '{}' failed.", Consts.USER_CONFIGURATION_FILE, e);
             return newConfig;
         }
-        Map<String, Account> accounts = new LinkedHashMap<>();
-        Set<String> propertyNames = imapSettings.stringPropertyNames();
+        final Map<String, Account> accounts = new LinkedHashMap<>();
+        final Set<String> propertyNames = imapSettings.stringPropertyNames();
         for (String propertyName : propertyNames) {
             final String[] items = propertyName.split("\\.");
             if (items.length != 2) {
-				logger.error("Invalid property name: {}", propertyName);
+				getLogger().error("Invalid property name: {}", propertyName);
                 continue;
             }
 
-            String key = items[1];
-        	//logger.debug("key:" + key);
-
+            final String key = items[1];
             Account acc = accounts.get(key);
             if (acc == null && !key.equals(NO_ACCOUNT_KEY)) {
             	acc = new Account();
@@ -84,38 +99,38 @@ public class ConfigurationService {
             }
 			final String propertyValue = imapSettings.getProperty(propertyName);
             switch (items[0]) {
-				case "font_size":
+				case FONT_SIZE:
 					newConfig.setFontSize(propertyValue);
 					break;
-				case "font_family":
+				case FONT_FAMILY:
 					newConfig.setFontFamily(propertyValue);
 					break;	
-				case "last_opened_account":
+				case LAST_OPENED_ACCOUNT:
 					newConfig.setLastOpenendAccount(propertyValue);
 					break;
-            	case "account_type":
+            	case ACCOUNT_TYPE:
             		acc.setType(Account_Type.valueOf(propertyValue));
             		break;
-            	case "account_name":
+            	case ACCOUNT_NAME:
             		acc.setAccount_name(propertyValue);
             		break;
-            	case "hostname":
+            	case HOSTNAME:
             		acc.setHostname(propertyValue);
             		break;
-            	case "login":
+            	case LOGIN:
             		acc.setLogin(propertyValue);
             		break;
-            	case "root_folder":
+            	case ROOT_FOLDER:
             		acc.setRoot_folder(propertyValue);
             		break;
-            	case "from_address":
+            	case FROM_ADDRESS:
             		acc.setFrom_address(propertyValue);
             		break;
-            	case "password":
+            	case PASSWORD:
             		acc.setPassword(propertyValue);
             		break;
             	default:
-            		logger.error("Unknown property name: {}", items[1]);
+            		getLogger().error("Unknown property name: {}", items[1]);
             		break;
             }
 		}

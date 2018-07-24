@@ -1,4 +1,4 @@
-package de.wesim.imapnotes.ui.views;
+package de.wesim.imapnotes.preferenceview;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -6,10 +6,10 @@ import org.slf4j.LoggerFactory;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
+import de.wesim.imapnotes.preferenceview.components.FSTab;
+import de.wesim.imapnotes.preferenceview.components.GeneralTab;
+import de.wesim.imapnotes.preferenceview.components.IMAPTab;
 import de.wesim.imapnotes.services.ConfigurationService;
-import de.wesim.imapnotes.ui.components.FSTab;
-import de.wesim.imapnotes.ui.components.GeneralTab;
-import de.wesim.imapnotes.ui.components.IMAPTab;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -33,6 +33,7 @@ import javafx.stage.WindowEvent;
 // Logger log = Logger.getLogger("myApp");
 // log.setLevel(Level.ALL);
 // log.info("initializing - trying to load configuration file ...");
+// Layout extrahieren !!!
 public class Preferences extends Application {
 
     private Scene myScene;
@@ -45,7 +46,10 @@ public class Preferences extends Application {
     GeneralTab generalTab;
     IMAPTab imapTab;
     Configuration configuration;
-
+    
+    // TODO FIXME
+    ConfigurationService cs = new ConfigurationService();
+    
     public Preferences() {
         initScene();
     }
@@ -56,7 +60,8 @@ public class Preferences extends Application {
     }
 
     private void initScene() {
-        this.configuration = ConfigurationService.readConfig();
+    	// TODO FIXME
+        this.configuration = cs.readConfig();
 
         this.generalTab = new GeneralTab();
         this.imapTab = new  IMAPTab();
@@ -101,7 +106,7 @@ public class Preferences extends Application {
         configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
         configuration.setFontSize(generalTab.getFontSize());
         configuration.setFontFamily(generalTab.getFontFamily());
-        ConfigurationService.writeConfig(configuration);
+        this.cs.writeConfig(configuration);
     }
 
     @Override

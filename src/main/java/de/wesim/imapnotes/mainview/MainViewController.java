@@ -21,11 +21,11 @@ import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.preferenceview.Preferences;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
-import de.wesim.imapnotes.ui.views.Preferences;
 import javafx.application.HostServices;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -59,6 +59,9 @@ public class MainViewController implements HasLogger {
 	
 	@Autowired
 	private NewNoteService newNoteService;
+	
+	@Autowired
+	private ConfigurationService configurationService;
 	
 	@Autowired
 	@Qualifier("p1")
@@ -159,7 +162,7 @@ public class MainViewController implements HasLogger {
 					getLogger().error("Destroying the backend has failed ...", e);
 				}
 				config.setLastOpenendAccount(this.currentAccount.getValue());
-				ConfigurationService.writeConfig(config);
+				configurationService.writeConfig(config);
 				stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
 			} else {
 				getLogger().error("exitPossible returned false ...");
@@ -199,7 +202,7 @@ public class MainViewController implements HasLogger {
 	}
 
 	public void refreshConfig() {
-		this.config = ConfigurationService.readConfig();
+		this.config = configurationService.readConfig();
 	}
 
 	public void chooseAccount() {
