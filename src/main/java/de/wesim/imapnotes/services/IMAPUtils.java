@@ -1,12 +1,17 @@
 package de.wesim.imapnotes.services;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.imageio.ImageIO;
 import javax.mail.BodyPart;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -16,16 +21,32 @@ import de.wesim.imapnotes.HasLogger;
 
 public class IMAPUtils implements HasLogger {
 
+	private static Pattern p = Pattern.compile("<object type.*?></object>");
+
+	
+	public byte[] convertTIFF2Jpeg(byte[] tiffImage) {
+		try (InputStream tiffIS = new ByteArrayInputStream(tiffImage);
+				ByteArrayOutputStream pngOS = new ByteArrayOutputStream()	
+				) {
+			final BufferedImage tiff = ImageIO.read(tiffIS);
+			ImageIO.write(tiff, "png", pngOS);
+			return pngOS.toByteArray();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+	}
+	
 	// TODO !!!!
 	public String decodeMultipartMails(Message message) throws MessagingException, IOException {
 		
-
 		// TODO MimeMultipart hier unterstützen
 		getLogger().info("Message class: {}", message.getClass().getName());
 		getLogger().info("Content type: {}", message.getContentType());
 		String returnMe = "MultiPart";
 		// TODO Später mal die Bilder auflösen ...
-		Pattern p = Pattern.compile("<object type.*?></object>");
 		String base64Content = "";
 		final MimeMultipart multiPart = (MimeMultipart) message.getContent();
 		for (int i=0; i<multiPart.getCount();i++) {
