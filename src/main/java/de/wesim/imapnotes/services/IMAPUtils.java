@@ -4,6 +4,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,9 +14,15 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
+import com.sun.mail.util.BASE64DecoderStream;
+
 import de.wesim.imapnotes.HasLogger;
 
 public class IMAPUtils implements HasLogger {
+
+//	INFORMATION: Content: <html><head></head><body><div>Wunsch</div><div><br></div><object type="application/x-apple-msg-attachment" data="cid:36F2F33F-7B37-4FC6-A109-85B4E77F52BD@localdomain"></object></body></html>
+//	Aug. 05, 2018 9:04:36 NACHM. de.wesim.imapnotes.services.IMAPUtils decodeMultipartMails
+//	INFORMATION: Index: 1, Content-Type: image/tiff; x-unix-mode=0644; name=image.tiff, Filename: image.tiff, Content-Id: [<36F2F33F-7B37-4FC6-A109-85B4E77F52BD@localdomain>]
 
 	// TODO !!!!
 	public String decodeMultipartMails(Message message) throws MessagingException, IOException {
@@ -23,45 +31,53 @@ public class IMAPUtils implements HasLogger {
 		// TODO MimeMultipart hier unterstützen
 		getLogger().info("Message class: {}", message.getClass().getName());
 		getLogger().info("Content type: {}", message.getContentType());
-		String returnMe = "MultiPart";
+		String mainContent = "";
 		// TODO Später mal die Bilder auflösen ...
 		Pattern p = Pattern.compile("<object type.*?></object>");
 		String base64Content = "";
+		Map<String, String> cidContentMap = new HashMap<>();
 		final MimeMultipart multiPart = (MimeMultipart) message.getContent();
 		for (int i=0; i<multiPart.getCount();i++) {
 			BodyPart bp = multiPart.getBodyPart(i);
+			String[] cids = bp.getHeader("Content-Id");
 			getLogger().info("Index: {}, Content-Type: {}, Filename: {}, Content-Id: {}", i, 
-				bp.getContentType() , bp.getFileName(), bp.getHeader("Content-Id"));
+				bp.getContentType() , bp.getFileName(), cids);
 			Object partContent = bp.getContent();
 			if (partContent instanceof String) {
-				returnMe = (String) partContent;
-			} else {
+				mainContent = (String) partContent;
+			} else if (partContent instanceof com.sun.mail.util.BASE64DecoderStream) {
+				final String cid = cids[0];
+				BASE64DecoderStream decoderStream = (com.sun.mail.util.BASE64DecoderStream) partContent;
+				byte[] originalContent = decoderStream.readAllBytes();
+				// TODO TIFF konvertieren
+				String pngBase64 = "";
+				//getLogger().info("{}", partContent.getClass().getName());
 				// TODO CIDs auflösen
 				// TODO Konvertieren nach PNG
-				ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				bp.getDataHandler().writeTo(bos);
-				bos.close();
-				byte[] bytes = bos.toByteArray();
-				String read = new String(Files.readAllBytes(Paths.get("/Users/christian/some-content.base64")));
+//				ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//				bp.getDataHandler().writeTo(bos);
+//				bos.close();
+//				byte[] bytes = bos.toByteArray();
+//				String read = new String(Files.readAllBytes(Paths.get("/Users/christian/some-content.base64")));
 				//Files.write(Paths.get("/Users/christian/some-content"), bytes);
 				// src="data:image/png;base64,iVBOR…Fy/NYpbmRyKWAAAAAElFTkSuQmCC"
 				// base64Content = "<img src=\"data:image/jpeg;base64," 
 				// 	+ Base64.getEncoder().encodeToString(bytes) + "\"/>";
-				base64Content = "<img src=\"data:image/png;base64," 
-					+ read + "\"/>";
-				//logger.info("{}", );
+				base64Content = "<img src=\"data:image/png;base64," + pngBase64 + "\"/>";
+				cidContentMap.put(cid, base64Content);
 			}
 
 			getLogger().info("Content: {}", partContent);
 		}
-		getLogger().info("ReturnMe:{}", returnMe);
+		getLogger().info("ReturnMe:{}", mainContent);
 
-		Matcher m = p.matcher(returnMe);
+		Matcher m = p.matcher(mainContent);
 		if (m.find()) {
 			getLogger().info("Found!");
-			returnMe = m.replaceAll(base64Content);
+			// TODO CIDs integrieren
+			mainContent = m.replaceAll(base64Content);
 		}
-		return returnMe;
+		return mainContent;
 		// <img src="data:image/jpg;base64,/*base64-data-string here*/" />
 		//Files.write(Paths.get("/Users/christian/bla.html"), returnMe.getBytes());
 		//logger.info("ReturnMe:{}", returnMe);
