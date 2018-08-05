@@ -5,9 +5,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,16 +17,11 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
 
-import com.oracle.tools.packager.IOUtils;
 import com.sun.mail.util.BASE64DecoderStream;
 
 import de.wesim.imapnotes.HasLogger;
 
 public class IMAPUtils implements HasLogger {
-
-//	INFORMATION: Content: <html><head></head><body><div>Wunsch</div><div><br></div><object type="application/x-apple-msg-attachment" data="cid:36F2F33F-7B37-4FC6-A109-85B4E77F52BD@localdomain"></object></body></html>
-//	Aug. 05, 2018 9:04:36 NACHM. de.wesim.imapnotes.services.IMAPUtils decodeMultipartMails
-//	INFORMATION: Index: 1, Content-Type: image/tiff; x-unix-mode=0644; name=image.tiff, Filename: image.tiff, Content-Id: [<36F2F33F-7B37-4FC6-A109-85B4E77F52BD@localdomain>]
 
 	private static Pattern p = Pattern.compile( "<object type=\\\".*?\\\" data=\\\"(.*?)\\\"></object>" );
 
@@ -44,7 +36,8 @@ public class IMAPUtils implements HasLogger {
 		}
 		
 	}
-		// TODO !!!!
+	
+	// TODO !!!!
 	public String decodeMultipartMails(Message message) throws MessagingException, IOException {
 		
 		// TODO MimeMultipart hier unterstützen
@@ -63,7 +56,8 @@ public class IMAPUtils implements HasLogger {
 			if (partContent instanceof String) {
 				mainContent = (String) partContent;
 			} else if (partContent instanceof com.sun.mail.util.BASE64DecoderStream) {
-				final String cid = cids[0];
+				// TODO ABsichern
+				final String cid = "cid:" + cids[0].replace("<", "").replace(">", "");
 				try (BASE64DecoderStream decoderStream = (com.sun.mail.util.BASE64DecoderStream) partContent;
 						ByteArrayOutputStream buffer = new ByteArrayOutputStream();)	{
 					
@@ -84,16 +78,14 @@ public class IMAPUtils implements HasLogger {
 		getLogger().info("ReturnMe:{}", mainContent);
 		getLogger().info("{}", cidContentMap);
 		Matcher m = p.matcher(mainContent);
-		if (m.find()) {
+		while (m.find()) {
 			getLogger().info("Found!");
-			// TODO CIDs integrieren
-			final String newContent = cidContentMap.values().iterator().next();
-			mainContent = m.replaceAll(newContent);
+			final String matchedCID = m.group(1);
+			// TODO Absichern
+			final String newContent = cidContentMap.get(matchedCID);
+			mainContent = m.replaceFirst(newContent);
 		}
 		return mainContent;
-		// <img src="data:image/jpg;base64,/*base64-data-string here*/" />
-		//Files.write(Paths.get("/Users/christian/bla.html"), returnMe.getBytes());
-		//logger.info("ReturnMe:{}", returnMe);
 	}
 	
 	
