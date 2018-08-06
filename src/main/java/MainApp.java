@@ -7,7 +7,6 @@ import javafx.stage.Stage;
 
 // i18n
 // ERROR-Handling !!
-// TIFF-Image-Support
 // Aotmatisches Setzen des Subjects durch erste Zeile
 // https://github.com/FibreFoX/javafx-gradle-plugin
 // Neue Implementierung von Gnome Keyring:
@@ -15,8 +14,6 @@ import javafx.stage.Stage;
 // Neuer Editor:
 // JSOUP durch etwas Sinnvolleres ersetzen ...
 // Sortierung nach Datum
-// http://www.kurtsparber.de/?p=246
-// https://dzone.com/articles/fxml-javafx-powered-cdi-jboss
 // Services implementieren:
 // https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
 // https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
@@ -36,7 +33,6 @@ import javafx.stage.Stage;
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
 // Beim Löschen: Nächstes Element auswählen und selbiges Element aus den tabs entfernen !!!!
-// Bessere Farben für Back-Folder (Symbole???)
 // Aktuellen Pfad anzeigen
 // Exceptions als Benutzermeldung bis nach oben propagieren
 // Fixen: Verschieben per Drag und Drop

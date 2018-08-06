@@ -66,7 +66,8 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
 	protected void succeeded() {
         final TreeItem<Note> parentNote = getParentFolder();
 			final TreeItem<Note> deletedItem = getNote();
-
+            final Note deletedNote = deletedItem.getValue();
+            mainViewController.closeTab(deletedNote);
 			final int index = parentNote.getChildren().indexOf(deletedItem);
 
 			parentNote.getChildren().remove(deletedItem);
@@ -74,7 +75,8 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
 			final int previousItem = Math.max(0, index - 1);
 			if (parentNote.getChildren().isEmpty()) return;
 			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-			mainViewController.openNote(previous.getValue());
+            mainViewController.openNote(previous.getValue());
+            
     }
 }
 

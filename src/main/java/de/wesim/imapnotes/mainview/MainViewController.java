@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.mainview;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
@@ -437,5 +438,15 @@ public class MainViewController implements HasLogger {
 
 	public Configuration getConfiguration() {
 		return this.config;
+	}
+
+	public void closeTab(Note deletedNote) {
+		Iterator<Tab> tabIter = this.tp.getTabs().iterator();
+		while (tabIter.hasNext()) {
+			final EditorTab et = (EditorTab) tabIter.next();
+			if (et.getNote().equals(deletedNote)) {
+				tabIter.remove();
+			}
+		}
 	}
 }
