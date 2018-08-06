@@ -84,6 +84,7 @@ public class IMAPUtils implements HasLogger {
 			// TODO Absichern
 			final String newContent = cidContentMap.get(matchedCID);
 			mainContent = m.replaceFirst(newContent);
+			m.reset(mainContent);
 		}
 		return mainContent;
 	}
