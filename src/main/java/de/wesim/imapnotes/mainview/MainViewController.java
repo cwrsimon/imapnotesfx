@@ -30,8 +30,6 @@ import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
 import javafx.application.HostServices;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
@@ -275,12 +273,13 @@ public class MainViewController implements HasLogger {
 
 	public void move(Note msg, TreeItem<Note> target) {
 		getLogger().info("Moving {} to {}", msg, target);
-		// TODO Suchen
+		// Suchen des aktuellen Notes in der 
+		final TreeItem<Note> foundTreeItem = MyListView.searchTreeItem(msg, this.noteCB.getRoot()); 
+		
 		this.moveNoteService.setNote(msg);
 		this.moveNoteService.setParentFolder(target);
 		moveNoteService.reset();
 		moveNoteService.restart();
-		final TreeItem<Note> foundTreeItem = MyListView.searchTreeItem(msg, this.noteCB.getRoot()); 
 		deleteCurrentMessage(foundTreeItem, true);
 	}
 

@@ -5,6 +5,8 @@ import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+// Watch out for:
+// https://bugs.openjdk.java.net/browse/JDK-8140491
 // i18n
 // ERROR-Handling !!
 // Aotmatisches Setzen des Subjects durch erste Zeile

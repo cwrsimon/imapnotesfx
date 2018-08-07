@@ -12,7 +12,8 @@ import javax.mail.Message;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
-
+// TODO Exceptions durchgehen ...
+// Passwort abfragen ...
 public class IMAPNoteProvider implements INoteProvider {
 
 	private IMAPBackend backend;
@@ -81,7 +82,7 @@ public class IMAPNoteProvider implements INoteProvider {
 		if (note.isFolder()) {
 			// TODO verify me
 			Folder folder = this.folderMap.get(note.getUuid());
-			System.out.println(backend.deleteFolder(folder));
+			backend.deleteFolder(folder);
 		} else {
 			backend.deleteMessage( this.msgMap.get(note.getUuid()) );			
 		}
@@ -150,16 +151,22 @@ public class IMAPNoteProvider implements INoteProvider {
 		this.folderMap.remove(oldUUID);
 		folder.setSubject(newName);
 		folder.setUuid(newUUID);
-
+		getNotesFromFolder(folder);
 	}
 
 
 	@Override
 	public Note move(Note message, Note folder) {
-		Message msg = this.msgMap.get(message.getUuid());
+		final Message msg = this.msgMap.get(message.getUuid());
 		Folder imapFolder = this.folderMap.get(folder.getUuid());
 		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
-		
+		// update message
+		try {
+			getNotesFromFolder(folder);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return message;
 	}	
 	
