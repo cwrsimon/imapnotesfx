@@ -69,7 +69,10 @@ public class RenameNoteService extends AbstractNoteService<Void> {
 
     @Override
 	protected void succeeded() {
-		noteCB.refresh();
+        noteCB.refresh();
+        if (getNote().isFolder()) {
+            mainViewController.triggerReload();
+        }
 	}
 
 }

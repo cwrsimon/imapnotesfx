@@ -70,8 +70,6 @@ public class MainViewController implements HasLogger {
 	
 	@Autowired
 	private Label account;
-
-	public BooleanBinding allRunning;
 	
 	@Autowired
 	private OpenMessageTask openMessageTask;
@@ -126,11 +124,7 @@ public class MainViewController implements HasLogger {
 	@PostConstruct
 	public void init() {
 		this.refreshConfig();
-		// TODO Was machen wir damit???
-		this.allRunning = Bindings.or(this.newLoadTask.runningProperty(), this.openMessageTask.runningProperty())
-		.or(this.deleteNoteService.runningProperty()).or(this.newNoteService.runningProperty())
-		.or(this.openFolderTask.runningProperty()).or(this.renameNoteService.runningProperty());
-
+		
 		// Bindings
 		account.textProperty().bind(currentAccount);
 		
@@ -140,18 +134,10 @@ public class MainViewController implements HasLogger {
 		});
 		
 		reloadMenuTask.setOnAction(e -> {
-			if (allRunning.getValue() == true) {
-				return;
-			}
-			if (closeAccount()) {
-				loadMessages(null);
-			}
+			triggerReload();
 		});
 		
 		update.setOnAction(e -> {
-			if (allRunning.getValue() == true) {
-				return;
-			}
 			saveCurrentMessage();
 		});
 		
@@ -189,6 +175,12 @@ public class MainViewController implements HasLogger {
 		});
 	}
 	
+	public void triggerReload() {
+		if (closeAccount()) {
+			loadMessages(null);
+		}
+	}
+
 	public HostServices getHostServices() {
 		return hostServices;
 	}
@@ -310,9 +302,6 @@ public class MainViewController implements HasLogger {
 	}
 
 	public void renameCurrentMessage(Note curMsg) {
-		if (this.allRunning.getValue() == true) {
-			return;
-		}
 		final Dialog dialog = new TextInputDialog("");
 		dialog.setTitle("Make a choice");
 		dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
@@ -432,7 +421,6 @@ public class MainViewController implements HasLogger {
 	}
 
 	public INoteProvider getBackend() {
-		// TODO Auto-generated method stub
 		return this.backend;
 	}
 

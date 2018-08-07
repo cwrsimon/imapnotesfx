@@ -13,12 +13,6 @@ import javafx.stage.Stage;
 // https://github.com/revelc/gnome-keyring-java
 // Neuer Editor:
 // JSOUP durch etwas Sinnvolleres ersetzen ...
-// Sortierung nach Datum
-// Services implementieren:
-// https://stackoverflow.com/questions/37087848/task-progress-bar-javafx-application
-// https://docs.oracle.com/javase/8/javafx/api/javafx/concurrent/Service.html
-// https://gist.github.com/jewelsea/2774476
-// https://stackoverflow.com/questions/39299724/javafx-service-and-gui
 // TODOs
 // Linux: Gnome-Keyring selber öffnen, wenn nicht schon geschehen ...
 // optional: Passwort erfragen ...
@@ -26,21 +20,16 @@ import javafx.stage.Stage;
 // Zu Applikation bündeln
 // Gmail-Integration
 // Umgangt mit LEEREM Account
-// Sortierung nach Änderungsdatum?
 // About-Menü-Popup vervollständigen
 // Sinnvollere Nachrichten auf Englisch
 // DMG/ZIP generieren lassen ...:
 // https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
 // Exceptions !!!
-// Beim Löschen: Nächstes Element auswählen und selbiges Element aus den tabs entfernen !!!!
-// Aktuellen Pfad anzeigen
 // Exceptions als Benutzermeldung bis nach oben propagieren
 // Fixen: Verschieben per Drag und Drop
 // sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
 // Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
 // Copy , Paste, Historie ans Menü binden ...
-// BEim Löschen des Tab schließen
-// Beim Umbennen einen Reload des Ordners machen 
 public class MainApp extends Application {
 
 	@Override
