@@ -16,8 +16,8 @@ import de.wesim.imapnotes.models.Note;
 public class IMAPNoteProvider implements INoteProvider {
 
 	private IMAPBackend backend;
-	private Map<String, Message> msgMap;
-	private Map<String, Folder> folderMap;
+	private final Map<String, Message> msgMap;
+	private final Map<String, Folder> folderMap;
 
 	
 	public IMAPNoteProvider() {
@@ -30,16 +30,16 @@ public class IMAPNoteProvider implements INoteProvider {
 	public void init(Account account) throws Exception {
 //		PasswordProvider pp = new PasswordProvider();
 //		pp.init();
-		final String accountName = account.getAccount_name();
-		//String pw = pp.retrievePassword(accountName);
-		// TODO FIXME
-		String pw = null;
-		// TODO FIXME
-		if (pw == null) {
-			pw = account.getPassword();
-		}
+//		final String accountName = account.getAccount_name();
+//		//String pw = pp.retrievePassword(accountName);
+//		// TODO FIXME
+//		String pw = null;
+//		// TODO FIXME
+//		if (pw == null) {
+//			pw = account.getPassword();
+//		}
 		// TODO Abfrage implementieren ...
-		this.backend = IMAPBackend.initNotesFolder(account, pw);
+		this.backend = IMAPBackend.initNotesFolder(account);
 	}	
 	
 	@Override
@@ -93,7 +93,7 @@ public class IMAPNoteProvider implements INoteProvider {
 		this.msgMap.clear();
 		this.folderMap.clear();
 		final List<Note> notes = this.backend.getMessages(this.backend.getNotesFolder(), 
-													this.msgMap, this.folderMap);
+			this.msgMap, this.folderMap);
 		// TODO
 		Collections.sort(notes);
 		return notes;
@@ -103,7 +103,7 @@ public class IMAPNoteProvider implements INoteProvider {
 	public List<Note> getNotesFromFolder(Note folder) throws Exception {
 		Folder f = this.folderMap.get(folder.getUuid());
 		final List<Note> notes = this.backend.getMessages(f, 
-													this.msgMap, this.folderMap);
+			this.msgMap, this.folderMap);
 		// TODO
 		Collections.sort(notes);
 		return notes;

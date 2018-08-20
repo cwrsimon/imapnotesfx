@@ -26,159 +26,168 @@ import com.sun.mail.imap.IMAPFolder;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
+import javax.mail.URLName;
 
 public class IMAPBackend {
-	
-	private static final Logger logger = LoggerFactory.getLogger(IMAPBackend.class);
-	
-	private Session session;
-	private Store store;
-	private IMAPFolder notesFolder;
-	private String from_address;
 
-	
-	private IMAPBackend() throws IOException {
-		Properties props = System.getProperties();
-		this.session = Session.getInstance(props, null);
-	}
+    private static final Logger logger = LoggerFactory.getLogger(IMAPBackend.class);
 
-	public Session getSession() {
-		return this.session;
-	}
-	
-	public Note createFolder(String name, Folder parentFolder, Map<String, Folder> folderMap) throws MessagingException {
-		startTransaction((IMAPFolder) parentFolder);
-		Folder newFolder = parentFolder.getFolder(name);
-		newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
-		final Note newNote = new Note(newFolder.getFullName());
-		newNote.setSubject(name);
-		newNote.setDate(new Date());
-		newNote.setIsFolder(true);
+    private Session session;
+    private Store store;
+    private IMAPFolder notesFolder;
+    private String from_address;
 
-		folderMap.put(newNote.getUuid(), newFolder);
+    private IMAPBackend(Account account) {
+        Properties props = System.getProperties();
+        this.session = Session.getInstance(props, new MyAuthenticator(account));
+    }
 
-		endTransaction((IMAPFolder) parentFolder);
+    public Session getSession() {
+        return this.session;
+    }
 
-		return newNote;
-	}
-	
-	// TODO Absoluten Pfad angeben
-	public boolean deleteFolder(Folder folder) throws MessagingException {
-		this.endTransaction((IMAPFolder) folder);
-		//Folder newFolder = this.notesFolder.getFolder(folder);
-		return folder.delete(true);
-	}
+    public Note createFolder(String name, Folder parentFolder, Map<String, Folder> folderMap) throws MessagingException {
+        startTransaction((IMAPFolder) parentFolder);
+        Folder newFolder = parentFolder.getFolder(name);
+        newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
+        final Note newNote = new Note(newFolder.getFullName());
+        newNote.setSubject(name);
+        newNote.setDate(new Date());
+        newNote.setIsFolder(true);
 
-	// TODO
-	public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
-		//endTransaction();
-		// Sicherstellen, dass Folder geschlossen ist
-		Folder parentFolder = oldFolder.getParent();
-		Folder newFolder = parentFolder.getFolder(newName);
-		try {
-		boolean retValue = oldFolder.renameTo(newFolder);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return newFolder;
-	}
+        folderMap.put(newNote.getUuid(), newFolder);
 
-	
-	private void setFromAddress(String fromAddress) {
-		this.from_address = fromAddress;
-	}
-	
-	private void openNotesFolder(String name) throws MessagingException {
-		this.notesFolder = (IMAPFolder) this.store.getFolder(name);
-	}
-	
-	private void openSubFolder(String name) throws MessagingException {
-		this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
-	}
-	
-	private void connectStore(String hostname, String login, String pw) throws MessagingException {
-		logger.info("Trying to connect: {}, {}, {}", hostname, login, pw);
-		this.store.connect(hostname, -1, login, pw);
-	}
-	
-	public static IMAPBackend initNotesFolder(Account account, String pw) throws MessagingException, IOException {
-		final IMAPBackend newInstance = new IMAPBackend();
-		if (newInstance.store == null) {
-			newInstance.store = newInstance.getSession().getStore("imap");
-			newInstance.connectStore(account.getHostname(), account.getLogin(), pw);
-		}
-		newInstance.setFromAddress (account.getFrom_address() );
-		final String[] splitItems = account.getRoot_folder().split("/");
-		newInstance.openNotesFolder(splitItems[0]);
-		
-		// TODO Fehler abfangen ...
-		if (splitItems.length == 1) return newInstance;
-		for (int i=1; i<splitItems.length; i++) {
-			newInstance.openSubFolder(splitItems[i]);
-		}
-		return newInstance;
-	}
+        endTransaction((IMAPFolder) parentFolder);
 
-	public IMAPFolder getNotesFolder () {
-		return (IMAPFolder) this.notesFolder;
-	}
+        return newNote;
+    }
 
-	public void destroy() throws MessagingException {
-		this.cleanup();
-		this.store.close();
-	}
+    // TODO Absoluten Pfad angeben
+    public boolean deleteFolder(Folder folder) throws MessagingException {
+        this.endTransaction((IMAPFolder) folder);
+        //Folder newFolder = this.notesFolder.getFolder(folder);
+        return folder.delete(true);
+    }
 
-	public List<Note> getMessages(Folder folder, Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
-		this.startTransaction((IMAPFolder) folder);
+    // TODO
+    public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
+        //endTransaction();
+        // Sicherstellen, dass Folder geschlossen ist
+        Folder parentFolder = oldFolder.getParent();
+        Folder newFolder = parentFolder.getFolder(newName);
+        try {
+            boolean retValue = oldFolder.renameTo(newFolder);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return newFolder;
+    }
 
-		final Message[] msgs =  folder.getMessages();
-		FetchProfile fp = new FetchProfile();
-		fp.add(FetchProfile.Item.ENVELOPE);
-		fp.add(FetchProfile.Item.FLAGS);
-		fp.add("X-Uniform-Type-Identifier");
-		fp.add("X-Mail-Created-Date");
-		fp.add("X-Universally-Unique-Identifier");
-		folder.fetch(msgs, fp);
+    private void setFromAddress(String fromAddress) {
+        this.from_address = fromAddress;
+    }
 
-		List<Note> messages = new ArrayList<>();
-		for (Message m : msgs) {
-			if (m.isSet(Flag.DELETED)) {
-				continue;
-			}
-			final String uuid = this.getUUIDForMessage(m);
-			final Note newNote = new Note(uuid);
-			newNote.setSubject(m.getSubject());
-			newNote.setIsFolder(false);
-			msgMap.put(uuid, m);
-			newNote.setDate(m.getReceivedDate());
-			messages.add(newNote);
-		}
-		Folder[] folders = folder.list();
-		for (Folder f : folders) {
+    private void openNotesFolder(String name) throws MessagingException {
+        this.notesFolder = (IMAPFolder) this.store.getFolder(name);
+    }
 
-			logger.info("Folder full name: {}", f.getFullName());
-			final String name = f.getName();
-			final Note newNote = new Note(f.getFullName());
-			newNote.setSubject(name);
-			folderMap.put(f.getFullName(), f);
-			newNote.setIsFolder(true);
-			newNote.setDate(new Date());
-			messages.add(newNote);
-		}
-		
-		// if (!this.folderStack.isEmpty()) {
-		// 	final String prevFolder = this.folderStack.peek();
-		// 	if (prevFolder != null) {
-		// 		final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
-		// 		final Note newNote = new Note(uuid);
-		// 		newNote.setIsFolder(true);
-		// 		folderMap.put(uuid, null);
-		// 		newNote.setSubject("Zurück");
-		// 		newNote.setDate(new Date());
-		// 		messages.add(newNote);
-		// 	}	
-		// }
-		// TODO Reintegrate me!
+    private void openSubFolder(String name) throws MessagingException {
+        this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
+    }
+
+    private void connectStore() throws MessagingException {
+        logger.info("Trying to connect ...");
+        //this.store.connect(hostname, -1, login, pw);
+        try {
+          this.store.connect();
+        } catch (javax.mail.AuthenticationFailedException e) {
+            this.session.requestPasswordAuthentication(addr, 0, from_address, from_address, from_address)
+                   
+        }
+    }
+
+    public static IMAPBackend initNotesFolder(Account account) throws MessagingException {
+        final IMAPBackend newInstance = new IMAPBackend(account);
+        if (newInstance.store == null) {
+            newInstance.store = newInstance.getSession().getStore(
+                    new URLName("imap://" + account.getHostname())
+            );
+            newInstance.connectStore();
+        }
+        newInstance.setFromAddress(account.getFrom_address());
+        final String[] splitItems = account.getRoot_folder().split("/");
+        newInstance.openNotesFolder(splitItems[0]);
+
+        // TODO Fehler abfangen ...
+        if (splitItems.length == 1) {
+            return newInstance;
+        }
+        for (int i = 1; i < splitItems.length; i++) {
+            newInstance.openSubFolder(splitItems[i]);
+        }
+        return newInstance;
+    }
+
+    public IMAPFolder getNotesFolder() {
+        return (IMAPFolder) this.notesFolder;
+    }
+
+    public void destroy() throws MessagingException {
+        this.cleanup();
+        this.store.close();
+    }
+
+    public List<Note> getMessages(Folder folder, Map<String, Message> msgMap, Map<String, Folder> folderMap) throws MessagingException {
+        this.startTransaction((IMAPFolder) folder);
+
+        final Message[] msgs = folder.getMessages();
+        FetchProfile fp = new FetchProfile();
+        fp.add(FetchProfile.Item.ENVELOPE);
+        fp.add(FetchProfile.Item.FLAGS);
+        fp.add("X-Uniform-Type-Identifier");
+        fp.add("X-Mail-Created-Date");
+        fp.add("X-Universally-Unique-Identifier");
+        folder.fetch(msgs, fp);
+
+        List<Note> messages = new ArrayList<>();
+        for (Message m : msgs) {
+            if (m.isSet(Flag.DELETED)) {
+                continue;
+            }
+            final String uuid = this.getUUIDForMessage(m);
+            final Note newNote = new Note(uuid);
+            newNote.setSubject(m.getSubject());
+            newNote.setIsFolder(false);
+            msgMap.put(uuid, m);
+            newNote.setDate(m.getReceivedDate());
+            messages.add(newNote);
+        }
+        Folder[] folders = folder.list();
+        for (Folder f : folders) {
+
+            logger.info("Folder full name: {}", f.getFullName());
+            final String name = f.getName();
+            final Note newNote = new Note(f.getFullName());
+            newNote.setSubject(name);
+            folderMap.put(f.getFullName(), f);
+            newNote.setIsFolder(true);
+            newNote.setDate(new Date());
+            messages.add(newNote);
+        }
+
+        // if (!this.folderStack.isEmpty()) {
+        // 	final String prevFolder = this.folderStack.peek();
+        // 	if (prevFolder != null) {
+        // 		final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
+        // 		final Note newNote = new Note(uuid);
+        // 		newNote.setIsFolder(true);
+        // 		folderMap.put(uuid, null);
+        // 		newNote.setSubject("Zurück");
+        // 		newNote.setDate(new Date());
+        // 		messages.add(newNote);
+        // 	}	
+        // }
+        // TODO Reintegrate me!
 //		Collections.sort(messages, new Comparator<Message>() {
 //			@Override
 //			public int compare(Message o1, Message o2) {
@@ -190,121 +199,119 @@ public class IMAPBackend {
 //				}
 //			}
 //		});
-		this.endTransaction(((IMAPFolder) folder));
-		return messages;
-	}
+        this.endTransaction(((IMAPFolder) folder));
+        return messages;
+    }
 
+    public String getMessageContent(Message message) throws MessagingException, IOException {
+        IMAPFolder parentFolder = (IMAPFolder) message.getFolder();
+        startTransaction(parentFolder);
 
-	public String getMessageContent(Message message) throws MessagingException, IOException {
-		IMAPFolder parentFolder = (IMAPFolder) message.getFolder();
-		startTransaction(parentFolder);
-		
-		final Object content = message.getContent();
-		final String returnContent;
-		if (content instanceof String) {
-			returnContent = (String) content;
-		} else {
-			final IMAPUtils utils = new IMAPUtils();
-			returnContent = utils.decodeMultipartMails(message);
-		}
-		
-		endTransaction(parentFolder);
-		return returnContent;
-	}
+        final Object content = message.getContent();
+        final String returnContent;
+        if (content instanceof String) {
+            returnContent = (String) content;
+        } else {
+            final IMAPUtils utils = new IMAPUtils();
+            returnContent = utils.decodeMultipartMails(message);
+        }
 
-	private void endTransaction(IMAPFolder folder) throws MessagingException {
-		if (folder.isOpen()) {
-			folder.close(false);
-		}
-	}
+        endTransaction(parentFolder);
+        return returnContent;
+    }
 
-	private void startTransaction(IMAPFolder folder) throws MessagingException {
-		if (!folder.isOpen()) {
-			folder.open(Folder.READ_WRITE);
-		}
-	}
+    private void endTransaction(IMAPFolder folder) throws MessagingException {
+        if (folder.isOpen()) {
+            folder.close(false);
+        }
+    }
 
-	public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
-		final IMAPFolder myFolder = (IMAPFolder)currentMessage.getFolder();
-		startTransaction(myFolder);
-		final String subject = currentMessage.getSubject();
-	
-		final MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
+    private void startTransaction(IMAPFolder folder) throws MessagingException {
+        if (!folder.isOpen()) {
+            folder.open(Folder.READ_WRITE);
+        }
+    }
 
-		Enumeration<Header> enums = currentMessage.getAllHeaders();
-		while (enums.hasMoreElements()) {
-			Header next = (Header) enums.nextElement();
-			//			X-Mail-Created-Date
-			//			X-Universally-Unique-Identifier
-			final String name = next.getName();
-			if (!name.equals("X-Mail-Created-Date") 
-					&& !name.equals("X-Universally-Unique-Identifier")) {
-				continue;
-			}
-			newMsg.addHeader(name, next.getValue());
-			//System.out.println(name + ";" + next.getValue());
-		}
-		// Flag setzen bevor(!) angehängt wird
-		newMsg.setFlag(Flag.SEEN, true);
-		final Message[] newIMAPMessage = new Message[]{newMsg};
-		final Message[] resultMessage = myFolder.addMessages(newIMAPMessage);
-		deleteMessageObject(currentMessage);
-		endTransaction(myFolder);
-		return resultMessage[0];
-	}
+    public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
+        final IMAPFolder myFolder = (IMAPFolder) currentMessage.getFolder();
+        startTransaction(myFolder);
+        final String subject = currentMessage.getSubject();
 
-	public void deleteMessage(Message message)  throws MessagingException {
-		final IMAPFolder myFolder = (IMAPFolder) message.getFolder();
-		startTransaction(myFolder);
-		deleteMessageObject(message);
-		endTransaction(myFolder);
-	}
-	
-	private void deleteMessageObject(Message message) throws MessagingException {
-		message.setFlag(Flag.DELETED, true);
-	}
+        final MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
 
-	public Message createNewMessage(String subject, Folder parentFolder) throws MessagingException {
-		IMAPFolder folder = (IMAPFolder) parentFolder;
-		startTransaction(folder);
-		final MimeMessage newMsg = createNewMessageObject(subject, "", true);
-		newMsg.setFlag(Flag.SEEN, true);
-		final Message[] newIMAPMessage = new Message[]{newMsg};
-		final Message[] resultMessage = folder.addMessages(newIMAPMessage);
-		endTransaction(folder);
-		return resultMessage[0];
-	}
+        Enumeration<Header> enums = currentMessage.getAllHeaders();
+        while (enums.hasMoreElements()) {
+            Header next = (Header) enums.nextElement();
+            //			X-Mail-Created-Date
+            //			X-Universally-Unique-Identifier
+            final String name = next.getName();
+            if (!name.equals("X-Mail-Created-Date")
+                    && !name.equals("X-Universally-Unique-Identifier")) {
+                continue;
+            }
+            newMsg.addHeader(name, next.getValue());
+            //System.out.println(name + ";" + next.getValue());
+        }
+        // Flag setzen bevor(!) angehängt wird
+        newMsg.setFlag(Flag.SEEN, true);
+        final Message[] newIMAPMessage = new Message[]{newMsg};
+        final Message[] resultMessage = myFolder.addMessages(newIMAPMessage);
+        deleteMessageObject(currentMessage);
+        endTransaction(myFolder);
+        return resultMessage[0];
+    }
 
-	private MimeMessage createNewMessageObject(String subject, String newContent, boolean newUUid) throws MessagingException {
-		final MimeMessage newMsg = new MimeMessage(this.session);
-		newMsg.setContent(newContent, "text/html; charset=utf-8");
-		newMsg.setSubject(subject);
-		newMsg.setFrom(this.from_address);
-		final Date date = new Date();
-		newMsg.setSentDate(date);
-		// think of something here ...
-		//		newMsg.addHeader("X-Mail-Created-Date", "Sun, 31 Jan 2016 21:17:36 +0100");
-		newMsg.addHeader("X-Uniform-Type-Identifier", "com.apple.mail-note");
-		if (newUUid) {
-			UUID uuid = UUID.randomUUID();
-			newMsg.addHeader("X-Universally-Unique-Identifier", uuid.toString());
-		}
-		return newMsg;
-	}
+    public void deleteMessage(Message message) throws MessagingException {
+        final IMAPFolder myFolder = (IMAPFolder) message.getFolder();
+        startTransaction(myFolder);
+        deleteMessageObject(message);
+        endTransaction(myFolder);
+    }
 
-	public String getUUIDForMessage(Message msg) throws MessagingException {
-		this.startTransaction((IMAPFolder) msg.getFolder());
-	    final String uuid =  msg.getHeader("X-Universally-Unique-Identifier")[0];	
-	    this.endTransaction((IMAPFolder) msg.getFolder());
-	    return uuid;
-	}
-	
-	
-	public void cleanup() throws MessagingException {
-		this.startTransaction(this.notesFolder);
-		this.notesFolder.expunge();	
-	    this.endTransaction(this.notesFolder);
-	}
+    private void deleteMessageObject(Message message) throws MessagingException {
+        message.setFlag(Flag.DELETED, true);
+    }
+
+    public Message createNewMessage(String subject, Folder parentFolder) throws MessagingException {
+        IMAPFolder folder = (IMAPFolder) parentFolder;
+        startTransaction(folder);
+        final MimeMessage newMsg = createNewMessageObject(subject, "", true);
+        newMsg.setFlag(Flag.SEEN, true);
+        final Message[] newIMAPMessage = new Message[]{newMsg};
+        final Message[] resultMessage = folder.addMessages(newIMAPMessage);
+        endTransaction(folder);
+        return resultMessage[0];
+    }
+
+    private MimeMessage createNewMessageObject(String subject, String newContent, boolean newUUid) throws MessagingException {
+        final MimeMessage newMsg = new MimeMessage(this.session);
+        newMsg.setContent(newContent, "text/html; charset=utf-8");
+        newMsg.setSubject(subject);
+        newMsg.setFrom(this.from_address);
+        final Date date = new Date();
+        newMsg.setSentDate(date);
+        // think of something here ...
+        //		newMsg.addHeader("X-Mail-Created-Date", "Sun, 31 Jan 2016 21:17:36 +0100");
+        newMsg.addHeader("X-Uniform-Type-Identifier", "com.apple.mail-note");
+        if (newUUid) {
+            UUID uuid = UUID.randomUUID();
+            newMsg.addHeader("X-Universally-Unique-Identifier", uuid.toString());
+        }
+        return newMsg;
+    }
+
+    public String getUUIDForMessage(Message msg) throws MessagingException {
+        this.startTransaction((IMAPFolder) msg.getFolder());
+        final String uuid = msg.getHeader("X-Universally-Unique-Identifier")[0];
+        this.endTransaction((IMAPFolder) msg.getFolder());
+        return uuid;
+    }
+
+    public void cleanup() throws MessagingException {
+        this.startTransaction(this.notesFolder);
+        this.notesFolder.expunge();
+        this.endTransaction(this.notesFolder);
+    }
 
 //	public void dumpMessage(Message msg) throws MessagingException, IOException {
 //		this.startTransaction();
@@ -322,28 +329,27 @@ public class IMAPBackend {
 //		System.out.println(this.getMessageContent(msg));
 //        this.endTransaction();
 //   }
-	
-	public boolean moveMessage(Message msg, Folder folder) {
-		try {
-			final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
-			this.startTransaction(sourceFolder);
-			sourceFolder.copyMessages(new Message[]{msg}, folder);
-			this.endTransaction(sourceFolder);
-			return true;
-		} catch (MessagingException e) {
-			e.printStackTrace();
-			return false;
-		}
-	}
+    public boolean moveMessage(Message msg, Folder folder) {
+        try {
+            final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+            this.startTransaction(sourceFolder);
+            sourceFolder.copyMessages(new Message[]{msg}, folder);
+            this.endTransaction(sourceFolder);
+            return true;
+        } catch (MessagingException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
-	public void changeSubject(Message msg, String newName) throws MessagingException {
-		final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
-			this.startTransaction(sourceFolder);
+    public void changeSubject(Message msg, String newName) throws MessagingException {
+        final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+        this.startTransaction(sourceFolder);
 
-			msg.setSubject(newName);
-			//msg.saveChanges();
+        msg.setSubject(newName);
+        //msg.saveChanges();
 
-			this.endTransaction(sourceFolder);
+        this.endTransaction(sourceFolder);
 
-	}
+    }
 }
