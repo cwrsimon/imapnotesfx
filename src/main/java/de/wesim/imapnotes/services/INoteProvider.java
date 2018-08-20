@@ -7,15 +7,15 @@ import de.wesim.imapnotes.models.Note;
 
 public interface INoteProvider {
 
-	public void init(Account account) throws Exception;
+    public void init(Account account) throws Exception;
 	
-	// TODO Create dedicated exception type !!!
+    // TODO Create dedicated exception type !!!
     public Note createNewNote(String subject, Note parentFolder) throws Exception;
 
     public Note createNewFolder(String name, Note parentFolder) throws Exception;
 
     public void renameNote(Note note, String newName) throws Exception;
-	public void renameFolder(Note note, String newName) throws Exception;
+    public void renameFolder(Note note, String newName) throws Exception;
     
     public void load(Note note) throws Exception;
 

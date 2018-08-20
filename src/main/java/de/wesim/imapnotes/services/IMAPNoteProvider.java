@@ -11,6 +11,7 @@ import javax.mail.Message;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
+import javax.mail.MessagingException;
 
 // TODO Exceptions durchgehen ...
 // Passwort abfragen ...
@@ -29,18 +30,8 @@ public class IMAPNoteProvider implements INoteProvider {
 
 	@Override
 	public void init(Account account) throws Exception {
-//		PasswordProvider pp = new PasswordProvider();
-//		pp.init();
-//		final String accountName = account.getAccount_name();
-//		//String pw = pp.retrievePassword(accountName);
-//		// TODO FIXME
-//		String pw = null;
-//		// TODO FIXME
-//		if (pw == null) {
-//			pw = account.getPassword();
-//		}
-		// TODO Abfrage implementieren ...
-		this.backend = IMAPBackend.initNotesFolder(account);
+            this.backend = new IMAPBackend(account);
+            this.backend.initNotesFolder();
 	}	
 	
 	@Override
@@ -156,10 +147,10 @@ public class IMAPNoteProvider implements INoteProvider {
 
 
 	@Override
-	public Note move(Note message, Note folder) {
+	public Note move(Note message, Note folder) throws MessagingException {
 		final Message msg = this.msgMap.get(message.getUuid());
 		Folder imapFolder = this.folderMap.get(folder.getUuid());
-		boolean retvalue = this.backend.moveMessage(msg, imapFolder);
+		this.backend.moveMessage(msg, imapFolder);
 		// update message
 		try {
 			getNotesFromFolder(folder);

@@ -19,31 +19,25 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.MimeMessage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.sun.mail.imap.IMAPFolder;
+import de.wesim.imapnotes.HasLogger;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
+import javax.mail.Authenticator;
+import javax.mail.NoSuchProviderException;
 import javax.mail.URLName;
 
-public class IMAPBackend {
-
-    private static final Logger logger = LoggerFactory.getLogger(IMAPBackend.class);
+public class IMAPBackend implements HasLogger {
 
     private Session session;
     private Store store;
     private IMAPFolder notesFolder;
     private String from_address;
+    private final Account account;
 
-    private IMAPBackend(Account account) {
-        Properties props = System.getProperties();
-        this.session = Session.getInstance(props, new MyAuthenticator(account));
-    }
-
-    public Session getSession() {
-        return this.session;
+    public IMAPBackend(Account account) {
+        this.account = account;
     }
 
     public Note createFolder(String name, Folder parentFolder, Map<String, Folder> folderMap) throws MessagingException {
@@ -62,7 +56,6 @@ public class IMAPBackend {
         return newNote;
     }
 
-    // TODO Absoluten Pfad angeben
     public boolean deleteFolder(Folder folder) throws MessagingException {
         this.endTransaction((IMAPFolder) folder);
         //Folder newFolder = this.notesFolder.getFolder(folder);
@@ -71,20 +64,13 @@ public class IMAPBackend {
 
     // TODO
     public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
-        //endTransaction();
+        this.endTransaction((IMAPFolder) oldFolder);
         // Sicherstellen, dass Folder geschlossen ist
         Folder parentFolder = oldFolder.getParent();
         Folder newFolder = parentFolder.getFolder(newName);
-        try {
-            boolean retValue = oldFolder.renameTo(newFolder);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return newFolder;
-    }
+        oldFolder.renameTo(newFolder);
 
-    private void setFromAddress(String fromAddress) {
-        this.from_address = fromAddress;
+        return newFolder;
     }
 
     private void openNotesFolder(String name) throws MessagingException {
@@ -95,37 +81,36 @@ public class IMAPBackend {
         this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
     }
 
-    private void connectStore() throws MessagingException {
-        logger.info("Trying to connect ...");
-        //this.store.connect(hostname, -1, login, pw);
-        try {
-          this.store.connect();
-        } catch (javax.mail.AuthenticationFailedException e) {
-            this.session.requestPasswordAuthentication(addr, 0, from_address, from_address, from_address)
-                   
-        }
+    private void connectStore(Properties props, Authenticator authenticator) throws MessagingException {
+        getLogger().info("Trying to connect ...");
+        this.session = Session.getInstance(props, authenticator);
+        this.store = this.session.getStore(
+                new URLName("imap://" + account.getHostname())
+        );
+        this.store.connect();
     }
 
-    public static IMAPBackend initNotesFolder(Account account) throws MessagingException {
-        final IMAPBackend newInstance = new IMAPBackend(account);
-        if (newInstance.store == null) {
-            newInstance.store = newInstance.getSession().getStore(
-                    new URLName("imap://" + account.getHostname())
-            );
-            newInstance.connectStore();
-        }
-        newInstance.setFromAddress(account.getFrom_address());
-        final String[] splitItems = account.getRoot_folder().split("/");
-        newInstance.openNotesFolder(splitItems[0]);
+    public void initNotesFolder() throws Exception {
+        final Properties props = System.getProperties();
+        final MyAuthenticator myAuthenticator = new MyAuthenticator(account);
 
-        // TODO Fehler abfangen ...
-        if (splitItems.length == 1) {
-            return newInstance;
+        try {
+            connectStore(props, myAuthenticator);
+        } catch (javax.mail.AuthenticationFailedException e) {
+            myAuthenticator.setTryAgain(true);
+            connectStore(props, myAuthenticator);
         }
+        this.from_address = account.getFrom_address();
+        final String[] splitItems = this.account.getRoot_folder().split("/");
+        if (splitItems.length == 0) {
+            throw new Exception(String.format("Invalid root folder: %s", this.account.getRoot_folder()));
+        }
+
+        openNotesFolder(splitItems[0]);
+
         for (int i = 1; i < splitItems.length; i++) {
-            newInstance.openSubFolder(splitItems[i]);
+            openSubFolder(splitItems[i]);
         }
-        return newInstance;
     }
 
     public IMAPFolder getNotesFolder() {
@@ -165,7 +150,7 @@ public class IMAPBackend {
         Folder[] folders = folder.list();
         for (Folder f : folders) {
 
-            logger.info("Folder full name: {}", f.getFullName());
+            getLogger().info("Folder full name: {}", f.getFullName());
             final String name = f.getName();
             final Note newNote = new Note(f.getFullName());
             newNote.setSubject(name);
@@ -250,7 +235,6 @@ public class IMAPBackend {
                 continue;
             }
             newMsg.addHeader(name, next.getValue());
-            //System.out.println(name + ";" + next.getValue());
         }
         // Flag setzen bevor(!) angehängt wird
         newMsg.setFlag(Flag.SEEN, true);
@@ -329,17 +313,11 @@ public class IMAPBackend {
 //		System.out.println(this.getMessageContent(msg));
 //        this.endTransaction();
 //   }
-    public boolean moveMessage(Message msg, Folder folder) {
-        try {
-            final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
-            this.startTransaction(sourceFolder);
-            sourceFolder.copyMessages(new Message[]{msg}, folder);
-            this.endTransaction(sourceFolder);
-            return true;
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            return false;
-        }
+    public void moveMessage(Message msg, Folder folder) throws MessagingException {
+        final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
+        this.startTransaction(sourceFolder);
+        sourceFolder.copyMessages(new Message[]{msg}, folder);
+        this.endTransaction(sourceFolder);
     }
 
     public void changeSubject(Message msg, String newName) throws MessagingException {
