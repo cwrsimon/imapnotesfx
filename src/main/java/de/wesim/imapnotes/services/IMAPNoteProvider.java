@@ -147,17 +147,12 @@ public class IMAPNoteProvider implements INoteProvider {
 
 
 	@Override
-	public Note move(Note message, Note folder) throws MessagingException {
+	public Note move(Note message, Note folder) throws Exception {
 		final Message msg = this.msgMap.get(message.getUuid());
 		Folder imapFolder = this.folderMap.get(folder.getUuid());
 		this.backend.moveMessage(msg, imapFolder);
-		// update message
-		try {
-			getNotesFromFolder(folder);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		getNotesFromFolder(folder);
+		
 		return message;
 	}	
 	
