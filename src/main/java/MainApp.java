@@ -5,33 +5,6 @@ import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-// Watch out for:
-// https://bugs.openjdk.java.net/browse/JDK-8140491
-// i18n
-// ERROR-Handling !!
-// Aotmatisches Setzen des Subjects durch erste Zeile
-// https://github.com/FibreFoX/javafx-gradle-plugin
-// Neue Implementierung von Gnome Keyring:
-// https://github.com/revelc/gnome-keyring-java
-// Neuer Editor:
-// JSOUP durch etwas Sinnvolleres ersetzen ...
-// TODOs
-// Linux: Gnome-Keyring selber öffnen, wenn nicht schon geschehen ...
-// optional: Passwort erfragen ...
-// Icon
-// Zu Applikation bündeln
-// Gmail-Integration
-// Umgangt mit LEEREM Account
-// About-Menü-Popup vervollständigen
-// Sinnvollere Nachrichten auf Englisch
-// DMG/ZIP generieren lassen ...:
-// https://github.com/FibreFoX/javafx-gradle-plugin/tree/master/examples
-// Exceptions !!!
-// Exceptions als Benutzermeldung bis nach oben propagieren
-// Fixen: Verschieben per Drag und Drop
-// sonst ist er nur eine Referenz auf den jeweiligen Ordner nach
-// Wenn kein Passwort vorhanden ist, muss es eine Abfrage gebrn ...
-// Copy , Paste, Historie ans Menü binden ...
 public class MainApp extends Application {
 
 	@Override
