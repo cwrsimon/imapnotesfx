@@ -1,54 +1,80 @@
 package de.wesim.imapnotes.services;
 
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import de.wesim.imapnotes.Consts;
+import de.wesim.imapnotes.HasLogger;
 import net.east301.keyring.BackendNotSupportedException;
 import net.east301.keyring.Keyring;
 import net.east301.keyring.PasswordRetrievalException;
 import net.east301.keyring.PasswordSaveException;
 import net.east301.keyring.util.LockException;
+import net.revelc.code.gnome.keyring.GnomeKeyring;
+import net.revelc.code.gnome.keyring.GnomeKeyringException;
+import net.revelc.code.gnome.keyring.GnomeKeyringItem;
+import net.revelc.code.gnome.keyring.GnomeKeyringItem.Attribute;
 
-public class PasswordProvider {
+public class PasswordProvider implements HasLogger {
 
     Keyring keyring;
+	private GnomeKeyring gk;
+	private String linux_keyring;
 
     public PasswordProvider() {
 
     }
 
     public void init() {
-
-        // setup a Keyring instance
-        //
-        // create an instance of Keyring by invoking Keyring.create method
-        //
-        // Keyring.create method finds appropriate keyring backend, and sets it up for you.
-        // On Mac OS X environment, OS X Keychain is used, and On Windows environment,
-        // DPAPI is used for encryption of passwords.
-        // If no supported backend is found, BackendNotSupportedException is thrown.
+    	
         try {
             keyring = Keyring.create();
         } catch (BackendNotSupportedException ex) {
-            Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
+        	getLogger().warn("Probably neither Win or MacOS environment ...", ex);
             return;
         }
+        getLogger().info("{}", System.getProperty("os.name"));
+        if (System.getProperty("os.name").startsWith("Linux")) {
+        	 try {
+            	this.gk = new GnomeKeyring(Consts.KEYSTORE_SERVICE_NAME);
 
-        // some backend directory handles a file to store password to disks.
-        // in this case, we must set path to key store file by Keyring.setKeyStorePath
-        // before using Keyring.getPassword and Keyring.getPassword.
-//        if (keyring.isKeyStorePathRequired()) {
-//            //try {
-//            //  File keyStoreFile = File.createTempFile("keystore", ".keystore");
-//            keyring.setKeyStorePath(Consts.KEYSTORE_PATH.toString());
-//            //} catch (IOException ex) {
-//            //    Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
-//            //}
-//        }
+				this.linux_keyring = gk.getDefaultKeyring();
+			} catch (GnomeKeyringException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+
     }
 
     public String retrievePassword(String accountName) {
         System.out.println("Retrieving password " + accountName);
+        if (this.gk != null) {
+        	Set<Integer> ids = this.gk.getIds(this.linux_keyring);
+        	for (Integer id : ids) {
+        		try {
+        			getLogger().info("ID: {}", id);
+					GnomeKeyringItem item = this.gk.getItem(this.linux_keyring, id, true);
+					getLogger().info("Display Name:{}", item.getDisplayName());
+					for (Attribute<?> attr : item.getAttributes()) {
+						getLogger().info("Attr: {}, Value: {}", attr.getName(), attr.getValue().toString());
+						if (attr.getName().equals("domain")) {
+							if (attr.getValue() instanceof String) {
+								final String castedDomain = (String) attr.getValue();
+								if (castedDomain.equals(accountName)) {
+									return item.getSecret();
+								}
+							}
+						}
+					}
+				} catch (GnomeKeyringException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+        		
+        	}
+        }
+        
         //
         // Retrieve password from key store
         //
@@ -70,6 +96,14 @@ public class PasswordProvider {
             keyring.setPassword(Consts.KEYSTORE_SERVICE_NAME, accountName, pw);
         } catch (LockException ex) {
             Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        if (this.gk != null) {
+        	 try {
+				int id = gk.setNetworkPassword(linux_keyring, null, accountName, null, null, "file", null, 0, pw);
+			} catch (GnomeKeyringException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
     }
 

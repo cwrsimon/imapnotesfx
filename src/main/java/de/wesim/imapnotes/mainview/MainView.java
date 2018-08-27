@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.I18NService;
 import javafx.geometry.HPos;
 import javafx.geometry.Orientation;
 import javafx.scene.control.Alert;
@@ -29,6 +30,8 @@ import javafx.scene.layout.StackPane;
 @Component
 public class MainView extends BorderPane implements HasLogger {
 
+	@Autowired
+	private I18NService i18N;
 
 	@Autowired
 	private ProgressBar p1;
@@ -70,8 +73,8 @@ public class MainView extends BorderPane implements HasLogger {
 	public void init() {
 						
 		MenuBar menuBar = new MenuBar();
-		Menu menu = new Menu("File");
-		MenuItem about = new MenuItem("About");
+		Menu menu = new Menu(i18N.getTranslation("file_menu"));
+		MenuItem about = new MenuItem(i18N.getTranslation("about_menu"));
 
 		menuBar.getMenus().add(menu);
 		menu.getItems().addAll(about, new SeparatorMenuItem(), reloadMenuTask, update, switchAccountMenuItem,
