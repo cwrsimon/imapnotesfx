@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import de.wesim.imapnotes.HasLogger;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 @Service
@@ -24,6 +25,7 @@ public class MainViewLoaderService implements HasLogger {
 		stage.setWidth(1024);
 		stage.setHeight(500);
 		stage.setResizable(true);
+                stage.getIcons().add(new Image(MainViewLoaderService.class.getResource("/icon.png").toExternalForm()));
 		stage.setTitle("ImapNotesFX");
 		stage.show();
 		stage.setOnCloseRequest(e -> {

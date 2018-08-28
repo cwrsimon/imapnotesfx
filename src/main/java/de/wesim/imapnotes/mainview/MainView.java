@@ -71,7 +71,7 @@ public class MainView extends BorderPane implements HasLogger {
 
 	@PostConstruct
 	public void init() {
-						
+				
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu(i18N.getTranslation("file_menu"));
 		MenuItem about = new MenuItem(i18N.getTranslation("about_menu"));

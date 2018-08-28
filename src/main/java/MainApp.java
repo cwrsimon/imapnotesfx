@@ -3,6 +3,7 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
