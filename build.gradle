@@ -57,8 +57,7 @@ dependencies {
     compile 'org.springframework:spring-core:5.0.7.RELEASE'
     compile 'org.springframework:spring-context:5.0.7.RELEASE'
     compile 'javax.annotation:jsr250-api:1.0'
-    compile 'net.east301:java-keyring:1.0.0'
-    compile 'net.revelc.code:gnome-keyring-java:1.0.0-SNAPSHOT'
+    compile 'net.east301:java-keyring:1.0.1-SNAPSHOT'
     
     // Use JUnit test framework
     testCompile 'junit:junit:4.12'
