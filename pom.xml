@@ -109,12 +109,7 @@
                         </configuration>
                     </execution>
                    <!-- Unter Windows mal ausprobieren:
-                   https://docs.oracle.com/javase/8/docs/technotes/tools/windows/javapackager.html#BGBDJIGE
-                   javapackager -deploy -native exe -BsystemWide=true -BjvmOptions=-Xmx128m 
-    -BjvmOptions=-Xms128m -outdir packages -outfile BrickBreaker -srcdir dist 
-    -srcfiles BrickBreaker.jar -appclass brickbreaker.Main -name BrickBreaker 
-    -title "BrickBreaker demo"
-                   
+                  https://github.com/fabnicolas/launch4j_exe_tutorial
                     -->
                 </executions>  
             </plugin>
