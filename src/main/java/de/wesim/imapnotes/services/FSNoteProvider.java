@@ -31,7 +31,13 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	@Override
 	public Note createNewNote(String subject, Note parentFolder) throws Exception {
 		final UUID uuid = UUID.randomUUID();
-		final Path parentPath = Paths.get(parentFolder.getUuid());
+		final Path parentPath;
+		if (parentFolder != null) {
+			parentPath = Paths.get(parentFolder.getUuid()); 
+		} else {
+			parentPath = rootDirectory;
+		}
+
 		final Path newFile = parentPath.resolve(uuid.toString() + ".imapnote");
 		final Note newNote = new Note(newFile.toAbsolutePath().toString());
 		newNote.setSubject(subject);
@@ -105,7 +111,12 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	public Note createNewFolder(String name, Note parent) throws Exception {
 		// TODO FIXME 
 		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
-		final Path parentPath = Paths.get(parent.getUuid());
+		final Path parentPath;
+		if (parent != null) {
+			parentPath = Paths.get(parent.getUuid());
+		} else {
+			parentPath = rootDirectory;
+		}
 		final Path newFolderPath = parentPath.resolve(name);
 		// Gibt es den Folder bereits?
 		Files.createDirectory(newFolderPath);
