@@ -5,5 +5,5 @@ build
 .gradle
 .settings
 bin
-
+/dist/
 /target/
