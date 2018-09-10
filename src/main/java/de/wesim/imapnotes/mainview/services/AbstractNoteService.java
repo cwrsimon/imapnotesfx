@@ -40,5 +40,6 @@ public abstract class AbstractNoteService<T> extends Service<T> {
             status.setText(getException().getMessage());
             getException().printStackTrace();
         });
+        
     }
 }

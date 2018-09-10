@@ -140,6 +140,10 @@ public class IMAPBackend implements HasLogger {
                 continue;
             }
             final String uuid = this.getUUIDForMessage(m);
+            if (uuid == null) {
+                getLogger().error("Message without uuid field! Skipping.");
+                continue;
+            }
             final Note newNote = new Note(uuid);
             newNote.setSubject(m.getSubject());
             newNote.setIsFolder(false);
@@ -217,12 +221,11 @@ public class IMAPBackend implements HasLogger {
         }
     }
 
-    public Message updateMessageContent(Message currentMessage, String newContent) throws MessagingException {
+    public Message updateMessageContent(Message currentMessage, String newContent, String newSubject) throws MessagingException {
         final IMAPFolder myFolder = (IMAPFolder) currentMessage.getFolder();
         startTransaction(myFolder);
-        final String subject = currentMessage.getSubject();
 
-        final MimeMessage newMsg = createNewMessageObject(new String(subject), newContent, false);
+        final MimeMessage newMsg = createNewMessageObject(newSubject, newContent, false);
 
         Enumeration<Header> enums = currentMessage.getAllHeaders();
         while (enums.hasMoreElements()) {
@@ -286,7 +289,10 @@ public class IMAPBackend implements HasLogger {
 
     public String getUUIDForMessage(Message msg) throws MessagingException {
         this.startTransaction((IMAPFolder) msg.getFolder());
-        final String uuid = msg.getHeader("X-Universally-Unique-Identifier")[0];
+        final String[] header = msg.getHeader("X-Universally-Unique-Identifier");
+        if (header == null) return null;
+        if (header.length == 0) return null;
+        final String uuid = header[0];
         this.endTransaction((IMAPFolder) msg.getFolder());
         return uuid;
     }
@@ -330,4 +336,5 @@ public class IMAPBackend implements HasLogger {
         this.endTransaction(sourceFolder);
 
     }
+
 }
