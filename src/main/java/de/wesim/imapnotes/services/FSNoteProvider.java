@@ -50,9 +50,12 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	public void load(Note note) throws Exception {
 		if (note.getContent() == null) {
 			final Path path = Paths.get(note.getUuid());
-			final String loadedContent = new String(Files.readAllBytes(path));
+			final String loadedContent = new String(Files.readAllBytes(path), Charset.forName("UTF-8"));
 			int startIndex = loadedContent.indexOf("<html ");
 			if (startIndex == -1) {
+                            startIndex = loadedContent.indexOf(System.lineSeparator());
+                        }
+                        if (startIndex == -1) {
 				note.setContent(loadedContent);
 			} else {
 				note.setContent(loadedContent.substring(startIndex));
