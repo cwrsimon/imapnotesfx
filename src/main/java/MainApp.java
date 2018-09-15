@@ -23,14 +23,16 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        try (AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class)) {
+       // try (
+       // TODO close me
+            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
             final MainViewController mainViewController = ctx.getBean(MainViewController.class);
             // FIXME EVIL ...
             mainViewController.setHostServices(getHostServices());
             mainViewController.setStage(primaryStage);
             final MainViewLoaderService myService = ctx.getBean(MainViewLoaderService.class);
             myService.init(primaryStage);
-        }
+        //}
     }
 
     @Override

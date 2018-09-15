@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.HasLogger;
+import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.mainview.services.DeleteMessageTask;
@@ -47,12 +48,16 @@ import javafx.scene.control.TreeView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.springframework.context.ApplicationContext;
 
 @Component
 public class MainViewController implements HasLogger {
 
     private INoteProvider backend;
 
+    @Autowired
+    private ApplicationContext context;
+    
     @Autowired
     private MoveNoteService moveNoteService;
 
@@ -198,10 +203,10 @@ public class MainViewController implements HasLogger {
     }
 
     public void chooseAccount() {
-        List<Account> availableAccounts = this.config.getAccountList();
-        ChoiceDialog<Account> cd = new ChoiceDialog<>(availableAccounts.get(0), availableAccounts);
-
-        Optional<Account> result = cd.showAndWait();
+        final List<Account> availableAccounts = this.config.getAccountList();
+        final ChoiceDialog<Account> cd = 
+            this.context.getBean(AccountChoiceDialog.class, availableAccounts);
+        final Optional<Account> result = cd.showAndWait();
         if (result.isPresent()) {
             openAccount(result.get());
         }

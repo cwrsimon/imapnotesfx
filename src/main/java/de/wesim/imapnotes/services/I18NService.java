@@ -27,7 +27,9 @@ public class I18NService implements HasLogger {
 	
 	// https://docs.oracle.com/javase/tutorial/i18n/format/messageFormat.html
 	public String getTranslation(String key) {
-		return this.bundle.getString(key);
+            final String translation = this.bundle.getString(key);
+            if (translation == null) return key;
+            return translation;
 	}
 	
 }
