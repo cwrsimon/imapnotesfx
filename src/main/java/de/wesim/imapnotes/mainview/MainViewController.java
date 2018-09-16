@@ -118,6 +118,9 @@ public class MainViewController implements HasLogger {
     @Autowired
     private MenuItem preferences;
 
+     @Autowired
+    private MenuItem find;
+        
     // must be set manually
     private HostServices hostServices;
     private Stage stage;
@@ -177,6 +180,17 @@ public class MainViewController implements HasLogger {
             });
             newStage.showAndWait();
             refreshConfig();
+        });
+        
+        find.setOnAction( e-> {
+            final Dialog dialog = new TextInputDialog("");
+        dialog.setTitle("Make a choice");
+        dialog.setHeaderText("Please enter the new name for ...");
+        Optional<String> result = dialog.showAndWait();
+        if (!result.isPresent()) return;
+            final String entered = result.get();
+            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+             et.getQe().findString(entered);
         });
     }
 

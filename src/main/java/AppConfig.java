@@ -58,6 +58,13 @@ public class AppConfig {
 	public MenuItem preferences() {
 		return  new Menu("Preferences");
 	}
+        
+        @Bean
+	public MenuItem find() {
+            final MenuItem findMenuItem = new MenuItem("Finden ...");
+            findMenuItem.setAccelerator(KeyCombination.keyCombination("Shortcut+F"));
+            return findMenuItem;                        
+	}
 	
 	@Bean
 	public TabPane tp() {

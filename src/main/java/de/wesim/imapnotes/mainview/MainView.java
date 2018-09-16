@@ -64,6 +64,8 @@ public class MainView extends BorderPane implements HasLogger {
 	@Autowired
 	private MenuItem preferences;
 
+        @Autowired
+	private MenuItem find;
 
 	public MainView () {
 		super();
@@ -74,9 +76,13 @@ public class MainView extends BorderPane implements HasLogger {
 				
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu(i18N.getTranslation("file_menu"));
+                Menu editMenu = new Menu("E");
 		MenuItem about = new MenuItem(i18N.getTranslation("about_menu"));
 
+                editMenu.getItems().add(find);
+                
 		menuBar.getMenus().add(menu);
+                menuBar.getMenus().add(editMenu);
 		menu.getItems().addAll(about, new SeparatorMenuItem(), reloadMenuTask, update, switchAccountMenuItem,
 									new SeparatorMenuItem(),  preferences, exit);
 

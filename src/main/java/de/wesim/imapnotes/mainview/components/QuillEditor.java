@@ -149,4 +149,9 @@ public class QuillEditor extends StackPane {
 		// 	log.info("Key: {}", e.getCode().toString());
 		// });
 	}
+
+    public void findString(String entered) {
+        final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
+	webview.getEngine().executeScript("findQuillContent('" + content_js + "');");
+    }
 }

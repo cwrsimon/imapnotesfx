@@ -57,7 +57,7 @@
      }
     });
 
-    console.log = function(message) { app.logMe(message); }
+    //console.log = function(message) { app.logMe(message); }
 
     quill.on("text-change", function() {
        app.setContentUpdate(true);
@@ -70,6 +70,22 @@
     setQuillContent = function(content) {
         quill.setText("");
         quill.clipboard.dangerouslyPasteHTML(content, "api");
+    }
+    
+    findQuillContent = function(content) {
+        const opsCount = quill.getContents().ops.length;
+        var offset = 0;
+        for (var i=0; i<opsCount; i++) {
+            const currentOps = quill.getContents().ops[i].insert.toLowerCase();
+            const foundIndex = currentOps.indexOf(content.toLowerCase());
+            if (foundIndex < 0) {
+                offset = offset + currentOps.length;
+                continue;
+            }
+            quill.setSelection(offset + foundIndex, content.length);
+            return;
+        }
+        
     }
 
     undo = function() {
