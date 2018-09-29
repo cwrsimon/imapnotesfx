@@ -7,6 +7,4 @@ public interface HasLogger {
 	public default Logger getLogger() {
 		return LoggerFactory.getLogger(getClass());
 	}
-	
-	
 }

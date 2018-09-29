@@ -73,13 +73,19 @@ public class MainView extends BorderPane implements HasLogger {
 
 	@PostConstruct
 	public void init() {
-				
+		find.setText(i18N.getTranslation("find_menu_item"));
+		update.setText(i18N.getTranslation("save_menu_item"));
+		switchAccountMenuItem.setText(i18N.getTranslation("switch_menu_item"));
+		exit.setText(i18N.getTranslation("exit_menu_item"));
+		reloadMenuTask.setText(i18N.getTranslation("reload_menu_item"));
+		preferences.setText(i18N.getTranslation("preferences_menu_item"));
+		
 		MenuBar menuBar = new MenuBar();
 		Menu menu = new Menu(i18N.getTranslation("file_menu"));
-                Menu editMenu = new Menu("E");
+                Menu editMenu = new Menu(i18N.getTranslation("edit_menu"));
 		MenuItem about = new MenuItem(i18N.getTranslation("about_menu"));
 
-                editMenu.getItems().add(find);
+        editMenu.getItems().add(find);
                 
 		menuBar.getMenus().add(menu);
                 menuBar.getMenus().add(editMenu);
@@ -109,6 +115,7 @@ public class MainView extends BorderPane implements HasLogger {
 		setTop(menuBar);
 		
 		about.setOnAction( e-> {
+			// TODO Versionsinformation einbinden
 			Alert alert = new Alert(AlertType.INFORMATION, "ImapNotesFX 0.0.1");
 			alert.setHeaderText("Irgendein Header Text");
 			alert.setTitle("Irgendein Titel");

@@ -170,6 +170,8 @@ public class MainViewController implements HasLogger {
             newStage.initModality(Modality.APPLICATION_MODAL);
             newStage.initOwner(stage);
             newStage.setHeight(500);
+            newStage.setWidth(600);
+
             newStage.setScene(prefs.getScene());
             prefs.getCancelButton().setOnAction(e2 -> {
                 newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -183,9 +185,10 @@ public class MainViewController implements HasLogger {
         });
         
         find.setOnAction( e-> {
-            final Dialog dialog = new TextInputDialog("");
+        final Dialog<String> dialog = new TextInputDialog("");
         dialog.setTitle("Make a choice");
         dialog.setHeaderText("Please enter the new name for ...");
+        dialog.setResizable(true);
         Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) return;
             final String entered = result.get();
@@ -218,6 +221,7 @@ public class MainViewController implements HasLogger {
 
     public void chooseAccount() {
         final List<Account> availableAccounts = this.config.getAccountList();
+        if (availableAccounts.size() < 2) return;
         final ChoiceDialog<Account> cd = 
             this.context.getBean(AccountChoiceDialog.class, availableAccounts);
         final Optional<Account> result = cd.showAndWait();
@@ -321,8 +325,13 @@ public class MainViewController implements HasLogger {
     }
 
     public void renameCurrentMessage(Note curMsg) {
-        final Dialog dialog = new TextInputDialog("");
+        final Dialog<String> dialog = new TextInputDialog("");
         dialog.setTitle("Make a choice");
+        dialog.setWidth(500);
+        dialog.setHeight(500);
+        // Always required when using KDE !!!!
+        dialog.setResizable(true);
+
         dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
         Optional<String> result = dialog.showAndWait();
         String entered = "N/A";

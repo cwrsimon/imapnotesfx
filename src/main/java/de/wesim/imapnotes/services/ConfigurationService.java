@@ -32,8 +32,6 @@ public class ConfigurationService implements HasLogger {
 
 	private static final String FROM_ADDRESS = "from_address";
 
-	private static final String PASSWORD = "password";
-
 	private static final String ACCOUNT_TYPE = "account_type";
 
 	private static final String ACCOUNT_NAME = "account_name";
@@ -57,7 +55,6 @@ public class ConfigurationService implements HasLogger {
 			addProp(imapSettings, LOGIN, acc.getLogin(), i);
 			addProp(imapSettings, ROOT_FOLDER, acc.getRoot_folder(), i);
 			addProp(imapSettings, FROM_ADDRESS, acc.getFrom_address(), i);
-			addProp(imapSettings, PASSWORD, acc.getPassword(), i);
 		}
 		addProp(imapSettings, FONT_FAMILY, config.getFontFamily(), Integer.MAX_VALUE);
 		addProp(imapSettings, FONT_SIZE, config.getFontSize(), Integer.MAX_VALUE);
@@ -125,9 +122,6 @@ public class ConfigurationService implements HasLogger {
             		break;
             	case FROM_ADDRESS:
             		acc.setFrom_address(propertyValue);
-            		break;
-            	case PASSWORD:
-            		acc.setPassword(propertyValue);
             		break;
             	default:
             		getLogger().error("Unknown property name: {}", items[1]);

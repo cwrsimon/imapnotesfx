@@ -12,7 +12,6 @@ import de.wesim.imapnotes.HasLogger;
 @Component
 public class I18NService implements HasLogger {
 
-
 	private ResourceBundle bundle;
 
 	public I18NService() {

@@ -30,38 +30,39 @@ public class AppConfig {
 	
 	@Bean
 	public MenuItem reloadMenuTask() {
-		return new MenuItem("Reload");
+		return new MenuItem();
 		
 	}
 
 	@Bean
 	public MenuItem exit() {
-		final MenuItem exitItem = new MenuItem("Exit");
+		final MenuItem exitItem = new MenuItem();
 		exitItem.setAccelerator(KeyCombination.keyCombination("Shortcut+Q"));
 		return exitItem;
 	}
 
 	@Bean
 	public MenuItem update() {
-		final MenuItem updateItem = new MenuItem("Save current Note");
+		final MenuItem updateItem = new MenuItem();
 		updateItem.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
 		return updateItem;
 	}
 
 	@Bean
 	public MenuItem switchAccountMenuItem() {
-		return new Menu("Switch Account ...");
+		return new Menu();
 
 	}
 
 	@Bean
 	public MenuItem preferences() {
-		return  new Menu("Preferences");
+		// content will be configured in MainView
+		return  new Menu();
 	}
         
-        @Bean
+    @Bean
 	public MenuItem find() {
-            final MenuItem findMenuItem = new MenuItem("Finden ...");
+            final MenuItem findMenuItem = new MenuItem();
             findMenuItem.setAccelerator(KeyCombination.keyCombination("Shortcut+F"));
             return findMenuItem;                        
 	}

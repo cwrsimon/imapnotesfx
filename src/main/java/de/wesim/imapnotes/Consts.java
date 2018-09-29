@@ -5,14 +5,16 @@ import java.nio.file.Paths;
 
 public final class Consts {
 
-    public static final Path LOG_FILE = Paths.get(System.getProperty("user.home"),
-            ".imapnotesfx.log");
+	public static final Path APP_DIRECTORY = Paths.get(System.getProperty("user.home"))
+			.resolve(".imapnotesfx");
+	
+    public static final Path LOG_FILE =  APP_DIRECTORY.resolve("app.log");
 
-    public static final Path USER_CONFIGURATION_FILE = Paths.get(System.getProperty("user.home"),
-            ".imapnotesfx.properties");
-    public static final Path KEYSTORE_PATH = Paths.get(System.getProperty("user.home"),
-            ".imapnotesfx.keystore"
-    );
+    public static final Path USER_CONFIGURATION_FILE = APP_DIRECTORY
+    		.resolve("config.properties");
+    
+    public static final Path KEYSTORE_PATH = APP_DIRECTORY.resolve(
+            ".imapnotesfx.keystore");
 
     public static final String KEYSTORE_SERVICE_NAME = "imapnotesfx";
 

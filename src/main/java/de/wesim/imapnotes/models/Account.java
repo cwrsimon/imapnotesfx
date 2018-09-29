@@ -10,7 +10,6 @@ public class Account {
     private String login;
     private String root_folder;
     private String from_address;
-    private String password;
     
     public Account() {
 
@@ -68,14 +67,6 @@ public class Account {
 		this.root_folder = root_folder;
 	}
 	
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
