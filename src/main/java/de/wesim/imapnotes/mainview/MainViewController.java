@@ -118,10 +118,10 @@ public class MainViewController implements HasLogger {
     @Autowired
     private MenuItem preferences;
 
-     @Autowired
+    @Autowired
     private MenuItem find;
         
-    // must be set manually
+    // must be set manually, don't ask ...
     private HostServices hostServices;
     private Stage stage;
 

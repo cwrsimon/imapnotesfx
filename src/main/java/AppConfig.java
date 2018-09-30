@@ -2,6 +2,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
+import de.wesim.imapnotes.Consts;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -37,31 +38,46 @@ public class AppConfig {
 	@Bean
 	public MenuItem exit() {
 		final MenuItem exitItem = new MenuItem();
-		exitItem.setAccelerator(KeyCombination.keyCombination("Shortcut+Q"));
+		exitItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_QUIT));
 		return exitItem;
 	}
 
 	@Bean
 	public MenuItem update() {
+		// content will be configured in MainView
 		final MenuItem updateItem = new MenuItem();
-		updateItem.setAccelerator(KeyCombination.keyCombination("Shortcut+S"));
+		updateItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_SAVE));
 		return updateItem;
 	}
 
 	@Bean
+	public MenuItem newNote() {
+		// content will be configured in MainView
+		return new MenuItem();
+	}
+	
+	@Bean
+	public MenuItem newFolder() {
+		// content will be configured in MainView
+		return new MenuItem();
+	}
+	
+	@Bean
 	public MenuItem switchAccountMenuItem() {
-		return new Menu();
+		// content will be configured in MainView
+		return new MenuItem();
 
 	}
 
 	@Bean
 	public MenuItem preferences() {
 		// content will be configured in MainView
-		return  new Menu();
+		return new MenuItem();
 	}
         
     @Bean
 	public MenuItem find() {
+		// content will be configured in MainView
             final MenuItem findMenuItem = new MenuItem();
             findMenuItem.setAccelerator(KeyCombination.keyCombination("Shortcut+F"));
             return findMenuItem;                        

@@ -57,10 +57,10 @@ public class FSTab extends Tab {
             this.add(hbox, 1, 1);
             this.add(removeMe, 0, 2);
             ColumnConstraints column1 = new ColumnConstraints();
-                 ColumnConstraints column2 = new ColumnConstraints();
+            ColumnConstraints column2 = new ColumnConstraints();
 
-             column2.setHgrow(Priority.ALWAYS);
-     this.getColumnConstraints().addAll(column1, column2);
+            column2.setHgrow(Priority.ALWAYS);
+            this.getColumnConstraints().addAll(column1, column2);
      
             dirButton.setOnAction(e -> {
                 DirectoryChooser dirChooser = new DirectoryChooser();

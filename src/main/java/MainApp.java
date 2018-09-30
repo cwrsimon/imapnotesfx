@@ -17,15 +17,10 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
 
     @Override
-    public void init() throws Exception {
-        super.init();
-    }
-
-    @Override
     public void start(Stage primaryStage) {
        // try (
        // TODO close me
-            AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
+       AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext(AppConfig.class);
             final MainViewController mainViewController = ctx.getBean(MainViewController.class);
             // FIXME EVIL ...
             mainViewController.setHostServices(getHostServices());
@@ -33,11 +28,6 @@ public class MainApp extends Application {
             final MainViewLoaderService myService = ctx.getBean(MainViewLoaderService.class);
             myService.init(primaryStage);
         //}
-    }
-
-    @Override
-    public void stop() throws Exception {
-        super.stop();
     }
 
     public static void main(String[] args) throws IOException {
@@ -52,7 +42,8 @@ public class MainApp extends Application {
 //	    System.setProperty("prism.subpixeltext", "false");
 
         // suppress the logging output to the console
-        Logger rootLogger = Logger.getLogger("");
+        // and log to file instead
+        final Logger rootLogger = Logger.getLogger("");
         final FileHandler fileHandler = new FileHandler(Consts.LOG_FILE.toAbsolutePath().toString());
         fileHandler.setFormatter(new SimpleFormatter());
         fileHandler.setLevel(Level.SEVERE);

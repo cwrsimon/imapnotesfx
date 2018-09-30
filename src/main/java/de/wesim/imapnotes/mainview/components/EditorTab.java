@@ -27,6 +27,7 @@ public class EditorTab extends Tab {
 		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
 		alert.setTitle("Content has changed ...");
 		alert.setContentText("Do you want to continue without saving first?");
+		alert.setResizable(true);
 		return alert.showAndWait();
 	}
 

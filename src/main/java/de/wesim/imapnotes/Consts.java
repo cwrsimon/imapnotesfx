@@ -5,6 +5,11 @@ import java.nio.file.Paths;
 
 public final class Consts {
 
+	public static final String SHORTCUT_QUIT = "Shortcut+Q";
+	public static final String SHORTCUT_SAVE = "Shortcut+S";
+	public static final String SHORTCUT_FIND = "Shortcut+S";
+
+	
 	public static final Path APP_DIRECTORY = Paths.get(System.getProperty("user.home"))
 			.resolve(".imapnotesfx");
 	
