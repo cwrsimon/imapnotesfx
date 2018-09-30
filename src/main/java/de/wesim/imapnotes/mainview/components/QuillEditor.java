@@ -95,10 +95,7 @@ public class QuillEditor extends StackPane {
 			event.getException().printStackTrace();
 			log.error("{}",e.getMessage() );
 		});
-//		webview.getEngine().setOnAlert(e-> {
-//			log.error("Neuer Alert event");
-//		});
-		String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
+		final String content = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
 		webview.getEngine().load(content);
 		// FIXME
 		// https://bugs.java.com/view_bug.do?bug_id=8197790

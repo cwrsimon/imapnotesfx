@@ -38,7 +38,7 @@
     });
 
     quill.keyboard.addBinding({
-      key: 'Y',
+      key: 'Z',
       shortKey: true,
       handler: function(range, context) {
         quill.history.undo();
@@ -46,14 +46,12 @@
     });
 
     quill.keyboard.addBinding({
-      key: 'Y',
+      key: 'Z',
       shortKey: true,
       shiftKey: true,
       handler: function(range, context) {
         this.quill.history.redo();
-        app.logMe("Bla");
-
-        app.logMe(window);
+        //app.logMe(window);
      }
     });
 

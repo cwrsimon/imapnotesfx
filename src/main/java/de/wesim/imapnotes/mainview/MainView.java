@@ -42,8 +42,8 @@ public class MainView extends BorderPane implements HasLogger {
 	@Autowired
 	private I18NService i18N;
 
-	@Autowired
-	private ProgressBar p1;
+//	@Autowired
+//	private ProgressBar p1;
 
 	@Autowired
 	private Label status;
@@ -81,6 +81,9 @@ public class MainView extends BorderPane implements HasLogger {
 
     @Autowired
 	private MenuItem newFolder;
+    
+    @Autowired
+	private MenuItem about;
 
 	public MainView () {
 		super();
@@ -96,12 +99,12 @@ public class MainView extends BorderPane implements HasLogger {
 		preferences.setText(i18N.getTranslation("preferences_menu_item"));
 		newNote.setText(i18N.getTranslation("new_note_menu_item"));
 		newFolder.setText(i18N.getTranslation("new_folder_menu_item"));
+		about.setText(i18N.getTranslation("about_menu"));
 		
 		final MenuBar menuBar = new MenuBar();
 		final Menu menu = new Menu(i18N.getTranslation("file_menu"));
 		final Menu editMenu = new Menu(i18N.getTranslation("edit_menu"));
 		final Menu helpMenu = new Menu(i18N.getTranslation("help_menu"));
-		final MenuItem about = new MenuItem(i18N.getTranslation("about_menu"));
 
         editMenu.getItems().add(find);
                 
@@ -134,12 +137,6 @@ public class MainView extends BorderPane implements HasLogger {
 		setCenter(sp);
 		setBottom(statusPane);
 		setTop(menuBar);
-		
-		// TODO in den Controller verlagern
-		about.setOnAction( e-> {
-			final AboutBox aboutBox = context.getBean(AboutBox.class);
-			aboutBox.showAndWait();
-		});
 
 	}
 }

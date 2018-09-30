@@ -74,6 +74,12 @@ public class AppConfig {
 		// content will be configured in MainView
 		return new MenuItem();
 	}
+	
+	@Bean
+	public MenuItem about() {
+		// content will be configured in MainView
+		return new MenuItem();
+	}
         
     @Bean
 	public MenuItem find() {

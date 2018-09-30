@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.HasLogger;
+import de.wesim.imapnotes.mainview.components.AboutBox;
 import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
@@ -53,8 +54,6 @@ import org.springframework.context.ApplicationContext;
 @Component
 public class MainViewController implements HasLogger {
 
-    private INoteProvider backend;
-
     @Autowired
     private ApplicationContext context;
     
@@ -92,10 +91,6 @@ public class MainViewController implements HasLogger {
     @Autowired
     private OpenFolderTask openFolderTask;
 
-    public StringProperty currentAccount = new SimpleStringProperty("");
-
-    private Configuration config;
-
     @Autowired
     private TabPane tp;
 
@@ -120,11 +115,20 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private MenuItem find;
+    
+    @Autowired
+    private MenuItem about;
         
     // must be set manually, don't ask ...
     private HostServices hostServices;
     private Stage stage;
+    private INoteProvider backend;
 
+    public StringProperty currentAccount = new SimpleStringProperty("");
+
+    private Configuration config;
+
+    
     public MainViewController() {
 
     }
@@ -140,6 +144,12 @@ public class MainViewController implements HasLogger {
         switchAccountMenuItem.setOnAction(e -> {
             chooseAccount();
         });
+        
+		// TODO in den Controller verlagern
+		about.setOnAction( e-> {
+			final AboutBox aboutBox = context.getBean(AboutBox.class);
+			aboutBox.showAndWait();
+		});
 
         reloadMenuTask.setOnAction(e -> {
             triggerReload();
@@ -150,6 +160,7 @@ public class MainViewController implements HasLogger {
         });
 
         exit.setOnAction(event -> {
+        	// TODO
             if (exitPossible()) {
                 try {
                     destroy();
@@ -181,10 +192,12 @@ public class MainViewController implements HasLogger {
                 newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
             });
             newStage.showAndWait();
+            // TODO Refresh und dann ????
             refreshConfig();
         });
         
         find.setOnAction( e-> {
+        // TODO in einen dedizierten Dialog auslagern
         final Dialog<String> dialog = new TextInputDialog("");
         dialog.setTitle("Make a choice");
         dialog.setHeaderText("Please enter the new name for ...");
