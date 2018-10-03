@@ -84,14 +84,15 @@ public class AppConfig {
     @Bean
 	public MenuItem find() {
 		// content will be configured in MainView
-            final MenuItem findMenuItem = new MenuItem();
-            findMenuItem.setAccelerator(KeyCombination.keyCombination("Shortcut+F"));
-            return findMenuItem;                        
+        final MenuItem findMenuItem = new MenuItem();
+        findMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND));
+        return findMenuItem;                        
 	}
 	
 	@Bean
 	public TabPane tp() {
 		TabPane newObj = new TabPane();
+		// TODOs
 		newObj.setMinWidth(500);
 		newObj.setPrefWidth(500);
 		return newObj; 

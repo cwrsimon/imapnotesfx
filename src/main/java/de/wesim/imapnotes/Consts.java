@@ -7,7 +7,9 @@ public final class Consts {
 
 	public static final String SHORTCUT_QUIT = "Shortcut+Q";
 	public static final String SHORTCUT_SAVE = "Shortcut+S";
-	public static final String SHORTCUT_FIND = "Shortcut+S";
+	public static final String SHORTCUT_FIND = "Shortcut+F";
+	public static final String SHORTCUT_UNDO = "Shortcut+Z";
+	public static final String SHORTCUT_REDO = "Shortcut+Shift+Z";
 
 	
 	public static final Path APP_DIRECTORY = Paths.get(System.getProperty("user.home"))

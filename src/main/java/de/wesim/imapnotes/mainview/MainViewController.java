@@ -14,6 +14,7 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.AboutBox;
 import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
+import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.mainview.services.DeleteMessageTask;
 import de.wesim.imapnotes.mainview.services.LoadMessageTask;
@@ -118,6 +119,12 @@ public class MainViewController implements HasLogger {
     
     @Autowired
     private MenuItem about;
+    
+    @Autowired
+	private MenuItem newNote;
+
+    @Autowired
+	private MenuItem newFolder;
         
     // must be set manually, don't ask ...
     private HostServices hostServices;
@@ -136,16 +143,23 @@ public class MainViewController implements HasLogger {
     @PostConstruct
     public void init() {
         this.refreshConfig();
-
+        
         // Bindings
         account.textProperty().bind(currentAccount);
-
+        
         // Actions
+        newNote.setOnAction( e-> {
+			createNewMessage(false, null);                
+        });
+        
+        newFolder.setOnAction( e-> {
+			createNewMessage(true, null);                
+        });
+
         switchAccountMenuItem.setOnAction(e -> {
             chooseAccount();
         });
         
-		// TODO in den Controller verlagern
 		about.setOnAction( e-> {
 			final AboutBox aboutBox = context.getBean(AboutBox.class);
 			aboutBox.showAndWait();
@@ -171,7 +185,7 @@ public class MainViewController implements HasLogger {
                 configurationService.writeConfig(config);
                 stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
             } else {
-                getLogger().error("exitPossible returned false ...");
+                getLogger().error("Quitting application not possible ...");
             }
         });
 
@@ -182,7 +196,7 @@ public class MainViewController implements HasLogger {
             newStage.initOwner(stage);
             newStage.setHeight(500);
             newStage.setWidth(600);
-
+            // TODO !!!
             newStage.setScene(prefs.getScene());
             prefs.getCancelButton().setOnAction(e2 -> {
                 newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
@@ -197,16 +211,13 @@ public class MainViewController implements HasLogger {
         });
         
         find.setOnAction( e-> {
-        // TODO in einen dedizierten Dialog auslagern
-        final Dialog<String> dialog = new TextInputDialog("");
-        dialog.setTitle("Make a choice");
-        dialog.setHeaderText("Please enter the new name for ...");
-        dialog.setResizable(true);
-        Optional<String> result = dialog.showAndWait();
-        if (!result.isPresent()) return;
+        	final PrefixedTextInputDialog dialog = 
+        			this.context.getBean(PrefixedTextInputDialog.class, "find");
+        	final Optional<String> result = dialog.showAndWait();
+        	if (!result.isPresent()) return;
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-             et.getQe().findString(entered);
+            et.getQe().findString(entered);
         });
     }
 
@@ -248,6 +259,7 @@ public class MainViewController implements HasLogger {
             return false;
         }
         this.tp.getTabs().clear();
+        // TODO
         if (this.backend != null) {
             try {
                 this.backend.destroy();
@@ -263,11 +275,13 @@ public class MainViewController implements HasLogger {
         if (!closeAccount()) {
             return;
         }
+        // TODO use Spring tools
         if (first.getType() == Account_Type.FS) {
             this.backend = new FSNoteProvider();
         } else {
             this.backend = new IMAPNoteProvider();
         }
+        // TODO
         try {
             this.backend.init(first);
         } catch (Exception e) {
@@ -419,17 +433,17 @@ public class MainViewController implements HasLogger {
     }
 
     public void createNewMessage(boolean createFolder, TreeItem<Note> parent) {
-        final Dialog<String> dialog = new TextInputDialog("Bla");
-        dialog.setTitle("Enter a subject!");
-        dialog.setHeaderText("What title is the new note going to have?");
-        final Optional<String> result = dialog.showAndWait();
-        String entered = "N/A";
-        if (result.isPresent()) {
-            entered = result.get();
+        final Dialog<String> dialog;
+        if (createFolder) {
+            dialog = context.getBean(PrefixedTextInputDialog.class, "new_folder");        	
+        } else {
+            dialog = context.getBean(PrefixedTextInputDialog.class, "new_note");        	
         }
+        final Optional<String> result = dialog.showAndWait();
+        if (!result.isPresent()) return;
         newNoteService.setParentFolder(parent);
         newNoteService.setCreateFolder(createFolder);
-        newNoteService.setSubject(entered);
+        newNoteService.setSubject(result.get());
         newNoteService.reset();
         newNoteService.restart();
     }

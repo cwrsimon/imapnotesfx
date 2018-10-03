@@ -46,6 +46,7 @@ public class MainApp extends Application {
         final Logger rootLogger = Logger.getLogger("");
         final FileHandler fileHandler = new FileHandler(Consts.LOG_FILE.toAbsolutePath().toString());
         fileHandler.setFormatter(new SimpleFormatter());
+        // TODO configure log level as a parameter 
         fileHandler.setLevel(Level.SEVERE);
         rootLogger.addHandler(fileHandler);
         launch(args);
