@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import javax.mail.Authenticator;
 import javax.mail.FetchProfile;
 import javax.mail.Flags.Flag;
 import javax.mail.Folder;
@@ -17,16 +18,14 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Store;
+import javax.mail.URLName;
 import javax.mail.internet.MimeMessage;
 
 import com.sun.mail.imap.IMAPFolder;
-import de.wesim.imapnotes.HasLogger;
 
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
-import javax.mail.Authenticator;
-import javax.mail.NoSuchProviderException;
-import javax.mail.URLName;
 
 public class IMAPBackend implements HasLogger {
 

@@ -4,7 +4,6 @@ import org.springframework.context.annotation.Configuration;
 
 import de.wesim.imapnotes.Consts;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
@@ -92,7 +91,7 @@ public class AppConfig {
 	@Bean
 	public TabPane tp() {
 		TabPane newObj = new TabPane();
-		// TODOs
+		// TODO
 		newObj.setMinWidth(500);
 		newObj.setPrefWidth(500);
 		return newObj; 

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -24,20 +22,6 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
     @Autowired
 	@Qualifier("myListView")
 	private MyListView noteCB;
-
-    private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
-
-    public final void setNote(Note value) {
-        note.set(value);
-    }
-
-    public final Note getNote() {
-        return note.get();
-    }
-
-    public final ObjectProperty<Note> noteProperty() {
-        return note;
-    }
 
     @Override
     protected Task<ObservableList<Note>> createTask() {

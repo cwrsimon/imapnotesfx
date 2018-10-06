@@ -8,12 +8,13 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.HasLogger;
-import de.wesim.imapnotes.mainview.components.AboutBox;
 import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
+import de.wesim.imapnotes.mainview.components.PrefixedAlertBox;
 import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.mainview.services.DeleteMessageTask;
@@ -33,8 +34,6 @@ import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
 import javafx.application.HostServices;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ChoiceDialog;
@@ -44,13 +43,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.springframework.context.ApplicationContext;
 
 @Component
 public class MainViewController implements HasLogger {
@@ -126,12 +123,11 @@ public class MainViewController implements HasLogger {
     @Autowired
 	private MenuItem newFolder;
         
-    // must be set manually, don't ask ...
+    // these fields cannot be autowired, but must be set manually
+    // don't ask ...
     private HostServices hostServices;
     private Stage stage;
     private INoteProvider backend;
-
-    public StringProperty currentAccount = new SimpleStringProperty("");
 
     private Configuration config;
 
@@ -143,9 +139,6 @@ public class MainViewController implements HasLogger {
     @PostConstruct
     public void init() {
         this.refreshConfig();
-        
-        // Bindings
-        account.textProperty().bind(currentAccount);
         
         // Actions
         newNote.setOnAction( e-> {
@@ -161,7 +154,8 @@ public class MainViewController implements HasLogger {
         });
         
 		about.setOnAction( e-> {
-			final AboutBox aboutBox = context.getBean(AboutBox.class);
+			// TODO Find a better solution
+			final PrefixedAlertBox aboutBox = context.getBean(PrefixedAlertBox.class);
 			aboutBox.showAndWait();
 		});
 
@@ -174,14 +168,8 @@ public class MainViewController implements HasLogger {
         });
 
         exit.setOnAction(event -> {
-        	// TODO
             if (exitPossible()) {
-                try {
-                    destroy();
-                } catch (Exception e) {
-                    getLogger().error("Destroying the backend has failed ...", e);
-                }
-                config.setLastOpenendAccount(this.currentAccount.getValue());
+                destroyBackend();
                 configurationService.writeConfig(config);
                 stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
             } else {
@@ -204,10 +192,11 @@ public class MainViewController implements HasLogger {
             prefs.getApplyButton().setOnAction(e2 -> {
                 prefs.savePreferences();
                 newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+                refreshConfig();
+                triggerReload();
             });
             newStage.showAndWait();
-            // TODO Refresh und dann ????
-            refreshConfig();
+            
         });
         
         find.setOnAction( e-> {
@@ -223,7 +212,7 @@ public class MainViewController implements HasLogger {
 
     public void triggerReload() {
         if (closeAccount()) {
-            loadMessages(null);
+            loadNotes();
         }
     }
 
@@ -259,15 +248,7 @@ public class MainViewController implements HasLogger {
             return false;
         }
         this.tp.getTabs().clear();
-        // TODO
-        if (this.backend != null) {
-            try {
-                this.backend.destroy();
-            } catch (Exception e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+        destroyBackend();
         return true;
     }
 
@@ -281,7 +262,6 @@ public class MainViewController implements HasLogger {
         } else {
             this.backend = new IMAPNoteProvider();
         }
-        // TODO
         try {
             this.backend.init(first);
         } catch (Exception e) {
@@ -289,8 +269,11 @@ public class MainViewController implements HasLogger {
             status.setText(e.getLocalizedMessage());
             return;
         }
-        this.currentAccount.set(first.getAccount_name());
-        loadMessages(null);
+        final String account_name = first.getAccount_name();
+		this.account.setText(account_name);
+        this.config.setLastOpenendAccount(account_name);
+
+        loadNotes();
     }
 
     public void openEditor(final Note openedNote) {
@@ -322,6 +305,7 @@ public class MainViewController implements HasLogger {
         openAccount(firstAccount);
     }
 
+    // TODO Komplett überarbeiten !!!
     public void move(Note msg, TreeItem<Note> target) {
         getLogger().info("Moving {} to {}", msg, target);
         // Suchen des aktuellen Notes in der 
@@ -337,9 +321,8 @@ public class MainViewController implements HasLogger {
     public void deleteCurrentMessage(TreeItem<Note> treeItem, boolean dontTask) {
         final Note deleteItem = treeItem.getValue();
         if (!dontTask) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Echt jetzt?");
-            alert.setContentText("Do really want to delete '" + deleteItem.getSubject() + "' ?");
+            final PrefixedAlertBox alert = context.getBean(PrefixedAlertBox.class, "really_delete", deleteItem.toString());
+            alert.setAlertType(Alert.AlertType.CONFIRMATION);
             Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.CANCEL) {
                 return;
@@ -352,40 +335,30 @@ public class MainViewController implements HasLogger {
     }
 
     public void renameCurrentMessage(Note curMsg) {
-        final Dialog<String> dialog = new TextInputDialog("");
-        dialog.setTitle("Make a choice");
-        dialog.setWidth(500);
-        dialog.setHeight(500);
-        // Always required when using KDE !!!!
-        dialog.setResizable(true);
-
-        dialog.setHeaderText("Please enter the new name for " + curMsg.getSubject());
+        final Dialog<String> dialog = context.getBean(PrefixedTextInputDialog.class, "rename", curMsg.toString());
         Optional<String> result = dialog.showAndWait();
-        String entered = "N/A";
-        if (result.isPresent()) {
-            entered = result.get();
+        if (!result.isPresent()) {
+            return;
         }
-        renameNoteService.setSubject(entered);
+        renameNoteService.setSubject(result.get());
         renameNoteService.noteProperty().set(curMsg);
         renameNoteService.reset();
         renameNoteService.restart();
     }
 
-    public void loadMessages(Note messageToOpen) {
-        getLogger().info("Loading message {}", messageToOpen);
-        newLoadTask.setNote(messageToOpen);
+    public void loadNotes() {
+        getLogger().info("Loading notes ...");
         newLoadTask.reset();
         newLoadTask.restart();
     }
 
     private Optional<ButtonType> demandConfirmation() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Content has changed ...");
-        alert.setContentText("Do you want to continue without saving first?");
+    	final Alert alert = context.getBean(PrefixedAlertBox.class, "really_quit");
+    	alert.setAlertType(Alert.AlertType.CONFIRMATION);
         return alert.showAndWait();
     }
 
-    // Aufgerufen beim Klick aufs ListViewItem
+    // Called when selecting an instance of ListViewItem
     public void openNote(Note m) {
         if (m == null) {
             return;
@@ -395,6 +368,7 @@ public class MainViewController implements HasLogger {
             getLogger().warn("Opening folders like this not supported, yet.");
             return;
         }
+        
         // Böse, aber funktioniert ...
         for (Tab t : this.tp.getTabs()) {
             EditorTab et = (EditorTab) t;
@@ -419,6 +393,7 @@ public class MainViewController implements HasLogger {
         // Böse, aber funktioniert ...
         for (Tab t : this.tp.getTabs()) {
             EditorTab et = (EditorTab) t;
+            // TODO
             if (et.getNote().equals(m)) {
                 this.tp.getSelectionModel().select(t);
                 return;
@@ -471,9 +446,13 @@ public class MainViewController implements HasLogger {
         return (result.isPresent() && result.get() == ButtonType.OK);
     }
 
-    public void destroy() throws Exception {
+    public void destroyBackend() {
         if (this.backend != null) {
-            this.backend.destroy();
+        	try {
+                this.backend.destroy();
+            } catch (Exception e) {
+                getLogger().error("Destroying the backend has failed ...", e);
+            }
         }
     }
 
@@ -481,6 +460,7 @@ public class MainViewController implements HasLogger {
         return this.backend;
     }
 
+    // TODO make unnecessary
     public Configuration getConfiguration() {
         return this.config;
     }

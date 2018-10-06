@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.services;
 
+import java.text.MessageFormat;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -31,4 +32,8 @@ public class I18NService implements HasLogger {
             return translation;
 	}
 	
+	public String getFormattedMessage(String pattern, String argument) {
+        return MessageFormat.format(pattern, argument);
+	}
+
 }
