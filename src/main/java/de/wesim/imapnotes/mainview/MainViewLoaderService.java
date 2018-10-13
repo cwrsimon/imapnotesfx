@@ -24,7 +24,7 @@ public class MainViewLoaderService implements HasLogger {
 		root.setStyle("-fx-font-size: 18;");
         stage.setScene(myScene);
         stage.setWidth(1024);
-        stage.setHeight(500);
+        stage.setHeight(550);
         stage.setResizable(true);
         stage.getIcons().add(new Image(MainViewLoaderService.class.getResource("/icon.png").toExternalForm()));
         stage.setTitle("ImapNotesFX");

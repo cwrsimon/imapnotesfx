@@ -84,8 +84,8 @@ public class QuillEditor extends StackPane {
 	public QuillEditor(HostServices hostServices, String string, Configuration configuration) {
 		final QuillEditor backReference = this;
 		// TODO WebView muss sich dem verfügbaren Platz anpassen
-		webview.setPrefSize(650, 325);
-		webview.setMinSize(650, 325);
+		webview.setPrefSize(770, 325);
+		webview.setMinSize(770, 325);
 		webview.getEngine().setOnError( e-> {
 			WebErrorEvent event = (WebErrorEvent) e;
 			event.getException().printStackTrace();

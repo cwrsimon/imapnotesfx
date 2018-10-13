@@ -132,7 +132,7 @@ public class MainView extends BorderPane implements HasLogger {
 
 		final SplitPane sp = new SplitPane(new StackPane(noteCB), tp);
 		sp.setOrientation(Orientation.HORIZONTAL);
-		sp.setDividerPositions(0.3);
+		sp.setDividerPositions(0.25);
 		
 		setCenter(sp);
 		setBottom(statusPane);

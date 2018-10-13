@@ -155,7 +155,7 @@ public class MainViewController implements HasLogger {
         
 		about.setOnAction( e-> {
 			// TODO Find a better solution
-			final PrefixedAlertBox aboutBox = context.getBean(PrefixedAlertBox.class);
+			final PrefixedAlertBox aboutBox = context.getBean(PrefixedAlertBox.class, "about");
 			aboutBox.showAndWait();
 		});
 

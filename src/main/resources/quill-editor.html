@@ -6,16 +6,31 @@
     <style>
     
     html {
-  height: 100%;
 }
 
 body {
-  margin: 5px;
-  /*height: 100%;*/
+overflow:auto;
+	margin: 0;	
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 43px);   /*    body takes whole viewport's height */
 }
-    #editor {
-  /*height:80vh; */
-  height: calc(100vh - 70px);
+
+#editor {
+  flex: 1;                 /* this will make the container take the free space */
+}
+#editor .ql-editor {
+	overflow-y: auto;
+}
+
+.ql-toolbar.ql-snow  {
+	border:0px;
+	border-bottom-width:1px;
+	border-bottom-style:solid;
+	border-bottom-color:#ccc;
+}
+.ql-container.ql-snow {
+	border: 0px;
 }
 
     </style>
@@ -28,17 +43,13 @@ body {
 
 	var toolbarOptions = [
 	  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  ['bold', 'italic', 'underline', 'strike','clean'],
 	
-  ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-  ['blockquote', 'code-block'],
-  ['link', 'image'],
-  [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-  [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+  ['blockquote', 'code-block','link', 'image'],
+  [{ 'align': [] }, { 'list': 'ordered'}, 
+  	{ 'list': 'bullet' },{ 'indent': '-1'}, { 'indent': '+1' }],
   
-  [{ 'color': [] }, { 'background': [] }],          // dropdown with defaults from theme
-  [{ 'font': [] }],
-  [{ 'align': [] }],
-  ['clean']                                         // remove formatting button
+  [ { 'color': [] }, { 'background': [] }, { 'font': [] }]                         
 ];
 
     var quill = new Quill('#editor', {
