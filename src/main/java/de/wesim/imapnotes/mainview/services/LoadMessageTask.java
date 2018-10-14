@@ -30,10 +30,10 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
             @Override
             protected ObservableList<Note> call() throws Exception {
                 updateProgress(0, 1);
-                updateMessage("Beginne mit dem Laden der Notizen ...");
+                updateMessage(i18N.getTranslation("user_message_start_loading"));
 
                 final List<Note> messages = mainViewController.getBackend().getNotes();	
-                updateMessage("Notizenladen erfolgreich!");
+                updateMessage(i18N.getTranslation("user_message_finished_loading"));
                 updateProgress(1, 1);
 
                 return FXCollections.observableArrayList(messages);
@@ -54,4 +54,9 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
         	mainViewController.openNote(firstELement);
         }
     }
+
+	@Override
+	public String getActionName() {
+		return "Load Messages";
+	}
 }

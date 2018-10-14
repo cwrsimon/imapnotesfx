@@ -52,7 +52,6 @@ public class RenameNoteService extends AbstractNoteService<Void> {
             protected Void call() throws Exception {
                 updateProgress(0, 1);
                 updateMessage("Rename note '' to '' ...");
-                System.out.println("Renaming ..." + subject.getValue());
                 if (getNote().isFolder()) {
                 	mainViewController.getBackend().renameFolder(getNote(), subject.getValue());
                 } else {
@@ -73,6 +72,11 @@ public class RenameNoteService extends AbstractNoteService<Void> {
         if (getNote().isFolder()) {
             mainViewController.triggerReload();
         }
+	}
+
+	@Override
+	public String getActionName() {
+		return "Rename Note";
 	}
 
 }

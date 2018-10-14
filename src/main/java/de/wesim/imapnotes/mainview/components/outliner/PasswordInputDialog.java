@@ -1,20 +1,9 @@
 package de.wesim.imapnotes.mainview.components.outliner;
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 import javafx.application.Platform;
-import javafx.beans.NamedArg;
-import javafx.geometry.Pos;
-
-import javafx.application.Platform;
-import javafx.beans.NamedArg;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.DialogPane;

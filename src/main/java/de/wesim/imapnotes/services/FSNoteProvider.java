@@ -1,6 +1,5 @@
 package de.wesim.imapnotes.services;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -11,6 +10,9 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
@@ -18,6 +20,10 @@ import de.wesim.imapnotes.models.Note;
 
 
 public class FSNoteProvider implements INoteProvider, HasLogger {
+
+	private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+
+	private static final String DEFAULT_FILE_ENDING = ".json";
 
 	private Path rootDirectory;
 
@@ -33,8 +39,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		} else {
 			parentPath = rootDirectory;
 		}
-
-		final Path newFile = parentPath.resolve(uuid.toString() + ".imapnote");
+		final Path newFile = parentPath.resolve(uuid.toString() + DEFAULT_FILE_ENDING);
 		final Note newNote = new Note(newFile.toAbsolutePath().toString());
 		newNote.setSubject(subject);
 		newNote.setContent(Consts.EMPTY_NOTE);
@@ -46,12 +51,12 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	public void load(Note note) throws Exception {
 		if (note.getContent() == null) {
 			final Path path = Paths.get(note.getUuid());
-			final String loadedContent = new String(Files.readAllBytes(path), Charset.forName("UTF-8"));
+			final String loadedContent = new String(Files.readAllBytes(path), DEFAULT_ENCODING);
 			int startIndex = loadedContent.indexOf("<html ");
 			if (startIndex == -1) {
-                            startIndex = loadedContent.indexOf(System.lineSeparator());
-                        }
-                        if (startIndex == -1) {
+				startIndex = loadedContent.indexOf(System.lineSeparator());
+			}
+			if (startIndex == -1) {
 				note.setContent(loadedContent);
 			} else {
 				note.setContent(loadedContent.substring(startIndex));
@@ -62,38 +67,15 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	@Override
 	public void update(Note note) throws Exception {
 		final Path path = Paths.get(note.getUuid());
-		// TODO FIXME
-		final String content = "#" + note.getSubject() + System.lineSeparator() + note.getContent();
-		Files.write(path, content.getBytes("UTF-8"));
+		final Gson gson = new Gson();
+		final String json = gson.toJson(note);
+		Files.write(path, json.getBytes(DEFAULT_ENCODING));
 	}
 
 	@Override
 	public void delete(Note note) throws Exception {
 		final Path path = Paths.get(note.getUuid());
 		Files.delete(path);
-	}
-
-	private String readSubject(Path path) {
-		try {
-			return readSubject_Impl(path);
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "N/A";
-		}
-	}
-
-	private String readSubject_Impl(Path path) throws IOException {
-		try (BufferedReader br = Files.newBufferedReader(path, Charset.forName("UTF-8"))) {
-
-			String firstLine = br.readLine();
-			if (firstLine == null)
-				return "N/A";
-			firstLine = firstLine.trim();
-			if (firstLine.length() < 2)
-				return "N/A";
-			return firstLine.substring(1);
-
-		}
 	}
 
 	@Override
@@ -130,7 +112,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		note.setSubject(newName);
 		update(note);
 	}
-	
+
 	@Override
 	public void renameFolder(Note note, String newName) throws Exception {
 		note.setSubject(newName);
@@ -158,21 +140,23 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	public List<Note> getNotesFromFolder(Note folder) throws Exception {
 		final List<Note> notes = new ArrayList<>();
 		final Path directory = Paths.get(folder.getUuid());
+		final Gson gson = new Gson();
+
 		try (Stream<Path> fileStream = Files.list(directory)) {
 
 			fileStream.forEach(filePath -> {
 				final String fileName = filePath.toAbsolutePath().toString();
-				if (Files.isRegularFile(filePath)) {
-					// FIXME Dateiname muss geparst werden !!!
-					final Note newNote = new Note(fileName);
-					final String subject = readSubject(filePath);
-					newNote.setSubject(subject);
-					notes.add(newNote);
+				if (Files.isRegularFile(filePath) 
+						&& fileName.endsWith(DEFAULT_FILE_ENDING)) {
+					try {
+						final Note newNote = gson.fromJson(
+								Files.readString(filePath, DEFAULT_ENCODING), Note.class);
+						notes.add(newNote);						
+					} catch (JsonSyntaxException | IOException e) {
+						getLogger().error("Reading note {} has failed.", fileName);
+					}
 				}
 				if (Files.isDirectory(filePath)) {
-					// FIXME Dateiname muss geparst werden !!!
-					// String uuid = fileName.replace(".imapnote", "");
-					// TODO Hier eine UUID verwenden ...
 					final Note newNote = new Note(fileName);
 					newNote.setIsFolder(true);
 					newNote.setSubject(filePath.getFileName().toString());

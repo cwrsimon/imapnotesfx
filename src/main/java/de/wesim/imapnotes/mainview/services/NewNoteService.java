@@ -107,5 +107,10 @@ public class NewNoteService extends AbstractNoteService<Note> {
         mainViewController.openNote(newNote);
 	}
 
+	@Override
+	public String getActionName() {
+		return "Create Note";
+	}
+
 
 }

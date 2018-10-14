@@ -12,24 +12,13 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
     
     private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
 
-    public final void setNote(Note value) {
-        note.set(value);
-    }
-
-    public final Note getNote() {
-        return note.get();
-    }
-
     public final ObjectProperty<Note> noteProperty() {
         return note;
     }
-
     
     public OpenMessageTask(  ) {
         super();
     }
-    
-    
 
     @Override
 	protected void succeeded() {
@@ -45,11 +34,12 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
             protected Note call() throws Exception {
             	final Note workingItem = note.getValue();
                 updateProgress(0, 1);
-                updateMessage(String.format("Opening %s ...", workingItem.getSubject()));
-
+                updateMessage(i18N.getFormattedMessage("user_message_start_opening",
+						note.getValue().getSubject()));
                 mainViewController.getBackend().load(workingItem);
 
-                updateMessage(String.format("%s was successfully opened!", workingItem.getSubject()));
+                updateMessage(i18N.getFormattedMessage("user_message_finished_opening",
+						note.getValue().getSubject()));                
                 updateProgress(1, 1);
 
                 return workingItem;
@@ -57,5 +47,10 @@ public class OpenMessageTask extends AbstractNoteService<Note> {
         };
         return task;
     }
+
+	@Override
+	public String getActionName() {
+		return "Open Message";
+	}
    
 }

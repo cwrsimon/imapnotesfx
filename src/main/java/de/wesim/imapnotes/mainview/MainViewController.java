@@ -392,7 +392,7 @@ public class MainViewController implements HasLogger {
         // TODO Brauchen wir das noch ????
         // Böse, aber funktioniert ...
         for (Tab t : this.tp.getTabs()) {
-            EditorTab et = (EditorTab) t;
+            final EditorTab et = (EditorTab) t;
             // TODO
             if (et.getNote().equals(m)) {
                 this.tp.getSelectionModel().select(t);

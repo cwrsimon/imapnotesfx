@@ -79,5 +79,12 @@ public class MoveNoteService extends AbstractNoteService<Note> {
 		parentFolder.getChildren().add(new TreeItem<Note>(moved));
 		noteCB.refresh();
 	}
+
+	@Override
+	public String getActionName() {
+		return "Move Note";
+	}
+    
+    
 }
 

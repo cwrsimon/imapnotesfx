@@ -72,4 +72,9 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
         noteFolderProperty().set(null);
     }
 
+	@Override
+	public String getActionName() {
+		return "Open Folder";
+	}
+
 }

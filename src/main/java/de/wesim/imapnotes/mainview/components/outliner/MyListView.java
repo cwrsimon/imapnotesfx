@@ -46,7 +46,6 @@ public class MyListView extends TreeView<Note> {
 				if (oldValue != newValue) {
 					mainViewController.openNote(newValue.getValue());
 				}
-
 			}
 		});
 	}

@@ -19,7 +19,10 @@ public final class Consts {
 
     public static final Path USER_CONFIGURATION_FILE = APP_DIRECTORY
     		.resolve("config.properties");
-    
+
+    public static final Path JSON_CONFIGURATION_FILE = APP_DIRECTORY
+    		.resolve("imapnotes.json");
+
     public static final Path KEYSTORE_PATH = APP_DIRECTORY.resolve(
             ".imapnotesfx.keystore");
 

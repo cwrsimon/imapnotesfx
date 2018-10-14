@@ -17,7 +17,7 @@ public class Note implements Serializable, Comparable<Note>  {
 	private boolean isFolder;
 	
 	private Date date;
-	
+		
 	public Note(String uuid) {
 		this.uuid = uuid;
 	}
@@ -95,8 +95,11 @@ public class Note implements Serializable, Comparable<Note>  {
 
 	@Override
 	public String toString() {
-		return subject;
+		return "Note [uuid=" + uuid + ", subject=" + subject + ", content=" + content + ", isFolder=" + isFolder
+				+ ", date=" + date + "]";
 	}
+
+	
 	
 	
 }

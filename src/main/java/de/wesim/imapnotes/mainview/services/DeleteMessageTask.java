@@ -8,75 +8,84 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
+// FIXME TODO kann das so bleiben???
 @Component
 public class DeleteMessageTask extends AbstractNoteService<Void> {
-    
-    private ObjectProperty<TreeItem<Note>> note = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
 
-    public final void setNote(TreeItem<Note> value) {
-        note.set(value);
-    }
+	private ObjectProperty<TreeItem<Note>> note = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
 
-    public final TreeItem<Note> getNote() {
-        return note.get();
-    }
+	public final void setNote(TreeItem<Note> value) {
+		note.set(value);
+	}
 
-    public final ObjectProperty<TreeItem<Note>> noteProperty() {
-        return note;
-    }
+	public final TreeItem<Note> getNote() {
+		return note.get();
+	}
 
-    private ObjectProperty<TreeItem<Note>> parentFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "parentFolder");
+	public final ObjectProperty<TreeItem<Note>> noteProperty() {
+		return note;
+	}
 
-    public final void setParentFolder(TreeItem<Note> value) {
-        parentFolder.set(value);
-    }
+	private ObjectProperty<TreeItem<Note>> parentFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "parentFolder");
 
-    public final TreeItem<Note> getParentFolder() {
-        return parentFolder.get();
-    }
+	public final void setParentFolder(TreeItem<Note> value) {
+		parentFolder.set(value);
+	}
 
-    public final ObjectProperty<TreeItem<Note>> parentFolderProperty() {
-        return parentFolder;
-    }
-    
-    public DeleteMessageTask() {
-        super();
-    }
+	public final TreeItem<Note> getParentFolder() {
+		return parentFolder.get();
+	}
 
-    @Override
-    protected Task<Void> createTask() {
-        Task<Void> task = new Task<Void>() {
+	public final ObjectProperty<TreeItem<Note>> parentFolderProperty() {
+		return parentFolder;
+	}
 
-            @Override
-            protected Void call() throws Exception {
-                updateProgress(0, 1);
-                updateMessage("Deleting " + note.getValue().toString() + "...");
+	public DeleteMessageTask() {
+		super();
+	}
 
-                mainViewController.getBackend().delete(getNote().getValue());
+	@Override
+	protected Task<Void> createTask() {
+		Task<Void> task = new Task<Void>() {
 
-                updateMessage("Deleting was successful! :-)");
-                updateProgress(1, 1);
+			@Override
+			protected Void call() throws Exception {
+				updateProgress(0, 1);
+				updateMessage(i18N.getFormattedMessage("user_message_start_deleting",
+						note.getValue().getValue().getSubject()));
 
-                return null;
-            }
-        };
-        return task;
-    }
-    @Override
+				mainViewController.getBackend().delete(getNote().getValue());
+
+				updateMessage(i18N.getFormattedMessage("user_message_finished_deleting",
+						note.getValue().getValue().getSubject()));
+
+				updateProgress(1, 1);
+
+				return null;
+			}
+		};
+		return task;
+	}
+	@Override
 	protected void succeeded() {
-        final TreeItem<Note> parentNote = getParentFolder();
-			final TreeItem<Note> deletedItem = getNote();
-            final Note deletedNote = deletedItem.getValue();
-            mainViewController.closeTab(deletedNote);
-			final int index = parentNote.getChildren().indexOf(deletedItem);
+		final TreeItem<Note> parentNote = getParentFolder();
+		final TreeItem<Note> deletedItem = getNote();
+		final Note deletedNote = deletedItem.getValue();
+		mainViewController.closeTab(deletedNote);
+		final int index = parentNote.getChildren().indexOf(deletedItem);
 
-			parentNote.getChildren().remove(deletedItem);
+		parentNote.getChildren().remove(deletedItem);
 
-			final int previousItem = Math.max(0, index - 1);
-			if (parentNote.getChildren().isEmpty()) return;
-			final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-            mainViewController.openNote(previous.getValue());
-            
-    }
+		final int previousItem = Math.max(0, index - 1);
+		if (parentNote.getChildren().isEmpty()) return;
+		final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
+		mainViewController.openNote(previous.getValue());
+
+	}
+
+	@Override
+	public String getActionName() {
+		return "Delete Message";
+	}
 }
 

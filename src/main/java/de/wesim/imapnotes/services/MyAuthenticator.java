@@ -1,30 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package de.wesim.imapnotes.services;
 
-import de.wesim.imapnotes.mainview.components.outliner.PasswordInputDialog;
-import de.wesim.imapnotes.models.Account;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
+
 import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
+
+import de.wesim.imapnotes.HasLogger;
+import de.wesim.imapnotes.mainview.components.outliner.PasswordInputDialog;
+import de.wesim.imapnotes.models.Account;
 import net.east301.keyring.PasswordSaveException;
 
-/**
- *
- * @author christian
- */
-public class MyAuthenticator extends Authenticator {
+
+public class MyAuthenticator extends Authenticator implements HasLogger {
 
     private final Account account;
     private final PasswordProvider passwordProvider;
-    private boolean tryAgain = false;
+    private boolean retry = false;
 
     MyAuthenticator(Account account) {
         this.account = account;
@@ -34,7 +25,7 @@ public class MyAuthenticator extends Authenticator {
 
     @Override
     protected PasswordAuthentication getPasswordAuthentication() {
-        if (!tryAgain) {
+        if (!retry) {
         String retrievedPassword = this.passwordProvider.retrievePassword(this.account.getAccount_name());
         // TODO was, wenn es nicht passt?
         if (retrievedPassword != null) {
@@ -43,28 +34,26 @@ public class MyAuthenticator extends Authenticator {
         }
         
         final PasswordInputDialog dialog = new PasswordInputDialog();
+        // TODO translate me
         dialog.setTitle("Title");
-        if (tryAgain) {
+        dialog.setContentText("Content");
+        if (retry) {
             dialog.setHeaderText("Header Text");
         } else {
             dialog.setHeaderText("Try again!");
         }
         Optional<String> result = dialog.showAndWait();
-        String entered = "N/A";
-        if (result.isPresent()) {
-            entered = result.get();
+        if (!result.isPresent()) return null;
+        final String entered = result.get();
             try {
                 this.passwordProvider.storePassword(this.account.getAccount_name(), entered);
             } catch (PasswordSaveException ex) {
-                Logger.getLogger(MyAuthenticator.class.getName()).log(Level.SEVERE, null, ex);
-            } finally {
-               return new PasswordAuthentication(this.account.getLogin(), entered);
+                getLogger().error("Storing password failed.", ex);
             }
-        }
-        return null;
+        return new PasswordAuthentication(this.account.getLogin(), entered);
     }
 
     public void setTryAgain(boolean tryAgain) {
-        this.tryAgain = tryAgain;
+        this.retry = tryAgain;
     }
 }
