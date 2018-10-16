@@ -149,8 +149,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 				if (Files.isRegularFile(filePath) 
 						&& fileName.endsWith(DEFAULT_FILE_ENDING)) {
 					try {
-						final Note newNote = gson.fromJson(
-								Files.readString(filePath, DEFAULT_ENCODING), Note.class);
+						byte[] rawContent = Files.readAllBytes(filePath);
+						final String jsonContent = new String(rawContent, DEFAULT_ENCODING);
+						final Note newNote = gson.fromJson(jsonContent, Note.class);
 						notes.add(newNote);						
 					} catch (JsonSyntaxException | IOException e) {
 						getLogger().error("Reading note {} has failed.", fileName);

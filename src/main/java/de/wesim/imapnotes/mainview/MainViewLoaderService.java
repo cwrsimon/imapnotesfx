@@ -21,7 +21,7 @@ public class MainViewLoaderService implements HasLogger {
         final Scene myScene = new Scene(mainView);
         Parent root = myScene.getRoot();
         // TODO read value from config file
-		root.setStyle("-fx-font-size: 18;");
+		//root.setStyle("-fx-font-size: 18;");
         stage.setScene(myScene);
         stage.setWidth(1024);
         stage.setHeight(550);

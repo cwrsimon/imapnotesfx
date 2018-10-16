@@ -43,7 +43,7 @@ public class ConfigurationService implements HasLogger {
 			e.printStackTrace();
 		}
 
-        return null;
+        return new Configuration();
     }
 
 }
