@@ -6,7 +6,7 @@ import javax.mail.Authenticator;
 import javax.mail.PasswordAuthentication;
 
 import de.wesim.imapnotes.HasLogger;
-import de.wesim.imapnotes.mainview.components.outliner.PasswordInputDialog;
+import de.wesim.imapnotes.mainview.components.PasswordInputDialog;
 import de.wesim.imapnotes.models.Account;
 import net.east301.keyring.PasswordSaveException;
 
@@ -26,23 +26,15 @@ public class MyAuthenticator extends Authenticator implements HasLogger {
     @Override
     protected PasswordAuthentication getPasswordAuthentication() {
         if (!retry) {
-        String retrievedPassword = this.passwordProvider.retrievePassword(this.account.getAccount_name());
-        // TODO was, wenn es nicht passt?
-        if (retrievedPassword != null) {
-            return new PasswordAuthentication(this.account.getLogin(), retrievedPassword);
-        }
+        	final String retrievedPassword = this.passwordProvider.retrievePassword(this.account.getAccount_name());
+        	if (retrievedPassword != null) {
+        		return new PasswordAuthentication(this.account.getLogin(), retrievedPassword);
+        	}
         }
         
         final PasswordInputDialog dialog = new PasswordInputDialog();
-        // TODO translate me
-        dialog.setTitle("Title");
-        dialog.setContentText("Content");
-        if (retry) {
-            dialog.setHeaderText("Header Text");
-        } else {
-            dialog.setHeaderText("Try again!");
-        }
-        Optional<String> result = dialog.showAndWait();
+        
+        final Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) return null;
         final String entered = result.get();
             try {

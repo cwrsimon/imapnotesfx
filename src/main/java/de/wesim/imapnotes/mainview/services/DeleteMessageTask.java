@@ -51,12 +51,12 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
 			@Override
 			protected Void call() throws Exception {
 				updateProgress(0, 1);
-				updateMessage(i18N.getFormattedMessage("user_message_start_deleting",
+				updateMessage(i18N.getMessageAndTranslation("user_message_start_deleting",
 						note.getValue().getValue().getSubject()));
 
 				mainViewController.getBackend().delete(getNote().getValue());
 
-				updateMessage(i18N.getFormattedMessage("user_message_finished_deleting",
+				updateMessage(i18N.getMessageAndTranslation("user_message_finished_deleting",
 						note.getValue().getValue().getSubject()));
 
 				updateProgress(1, 1);
@@ -66,6 +66,7 @@ public class DeleteMessageTask extends AbstractNoteService<Void> {
 		};
 		return task;
 	}
+	
 	@Override
 	protected void succeeded() {
 		final TreeItem<Note> parentNote = getParentFolder();

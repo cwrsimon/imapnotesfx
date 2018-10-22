@@ -22,7 +22,7 @@ import de.wesim.imapnotes.mainview.services.LoadMessageTask;
 import de.wesim.imapnotes.mainview.services.MoveNoteService;
 import de.wesim.imapnotes.mainview.services.NewNoteService;
 import de.wesim.imapnotes.mainview.services.OpenFolderTask;
-import de.wesim.imapnotes.mainview.services.OpenMessageTask;
+import de.wesim.imapnotes.mainview.services.OpenNoteTask;
 import de.wesim.imapnotes.mainview.services.RenameNoteService;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
@@ -73,9 +73,6 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private Label status;
-
-    @Autowired
-    private OpenMessageTask openMessageTask;
 
     @Autowired
     private DeleteMessageTask deleteNoteService;
@@ -130,7 +127,6 @@ public class MainViewController implements HasLogger {
     private INoteProvider backend;
 
     private Configuration config;
-
     
     public MainViewController() {
 
@@ -193,7 +189,7 @@ public class MainViewController implements HasLogger {
                 prefs.savePreferences();
                 newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
                 refreshConfig();
-                triggerReload();
+                startup();
             });
             newStage.showAndWait();
             
@@ -228,7 +224,7 @@ public class MainViewController implements HasLogger {
         this.stage = stage;
     }
 
-    public void refreshConfig() {
+    private void refreshConfig() {
         this.config = configurationService.readConfig();
     }
 
@@ -251,6 +247,10 @@ public class MainViewController implements HasLogger {
         destroyBackend();
         return true;
     }
+    
+    private void openAccount(String accountName) {
+    	
+    }
 
     private void openAccount(Account first) {
         if (!closeAccount()) {
@@ -272,7 +272,6 @@ public class MainViewController implements HasLogger {
         final String account_name = first.getAccount_name();
 		this.account.setText(account_name);
         this.config.setLastOpenendAccount(account_name);
-
         loadNotes();
     }
 
@@ -359,12 +358,12 @@ public class MainViewController implements HasLogger {
     }
 
     // Called when selecting an instance of ListViewItem
-    public void openNote(Note m) {
-        if (m == null) {
+    public void openNote(Note note) {
+        if (note == null) {
             return;
         }
 
-        if (m.isFolder()) {
+        if (note.isFolder()) {
             getLogger().warn("Opening folders like this not supported, yet.");
             return;
         }
@@ -372,16 +371,17 @@ public class MainViewController implements HasLogger {
         // Böse, aber funktioniert ...
         for (Tab t : this.tp.getTabs()) {
             EditorTab et = (EditorTab) t;
-            if (et.getNote().equals(m)) {
+            if (et.getNote().equals(note)) {
                 this.tp.getSelectionModel().select(t);
                 return;
             }
         }
 
-        getLogger().info("Opening {}", m.getSubject());
+        getLogger().info("Opening {}", note.getSubject());
 
-        this.openMessageTask.noteProperty().set(m);
-        this.openMessageTask.restart();
+        final OpenNoteTask newOpenMessageTask = context.getBean(OpenNoteTask.class, note);
+        newOpenMessageTask.run();
+        
     }
 
     // Aufgerufen beim Klick aufs ListViewItem

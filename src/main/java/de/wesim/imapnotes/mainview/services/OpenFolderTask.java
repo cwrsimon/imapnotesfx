@@ -49,13 +49,17 @@ public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
             @Override
             protected ObservableList<Note> call() throws Exception {
                 updateProgress(0, 1);
-                updateMessage("Opening " + noteFolder.getValue().toString() + "...");
-
+                
+                updateMessage(i18N.getMessageAndTranslation("user_folder_start_opening",
+                		noteFolder.getValue().getValue().getSubject()));
+               
                 final TreeItem<Note> openedItem = getNoteFolder();
                 final Note folderToOpen = openedItem.getValue();
                 final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
                 
-                updateMessage(String.format("Öffnen von %s erfolgreich!", noteFolder.getValue().toString()));
+                updateMessage(i18N.getMessageAndTranslation("user_folder_finished_opening",
+						noteFolder.getValue().getValue().getSubject()));                
+
                 updateProgress(1, 1);
 
                 return FXCollections.observableArrayList(messages);

@@ -18,18 +18,21 @@ public class MyTreeItemChangeListener implements ChangeListener<Boolean> {
     @Override
     public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
             Boolean newValue) {
+    	
         if (!newValue) {
             return;
         }
 
-        BooleanProperty bb = (BooleanProperty) observable;
-
-        TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+        // get TreeItem object for which the event was triggered 
+        final BooleanProperty bb = (BooleanProperty) observable;
+        final TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
         if (callee.getChildren().size() != 1)
             return;
-        // nur bei einem einzigen leeren Kind
+        
+        // ignore leaves ...
         if (callee.getChildren().get(0).getValue() != null)
             return;
+        // ... and only open folders
         this.controller.openFolder(callee);
     }
 }

@@ -1,32 +1,26 @@
 package de.wesim.imapnotes.preferenceview.components;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.stage.DirectoryChooser;
 
-public class IMAPTab extends Tab {
+public class IMAPTab extends Tab implements HasLogger {
 
-    private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
     private class IMAPForm extends GridPane {
 
@@ -36,8 +30,6 @@ public class IMAPTab extends Tab {
         final TextField pathField;
         final TextField hostField;
         final TextField loginField;
-        final TextField pwField;
-        final TextField pwConfField;
         final TextField addressField;
 
         // TODO Name als Property
@@ -63,38 +55,34 @@ public class IMAPTab extends Tab {
             loginField = new TextField();
             this.add(loginField, 1, 2);
 
-            Label pwLabel = new Label("Password");
-            this.add(pwLabel, 0, 3);
-            pwField = new PasswordField();
-            this.add(pwField, 1, 3);
-
-            Label pwConfLabel = new Label("Password Confirmation");
-            this.add(pwConfLabel, 0, 4);
-            pwConfField = new PasswordField();
-            this.add(pwConfField, 1, 4);
-
             Label addressLabel = new Label("From Address");
-            this.add(addressLabel, 0, 5);
+            this.add(addressLabel, 0, 3);
             addressField = new TextField();
-            this.add(addressField, 1, 5);
+            this.add(addressField, 1, 3);
 
             Label pathLabel = new Label("File Path");
-            this.add(pathLabel, 0, 6);
+            this.add(pathLabel, 0, 4);
 
             pathField = new TextField();
-            Button dirButton = new Button("...");
-            HBox hbox = new HBox(pathField, dirButton);
-            this.add(hbox, 1, 6);
+//            Button dirButton = new Button("...");
+//            HBox hbox = new HBox(pathField, dirButton);
+            this.add(pathField, 1, 4);
 
-            this.add(removeMe, 0, 7);
+            this.add(removeMe, 0, 5);
+            
+            ColumnConstraints column1 = new ColumnConstraints();
+            ColumnConstraints column2 = new ColumnConstraints();
 
-            dirButton.setOnAction(e -> {
-                DirectoryChooser dirChooser = new DirectoryChooser();
-                File selectedDir = dirChooser.showDialog(getScene().getWindow());
-                if (selectedDir != null) {
-                    pathField.setText(selectedDir.getAbsolutePath());
-                }
-            });
+            column2.setHgrow(Priority.ALWAYS);
+            this.getColumnConstraints().addAll(column1, column2);
+
+//            dirButton.setOnAction(e -> {
+//                DirectoryChooser dirChooser = new DirectoryChooser();
+//                File selectedDir = dirChooser.showDialog(getScene().getWindow());
+//                if (selectedDir != null) {
+//                    pathField.setText(selectedDir.getAbsolutePath());
+//                }
+//            });
         }
 
         public Account getAccount() {

@@ -36,4 +36,8 @@ public class I18NService implements HasLogger {
         return MessageFormat.format(pattern, argument);
 	}
 
+	public String getMessageAndTranslation(String key, String argument) {
+        return MessageFormat.format(getTranslation(key), argument);
+	}
+
 }

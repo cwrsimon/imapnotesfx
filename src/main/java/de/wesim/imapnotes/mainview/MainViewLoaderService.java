@@ -2,8 +2,9 @@ package de.wesim.imapnotes.mainview;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import javafx.scene.Parent;
+
 import de.wesim.imapnotes.HasLogger;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -22,6 +23,7 @@ public class MainViewLoaderService implements HasLogger {
         Parent root = myScene.getRoot();
         // TODO read value from config file
 		//root.setStyle("-fx-font-size: 18;");
+        //stage.initModality(Modality.APPLICATION_MODAL);
         stage.setScene(myScene);
         stage.setWidth(1024);
         stage.setHeight(550);

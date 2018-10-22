@@ -97,7 +97,7 @@ public class Preferences extends Application {
         fsTab.openAccordion();
         this.myScene = new Scene(myPane);
         // set global font style
-        this.myScene.getRoot().setStyle("-fx-font-size: 18;");
+        //this.myScene.getRoot().setStyle("-fx-font-size: 18;");
     }
 
     public void savePreferences() {
@@ -114,7 +114,7 @@ public class Preferences extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
     	// TODO configure me !!!
-        primaryStage.getScene().getRoot().setStyle("-fx-font-size: 18;");
+        //primaryStage.getScene().getRoot().setStyle("-fx-font-size: 18;");
         primaryStage.setScene(this.myScene);
         primaryStage.setWidth(1024);
         primaryStage.setHeight(500);

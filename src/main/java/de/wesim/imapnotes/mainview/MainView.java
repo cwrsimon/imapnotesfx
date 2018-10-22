@@ -129,7 +129,6 @@ public class MainView extends BorderPane implements HasLogger {
 		column2.setPercentWidth(50);        
         statusPane.getColumnConstraints().addAll(column1, column2);
 
-
 		final SplitPane sp = new SplitPane(new StackPane(noteCB), tp);
 		sp.setOrientation(Orientation.HORIZONTAL);
 		sp.setDividerPositions(0.25);

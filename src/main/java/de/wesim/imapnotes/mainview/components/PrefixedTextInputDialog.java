@@ -26,6 +26,7 @@ public class PrefixedTextInputDialog extends TextInputDialog {
         setHeight(500);
         setWidth(500);
         setResizable(true);
+        
     }
     
     public PrefixedTextInputDialog(String prefix, String messageArgument) {

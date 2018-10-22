@@ -3,10 +3,6 @@ package de.wesim.imapnotes.models;
 import java.io.Serializable;
 import java.util.Date;
 
-// IDee:
-// Folder haben vollständige nPFad als UUID
-// Stattdessen Map von Note -> Path im NoteProvider
-// TODO Factory Methoden anlegen !!!
 public class Note implements Serializable, Comparable<Note>  {
 
 	private static final long serialVersionUID = 1L;
@@ -99,7 +95,4 @@ public class Note implements Serializable, Comparable<Note>  {
 				+ ", date=" + date + "]";
 	}
 
-	
-	
-	
 }

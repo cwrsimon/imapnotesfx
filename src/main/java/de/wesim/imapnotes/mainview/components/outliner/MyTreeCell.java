@@ -79,10 +79,10 @@ public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 		final MenuItem newSubfolder = new MenuItem(i18N.getTranslation("add_note_context_menu_item"));
 		final MenuItem newFolderNote = new MenuItem(i18N.getTranslation("add_folder_context_menu_item"));
 		newFolderNote.setOnAction(e -> {
-			caller.createNewMessage(false, getTreeItem());
+			caller.createNewMessage(true, getTreeItem());
 		});
 		newSubfolder.setOnAction(e -> {
-			caller.createNewMessage(true, getTreeItem());
+			caller.createNewMessage(false, getTreeItem());
 		});
 		folderMenu.getItems().add(newSubfolder);
 		folderMenu.getItems().add(newFolderNote);

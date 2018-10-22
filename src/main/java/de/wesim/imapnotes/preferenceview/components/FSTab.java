@@ -43,18 +43,19 @@ public class FSTab extends Tab {
             this.setPadding(new Insets(5, 5, 5, 5));
 
             Label nameLabel = new Label("Name");
-            this.add(nameLabel, 0, 0);
+            this.add(nameLabel, 0, 0, 1, 1);
             nameField = new TextField();
-            this.add(nameField, 1, 0);
+            this.add(nameField, 1, 0, 2, 1);
             
 
             Label pathLabel = new Label("File Path");
-            this.add(pathLabel, 0, 1);
+            this.add(pathLabel, 0, 1, 1, 1);
 
             pathField = new TextField();
             Button dirButton = new Button("...");
-            HBox hbox = new HBox(pathField, dirButton);
-            this.add(hbox, 1, 1);
+            //HBox hbox = new HBox(pathField, dirButton);
+            this.add(pathField, 1, 1, 1, 1);
+            this.add(dirButton, 2, 1, 1, 1);
             this.add(removeMe, 0, 2);
             ColumnConstraints column1 = new ColumnConstraints();
             ColumnConstraints column2 = new ColumnConstraints();

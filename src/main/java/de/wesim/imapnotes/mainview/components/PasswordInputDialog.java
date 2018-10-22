@@ -1,6 +1,11 @@
-package de.wesim.imapnotes.mainview.components.outliner;
+package de.wesim.imapnotes.mainview.components;
 
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import de.wesim.imapnotes.services.I18NService;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ButtonBar;
@@ -15,12 +20,21 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 
 /**
+ * Mostly the same as "TextInputDialog", but with a
+ * a password input field, instead. ;-)
+ * 
  * A dialog that shows a text input control to the user.
  *
  * @see Dialog
  * @since JavaFX 8u40
  */
+@Component
+@Scope("prototype")
 public class PasswordInputDialog extends Dialog<String> {
+
+	
+	@Autowired
+    private I18NService i18N;
 
     /**************************************************************************
      *
@@ -47,7 +61,7 @@ public class PasswordInputDialog extends Dialog<String> {
      */
     public PasswordInputDialog() {
         final DialogPane dialogPane = getDialogPane();
-
+        setResizable(true);
         // -- textfield
         this.textField = new PasswordField();
         this.textField.setMaxWidth(Double.MAX_VALUE);
@@ -71,8 +85,14 @@ public class PasswordInputDialog extends Dialog<String> {
 
         dialogPane.contentTextProperty().addListener(o -> updateGrid());
 
-        setTitle(super.getTitle());
-        dialogPane.setHeaderText(super.getHeaderText());
+        final String titleText = i18N.getTranslation("password_input_title_text");
+    	final String contentText = i18N.getTranslation("password_input_content_text");
+    	final String headerText = i18N.getTranslation("password_input_header_text");
+    	
+        setTitle(titleText);
+        
+        dialogPane.setContentText(contentText);
+        dialogPane.setHeaderText(headerText);
         dialogPane.getStyleClass().add("text-input-dialog");
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 

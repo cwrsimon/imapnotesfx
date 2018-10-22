@@ -11,8 +11,6 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeView;
 import javafx.util.Callback;
 
-// TODO Wenn es editierbar werden soll:
-// https://docs.oracle.com/javase/8/javafx/user-interface-tutorial/tree-view.htm#BABDEADA
 @Component
 public class ListCellFactory implements Callback<TreeView<Note>, TreeCell<Note>>{
 
