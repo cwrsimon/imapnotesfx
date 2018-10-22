@@ -4,81 +4,64 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 import javafx.scene.control.TreeItem;
 
 @Component
-public class OpenFolderTask extends AbstractNoteService<ObservableList<Note>> {
+@Scope("prototype")
+public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     
     @Autowired
 	@Qualifier("myListView")
 	private MyListView noteCB;
-
-
-    private ObjectProperty<TreeItem<Note>> noteFolder = new SimpleObjectProperty<TreeItem<Note>>(this, "note");
-
-    public final void setNoteFolder(TreeItem<Note> value) {
-        noteFolder.set(value);
-    }
-
-    public final TreeItem<Note> getNoteFolder() {
-        return noteFolder.get();
-    }
-
-    public final ObjectProperty<TreeItem<Note>> noteFolderProperty() {
-        return noteFolder;
-    }
-
     
-    public OpenFolderTask( ) {
+	private TreeItem<Note> folderTreeItem;
+
+    public OpenFolderTask( TreeItem<Note> folderTreeItem ) {
         super();
+        this.folderTreeItem = folderTreeItem;
     }
 
-    @Override
-    protected Task<ObservableList<Note>> createTask() {
-        Task<ObservableList<Note>> task = new Task<ObservableList<Note>>() {
-
-            @Override
-            protected ObservableList<Note> call() throws Exception {
-                updateProgress(0, 1);
-                
-                updateMessage(i18N.getMessageAndTranslation("user_folder_start_opening",
-                		noteFolder.getValue().getValue().getSubject()));
-               
-                final TreeItem<Note> openedItem = getNoteFolder();
-                final Note folderToOpen = openedItem.getValue();
-                final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
-                
-                updateMessage(i18N.getMessageAndTranslation("user_folder_finished_opening",
-						noteFolder.getValue().getValue().getSubject()));                
-
-                updateProgress(1, 1);
-
-                return FXCollections.observableArrayList(messages);
-            }
-        };
-        return task;
-    }
-   
     @Override
 	protected void succeeded() {
-        TreeItem<Note> containedTreeItem = noteFolderProperty().get();
+    	super.succeeded();
         final ObservableList<Note> loadedItems = getValue();
-        this.noteCB.addChildrenToNode(loadedItems, containedTreeItem);
-        noteFolderProperty().set(null);
+        Platform.runLater( () -> 
+        	this.noteCB.addChildrenToNode(loadedItems, folderTreeItem)
+        		);
     }
 
 	@Override
 	public String getActionName() {
 		return "Open Folder";
+	}
+
+	@Override
+	public String getSuccessMessage() {
+        return i18N.getMessageAndTranslation("user_folder_finished_opening",
+        		this.folderTreeItem.getValue().getSubject());                
+
+	}
+
+	@Override
+	public String getRunningMessage() {
+		return i18N.getMessageAndTranslation("user_folder_start_opening",
+        		this.folderTreeItem.getValue().getSubject());
+	}
+
+	@Override
+	protected ObservableList<Note> call() throws Exception {
+		final Note folderToOpen = folderTreeItem.getValue();
+        final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
+        
+        return FXCollections.observableArrayList(messages);
 	}
 
 }

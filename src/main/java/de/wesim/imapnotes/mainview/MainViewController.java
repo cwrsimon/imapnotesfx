@@ -84,9 +84,6 @@ public class MainViewController implements HasLogger {
     private LoadMessageTask newLoadTask;
 
     @Autowired
-    private OpenFolderTask openFolderTask;
-
-    @Autowired
     private TabPane tp;
 
     @Autowired
@@ -402,8 +399,8 @@ public class MainViewController implements HasLogger {
 
         getLogger().info("Opening Folder {}", m.getValue().getSubject());
 
-        this.openFolderTask.noteFolderProperty().set(m);
-        this.openFolderTask.restart();
+        final OpenFolderTask openFolderTask = context.getBean(OpenFolderTask.class, m);
+        openFolderTask.run();
 
     }
 
