@@ -5,71 +5,33 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.models.Note;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.concurrent.Task;
 import javafx.scene.control.TreeView;
 
 // TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 @Component
-public class RenameNoteService extends AbstractNoteService<Void> {
+public class RenameNoteService extends AbstractNoteTask<Void> {
 
     @Autowired
 	@Qualifier("myListView")
 	private TreeView<Note> noteCB;
 
-    private StringProperty subject = new SimpleStringProperty();
+	private final Note note;
 
-    public void setSubject(String subject) {
-        this.subject.set(subject);
-    }
+	private String subject;
 
-    private ObjectProperty<Note> note = new SimpleObjectProperty<Note>(this, "note");
+	private String oldTitle;
 
-    public final void setNote(Note value) {
-        note.set(value);
-    }
-
-    public final Note getNote() {
-        return note.get();
-    }
-
-    public final ObjectProperty<Note> noteProperty() {
-        return note;
-    }
-
-    public RenameNoteService() {
-        super();
-    }
-
-    @Override
-    protected Task<Void> createTask() {
-        Task<Void> task = new Task<Void>() {
-
-            @Override
-            protected Void call() throws Exception {
-                updateProgress(0, 1);
-                updateMessage("Rename note '' to '' ...");
-                if (getNote().isFolder()) {
-                	mainViewController.getBackend().renameFolder(getNote(), subject.getValue());
-                } else {
-                	mainViewController.getBackend().renameNote(getNote(), subject.getValue());
-                }
-                updateMessage(String.format("Umbennen von %s erfolgreich!", subject.getValue()));
-                updateProgress(1, 1);
-
-                return null;
-            }
-        };
-        return task;
-    }
+	public RenameNoteService(Note note, String subject) {
+		this.note = note;
+		this.subject = subject;
+		this.oldTitle = this.note.getSubject();
+	}
 
     @Override
 	protected void succeeded() {
+    	super.succeeded();
         noteCB.refresh();
-        if (getNote().isFolder()) {
+        if (this.note.isFolder()) {
             mainViewController.triggerReload();
         }
 	}
@@ -77,6 +39,28 @@ public class RenameNoteService extends AbstractNoteService<Void> {
 	@Override
 	public String getActionName() {
 		return "Rename Note";
+	}
+
+	@Override
+	public String getSuccessMessage() {
+		return i18N.getMessageAndTranslation("user_message_finished_renaming",
+				this.oldTitle); 
+	}
+
+	@Override
+	public String getRunningMessage() {
+		return i18N.getMessageAndTranslation("user_message_start_renaming",
+				this.oldTitle); 
+	}
+
+	@Override
+	protected Void call() throws Exception {
+		if (this.note.isFolder()) {
+        	mainViewController.getBackend().renameFolder(this.note, this.subject);
+        } else {
+        	mainViewController.getBackend().renameNote(this.note, this.subject);
+        }
+		return null;
 	}
 
 }

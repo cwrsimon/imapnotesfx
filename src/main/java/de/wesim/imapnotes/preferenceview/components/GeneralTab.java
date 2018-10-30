@@ -3,8 +3,6 @@ package de.wesim.imapnotes.preferenceview.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.event.ListSelectionEvent;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,13 +12,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
-import javafx.util.Callback;
 
 public class GeneralTab extends Tab {
-
-	// private final QuillEditor qe;
-
-	private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
 	private static List<String> fontSizes;
 	

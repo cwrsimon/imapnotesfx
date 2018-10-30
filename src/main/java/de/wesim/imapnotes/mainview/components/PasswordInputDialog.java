@@ -1,6 +1,8 @@
 package de.wesim.imapnotes.mainview.components;
 
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -85,14 +87,8 @@ public class PasswordInputDialog extends Dialog<String> {
 
         dialogPane.contentTextProperty().addListener(o -> updateGrid());
 
-        final String titleText = i18N.getTranslation("password_input_title_text");
-    	final String contentText = i18N.getTranslation("password_input_content_text");
-    	final String headerText = i18N.getTranslation("password_input_header_text");
-    	
-        setTitle(titleText);
+      
         
-        dialogPane.setContentText(contentText);
-        dialogPane.setHeaderText(headerText);
         dialogPane.getStyleClass().add("text-input-dialog");
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
@@ -102,6 +98,18 @@ public class PasswordInputDialog extends Dialog<String> {
             ButtonBar.ButtonData data = dialogButton == null ? null : dialogButton.getButtonData();
             return data == ButtonBar.ButtonData.OK_DONE ? textField.getText() : null;
         });
+    }
+    
+    @PostConstruct
+    public void init() {
+    	  final String titleText = i18N.getTranslation("password_input_title_text");
+      	final String contentText = i18N.getTranslation("password_input_content_text");
+      	final String headerText = i18N.getTranslation("password_input_header_text");
+      	
+          setTitle(titleText);
+          getDialogPane().setContentText(contentText);
+          getDialogPane().setHeaderText(headerText);
+
     }
 
 

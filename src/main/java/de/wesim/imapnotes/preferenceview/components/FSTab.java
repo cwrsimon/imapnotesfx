@@ -4,13 +4,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
@@ -21,14 +17,11 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.ToolBar;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 
 public class FSTab extends Tab {
-
-    private static final Logger logger = LoggerFactory.getLogger(IMAPTab.class);
 
     private class FSForm extends GridPane {
 

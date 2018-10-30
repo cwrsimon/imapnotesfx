@@ -3,6 +3,7 @@ package de.wesim.imapnotes.preferenceview;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
@@ -30,15 +31,9 @@ import javafx.stage.WindowEvent;
 // Dedizierte Account-Klassen für FS und IMAP
 // Layout hübscher machen
 
-// Logger log = Logger.getLogger("myApp");
-// log.setLevel(Level.ALL);
-// log.info("initializing - trying to load configuration file ...");
-// Layout extrahieren !!!
-public class Preferences extends Application {
+public class Preferences extends Application implements HasLogger {
 
     private Scene myScene;
-
-    private static Logger logger = LoggerFactory.getLogger(Preferences.class);
 
     Button cancel;
     Button save2;
@@ -54,7 +49,6 @@ public class Preferences extends Application {
         initScene();
     }
 
-    // https://stackoverflow.com/questions/24238858/property-sheet-example-with-use-of-a-propertyeditor-controlsfx#26060211
     public static void main(String[] args) {
         launch(args);
     }
@@ -101,7 +95,7 @@ public class Preferences extends Application {
     }
 
     public void savePreferences() {
-        logger.info("{}", fsTab.getAccounts().size());
+        getLogger().info("{}", fsTab.getAccounts().size());
         configuration.getFSAccounts().clear();
         configuration.getFSAccounts().addAll(fsTab.getAccounts());
         configuration.getIMAPAccounts().clear();
@@ -120,7 +114,7 @@ public class Preferences extends Application {
         primaryStage.setHeight(500);
         primaryStage.show();
         primaryStage.setOnCloseRequest(e -> {
-            logger.info("Quitting application.");
+            getLogger().info("Quitting application.");
         });
         
         this.cancel.setOnAction( e-> {
