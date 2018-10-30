@@ -4,18 +4,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.models.Note;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
 
 @Component
-public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
+@Scope("prototype")
+public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
 
-    public LoadMessageTask( ) {
+    public LoadNotesTask() {
         super();
     }
 
@@ -23,24 +24,6 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 	@Qualifier("myListView")
 	private MyListView noteCB;
 
-    @Override
-    protected Task<ObservableList<Note>> createTask() {
-        Task<ObservableList<Note>> task = new Task<ObservableList<Note>>() {
-
-            @Override
-            protected ObservableList<Note> call() throws Exception {
-                updateProgress(0, 1);
-                updateMessage(i18N.getTranslation("user_message_start_loading"));
-
-                final List<Note> messages = mainViewController.getBackend().getNotes();	
-                updateMessage(i18N.getTranslation("user_message_finished_loading"));
-                updateProgress(1, 1);
-
-                return FXCollections.observableArrayList(messages);
-            }
-        };
-        return task;
-    }
 
     @Override
 	protected void succeeded() {
@@ -58,5 +41,21 @@ public class LoadMessageTask extends AbstractNoteService<ObservableList<Note>> {
 	@Override
 	public String getActionName() {
 		return "Load Messages";
+	}
+
+	@Override
+	public String getSuccessMessage() {
+		return i18N.getTranslation("user_message_finished_loading");
+	}
+
+	@Override
+	public String getRunningMessage() {
+		return i18N.getTranslation("user_message_start_loading");
+	}
+
+	@Override
+	protected ObservableList<Note> call() throws Exception {
+        final List<Note> messages = mainViewController.getBackend().getNotes();	
+        return FXCollections.observableArrayList(messages);
 	}
 }

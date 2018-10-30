@@ -55,7 +55,7 @@ public abstract class AbstractNoteTask<T> extends Task<T> implements HasLogger {
 	@Override
 	protected void failed() {
         //status.textProperty().unbind();
-        status.setText(getException().getLocalizedMessage());
+        updateMessage(getException().getLocalizedMessage());
         getLogger().error("Action has failed: {}", getActionName(), getException());
 	}
 	

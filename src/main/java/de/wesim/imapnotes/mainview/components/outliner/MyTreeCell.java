@@ -44,7 +44,7 @@ public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 	public void init() {
 		final MenuItem deleteItem = new MenuItem(i18N.getTranslation("delete_context_menu_item"));
 		deleteItem.setOnAction(e -> {
-			caller.deleteCurrentMessage(getTreeItem(), false);
+			caller.deleteNote(getTreeItem(), false);
 		});
 
 		final MenuItem renameItem = new MenuItem(i18N.getTranslation("rename_context_menu_item"));
@@ -57,7 +57,7 @@ public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 		noteMenu.getItems().add(renameNote);
 		noteMenu.getItems().add(delete2);
 		delete2.setOnAction(e -> {
-			caller.deleteCurrentMessage(getTreeItem(), false);
+			caller.deleteNote(getTreeItem(), false);
 		});
 		renameNote.setOnAction(e -> {
 			caller.renameCurrentMessage(getItem());

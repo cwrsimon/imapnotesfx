@@ -152,7 +152,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 						byte[] rawContent = Files.readAllBytes(filePath);
 						final String jsonContent = new String(rawContent, DEFAULT_ENCODING);
 						final Note newNote = gson.fromJson(jsonContent, Note.class);
-						notes.add(newNote);						
+						if (newNote != null) {
+							notes.add(newNote);						
+						}
 					} catch (JsonSyntaxException | IOException e) {
 						getLogger().error("Reading note {} has failed.", fileName);
 					}

@@ -2,14 +2,16 @@ package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.models.Note;
+import javafx.application.Platform;
 import javafx.scene.control.TreeView;
 
-// TODO Später abändern, damit auf Fehlschläge reagiert werden kann ...
 @Component
-public class RenameNoteService extends AbstractNoteTask<Void> {
+@Scope("prototype")
+public class RenameNoteTask extends AbstractNoteTask<Void> {
 
     @Autowired
 	@Qualifier("myListView")
@@ -21,7 +23,7 @@ public class RenameNoteService extends AbstractNoteTask<Void> {
 
 	private String oldTitle;
 
-	public RenameNoteService(Note note, String subject) {
+	public RenameNoteTask(Note note, String subject) {
 		this.note = note;
 		this.subject = subject;
 		this.oldTitle = this.note.getSubject();
@@ -30,10 +32,12 @@ public class RenameNoteService extends AbstractNoteTask<Void> {
     @Override
 	protected void succeeded() {
     	super.succeeded();
-        noteCB.refresh();
-        if (this.note.isFolder()) {
-            mainViewController.triggerReload();
-        }
+    	Platform.runLater( () -> {
+    		noteCB.refresh();
+        	if (this.note.isFolder()) {
+            	mainViewController.triggerReload();
+        	}
+    	});
 	}
 
 	@Override

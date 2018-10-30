@@ -17,13 +17,13 @@ import de.wesim.imapnotes.mainview.components.EditorTab;
 import de.wesim.imapnotes.mainview.components.PrefixedAlertBox;
 import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
-import de.wesim.imapnotes.mainview.services.DeleteMessageTask;
-import de.wesim.imapnotes.mainview.services.LoadMessageTask;
+import de.wesim.imapnotes.mainview.services.DeleteNoteTask;
+import de.wesim.imapnotes.mainview.services.LoadNotesTask;
 import de.wesim.imapnotes.mainview.services.MoveNoteService;
-import de.wesim.imapnotes.mainview.services.NewNoteService;
+import de.wesim.imapnotes.mainview.services.NewNoteTask;
 import de.wesim.imapnotes.mainview.services.OpenFolderTask;
 import de.wesim.imapnotes.mainview.services.OpenNoteTask;
-import de.wesim.imapnotes.mainview.services.RenameNoteService;
+import de.wesim.imapnotes.mainview.services.RenameNoteTask;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
@@ -45,7 +45,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -59,9 +58,6 @@ public class MainViewController implements HasLogger {
     private MoveNoteService moveNoteService;
 
     @Autowired
-    private NewNoteService newNoteService;
-
-    @Autowired
     private ConfigurationService configurationService;
 
     @Autowired
@@ -73,15 +69,6 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private Label status;
-
-    @Autowired
-    private DeleteMessageTask deleteNoteService;
-
-    @Autowired
-    private RenameNoteService renameNoteService;
-
-    @Autowired
-    private LoadMessageTask newLoadTask;
 
     @Autowired
     private TabPane tp;
@@ -171,25 +158,26 @@ public class MainViewController implements HasLogger {
         });
 
         preferences.setOnAction(e -> {
-            final Preferences prefs = new Preferences();
-            final Stage newStage = new Stage();
-            newStage.initModality(Modality.APPLICATION_MODAL);
-            newStage.initOwner(stage);
-            newStage.setHeight(500);
-            newStage.setWidth(600);
-            // TODO !!!
-            newStage.setScene(prefs.getScene());
-            prefs.getCancelButton().setOnAction(e2 -> {
-                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-            });
-            prefs.getApplyButton().setOnAction(e2 -> {
-                prefs.savePreferences();
-                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-                refreshConfig();
-                startup();
-            });
-            newStage.showAndWait();
-            
+            final Preferences prefs = new Preferences(stage);
+//            final Stage newStage = new Stage();
+//            newStage.initModality(Modality.APPLICATION_MODAL);
+//            newStage.setHeight(500);
+//            newStage.setWidth(600);
+//            // TODO !!!
+//            newStage.setScene(prefs.getScene());
+//            prefs.getCancelButton().setOnAction(e2 -> {
+//                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+//            });
+//            prefs.getApplyButton().setOnAction(e2 -> {
+//                prefs.savePreferences();
+//                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+//                refreshConfig();
+//                startup();
+//            });
+            prefs.showAndWait();
+            // TODO Rückgabe abfangen
+            refreshConfig();
+            startup();
         });
         
         find.setOnAction( e-> {
@@ -245,10 +233,6 @@ public class MainViewController implements HasLogger {
         return true;
     }
     
-    private void openAccount(String accountName) {
-    	
-    }
-
     private void openAccount(Account first) {
         if (!closeAccount()) {
             return;
@@ -311,41 +295,38 @@ public class MainViewController implements HasLogger {
         this.moveNoteService.setParentFolder(target);
         moveNoteService.reset();
         moveNoteService.restart();
-        deleteCurrentMessage(foundTreeItem, true);
+        deleteNote(foundTreeItem, true);
     }
 
-    public void deleteCurrentMessage(TreeItem<Note> treeItem, boolean dontTask) {
+    public void deleteNote(TreeItem<Note> treeItem, boolean dontTask) {
         final Note deleteItem = treeItem.getValue();
         if (!dontTask) {
             final PrefixedAlertBox alert = context.getBean(PrefixedAlertBox.class, "really_delete", deleteItem.toString());
             alert.setAlertType(Alert.AlertType.CONFIRMATION);
-            Optional<ButtonType> result = alert.showAndWait();
+            final Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.CANCEL) {
                 return;
             }
         }
-        deleteNoteService.parentFolderProperty().set(treeItem.getParent());
-        deleteNoteService.noteProperty().set(treeItem);
-        deleteNoteService.reset();
-        deleteNoteService.restart();
+        final DeleteNoteTask deleteMessageTask = context.getBean(DeleteNoteTask.class, treeItem);
+        deleteMessageTask.run();
     }
 
-    public void renameCurrentMessage(Note curMsg) {
-        final Dialog<String> dialog = context.getBean(PrefixedTextInputDialog.class, "rename", curMsg.toString());
+    public void renameCurrentMessage(Note note) {
+        final Dialog<String> dialog = context.getBean(PrefixedTextInputDialog.class, "rename", note.toString());
         Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) {
             return;
         }
-        renameNoteService.setSubject(result.get());
-        renameNoteService.noteProperty().set(curMsg);
-        renameNoteService.reset();
-        renameNoteService.restart();
+        
+        final RenameNoteTask renameNoteService = context.getBean(RenameNoteTask.class, note, result.get());
+        renameNoteService.run();
     }
 
     public void loadNotes() {
         getLogger().info("Loading notes ...");
-        newLoadTask.reset();
-        newLoadTask.restart();
+        LoadNotesTask newLoadTask = context.getBean(LoadNotesTask.class);
+        newLoadTask.run();
     }
 
     private Optional<ButtonType> demandConfirmation() {
@@ -413,11 +394,8 @@ public class MainViewController implements HasLogger {
         }
         final Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) return;
-        newNoteService.setParentFolder(parent);
-        newNoteService.setCreateFolder(createFolder);
-        newNoteService.setSubject(result.get());
-        newNoteService.reset();
-        newNoteService.restart();
+        final NewNoteTask newNoteService = context.getBean(NewNoteTask.class, parent, result.get(), createFolder);
+        newNoteService.run();
     }
 
     public void saveCurrentMessage() {
@@ -470,5 +448,40 @@ public class MainViewController implements HasLogger {
                 tabIter.remove();
             }
         }
+    }
+    
+    public void removeTreeItem(TreeItem<Note> treeItem) {
+    	final TreeItem<Note> parentNote = treeItem.getParent();
+		final Note deletedNote = treeItem.getValue();
+		closeTab(deletedNote);
+		final int index = parentNote.getChildren().indexOf(treeItem);
+
+		parentNote.getChildren().remove(treeItem);
+
+		final int previousItem = Math.max(0, index - 1);
+		if (parentNote.getChildren().isEmpty()) return;
+		final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
+		openNote(previous.getValue());
+    }
+    
+    public void addNoteToTree(TreeItem<Note> treeItem, Note newNote) {
+        // FIXME
+        // Das alles nach ListView verschieben ...
+        final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
+        if (newNote.isFolder()) {
+            if (MyListView.isEmptyTreeItem(newTreeItem)) {
+                newTreeItem.getChildren().clear();
+            }
+            newTreeItem.getChildren().add(new TreeItem<Note>(null));
+        }
+        if (treeItem != null) {
+            if (MyListView.isEmptyTreeItem(treeItem)) {
+            	treeItem.getChildren().clear();
+            }
+            treeItem.getChildren().add(newTreeItem);
+        } else {
+            this.noteCB.getRoot().getChildren().add(newTreeItem);
+        }
+        openNote(newNote);
     }
 }

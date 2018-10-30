@@ -1,8 +1,5 @@
 package de.wesim.imapnotes.preferenceview;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
@@ -11,7 +8,6 @@ import de.wesim.imapnotes.preferenceview.components.FSTab;
 import de.wesim.imapnotes.preferenceview.components.GeneralTab;
 import de.wesim.imapnotes.preferenceview.components.IMAPTab;
 import de.wesim.imapnotes.services.ConfigurationService;
-import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,16 +18,12 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-// TODO
-// Validierungen einbauen
-/// FS-Accounts
-// Dedizierte Account-Klassen für FS und IMAP
-// Layout hübscher machen
 
-public class Preferences extends Application implements HasLogger {
+public class Preferences extends Stage implements HasLogger {
 
     private Scene myScene;
 
@@ -45,12 +37,20 @@ public class Preferences extends Application implements HasLogger {
     // TODO FIXME
     ConfigurationService cs = new ConfigurationService();
     
-    public Preferences() {
+    public Preferences(Stage parent) {
         initScene();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
+        initModality(Modality.APPLICATION_MODAL);
+        setHeight(500);
+        setWidth(600);
+        // TODO !!!
+        setScene(this.myScene);
+        this.cancel.setOnAction(e2 -> {
+            fireEvent(new WindowEvent(parent, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+        this.save2.setOnAction(e2 -> {
+            savePreferences();
+            fireEvent(new WindowEvent(parent, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
     }
 
     private void initScene() {
@@ -95,7 +95,6 @@ public class Preferences extends Application implements HasLogger {
     }
 
     public void savePreferences() {
-        getLogger().info("{}", fsTab.getAccounts().size());
         configuration.getFSAccounts().clear();
         configuration.getFSAccounts().addAll(fsTab.getAccounts());
         configuration.getIMAPAccounts().clear();
@@ -105,37 +104,37 @@ public class Preferences extends Application implements HasLogger {
         this.cs.writeConfig(configuration);
     }
 
-    @Override
-    public void start(Stage primaryStage) throws Exception {
-    	// TODO configure me !!!
-        //primaryStage.getScene().getRoot().setStyle("-fx-font-size: 18;");
-        primaryStage.setScene(this.myScene);
-        primaryStage.setWidth(1024);
-        primaryStage.setHeight(500);
-        primaryStage.show();
-        primaryStage.setOnCloseRequest(e -> {
-            getLogger().info("Quitting application.");
-        });
-        
-        this.cancel.setOnAction( e-> {
-            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
-        });
+//    @Override
+//    public void start(Stage primaryStage) throws Exception {
+//    	// TODO configure me !!!
+//        //primaryStage.getScene().getRoot().setStyle("-fx-font-size: 18;");
+//        primaryStage.setScene(this.myScene);
+//        primaryStage.setWidth(1024);
+//        primaryStage.setHeight(500);
+//        primaryStage.show();
+//        primaryStage.setOnCloseRequest(e -> {
+//            getLogger().info("Quitting application.");
+//        });
+//        
+//        this.cancel.setOnAction( e-> {
+//            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+//        });
+//
+//        this.save2.setOnAction( e-> {
+//             savePreferences();
+//            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+//        });
+//    }
 
-        this.save2.setOnAction( e-> {
-             savePreferences();
-            primaryStage.fireEvent(new WindowEvent(primaryStage, WindowEvent.WINDOW_CLOSE_REQUEST));
-        });
-    }
+//    public Scene getScene() {
+//        return this.myScene;
+//    }
 
-    public Scene getScene() {
-        return this.myScene;
-    }
-
-    public Button getCancelButton() {
-        return this.cancel;
-    }
-    public Button getApplyButton() {
-        return this.save2;
-    }
+//    public Button getCancelButton() {
+//        return this.cancel;
+//    }
+//    public Button getApplyButton() {
+//        return this.save2;
+//    }
 
 }
