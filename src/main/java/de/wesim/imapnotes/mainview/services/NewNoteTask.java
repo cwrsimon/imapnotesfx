@@ -15,7 +15,6 @@ public class NewNoteTask extends AbstractNoteTask<Note> {
     private final boolean createFolder;
     private final String subject;
     
-    
 	public NewNoteTask( TreeItem<Note> parent, String subject, boolean isFolder ) {
         super();
         this.parentFolder = parent;
@@ -50,7 +49,7 @@ public class NewNoteTask extends AbstractNoteTask<Note> {
 	@Override
 	protected Note call() throws Exception {
 		Note parentFolderParam = null;
-        if (parentFolder.getValue() != null) {
+        if (parentFolder != null) {
             parentFolderParam = parentFolder.getValue();
         }
 
