@@ -15,7 +15,6 @@ import javafx.scene.control.ProgressBar;
 @Component
 @Scope("prototype")
 public abstract class AbstractNoteTask<T> extends Task<T> implements HasLogger {
-
 	
 	@Autowired
 	protected MainViewController mainViewController;

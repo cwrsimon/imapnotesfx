@@ -19,7 +19,7 @@ import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
 import de.wesim.imapnotes.mainview.components.outliner.MyListView;
 import de.wesim.imapnotes.mainview.services.DeleteNoteTask;
 import de.wesim.imapnotes.mainview.services.LoadNotesTask;
-import de.wesim.imapnotes.mainview.services.MoveNoteService;
+import de.wesim.imapnotes.mainview.services.MoveNoteTask;
 import de.wesim.imapnotes.mainview.services.NewNoteTask;
 import de.wesim.imapnotes.mainview.services.OpenFolderTask;
 import de.wesim.imapnotes.mainview.services.OpenNoteTask;
@@ -54,9 +54,6 @@ public class MainViewController implements HasLogger {
     @Autowired
     private ApplicationContext context;
     
-    @Autowired
-    private MoveNoteService moveNoteService;
-
     @Autowired
     private ConfigurationService configurationService;
 
@@ -285,17 +282,17 @@ public class MainViewController implements HasLogger {
         openAccount(firstAccount);
     }
 
-    // TODO Komplett überarbeiten !!!
     public void move(Note msg, TreeItem<Note> target) {
-        getLogger().info("Moving {} to {}", msg, target);
-        // Suchen des aktuellen Notes in der 
+        
+        // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = MyListView.searchTreeItem(msg, this.noteCB.getRoot());
+        getLogger().info("Moving source {} ", foundTreeItem);
+        getLogger().info("Moving target {} ", target);
 
-        this.moveNoteService.setNote(msg);
-        this.moveNoteService.setParentFolder(target);
-        moveNoteService.reset();
-        moveNoteService.restart();
-        deleteNote(foundTreeItem, true);
+        // TODO what if foudnTreeItem == null?
+        final MoveNoteTask moveNoteTask = 
+        		context.getBean(MoveNoteTask.class, foundTreeItem, target);
+        moveNoteTask.run();
     }
 
     public void deleteNote(TreeItem<Note> treeItem, boolean dontTask) {

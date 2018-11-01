@@ -25,6 +25,7 @@ public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
 	private MyListView noteCB;
 
 
+    // TODO
     @Override
 	protected void succeeded() {
         final ObservableList<Note> loadedItems = getValue();

@@ -17,6 +17,8 @@ import de.wesim.imapnotes.models.Note;
 public class IMAPNoteProvider implements INoteProvider {
 
     private IMAPBackend backend;
+    
+    // map note UUIDs to IMAP message / IMAP folder
     private final Map<String, Message> msgMap;
     private final Map<String, Folder> folderMap;
 
@@ -33,7 +35,6 @@ public class IMAPNoteProvider implements INoteProvider {
 
     @Override
     public Note createNewNote(String subject, Note parentFolder) throws Exception {
-        // TODO wenn null, dann root folder benutzen
         final Folder f;
         if (parentFolder == null) {
             f = this.backend.getNotesFolder();
@@ -90,7 +91,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
     @Override
     public List<Note> getNotesFromFolder(Note folder) throws Exception {
-        Folder f = this.folderMap.get(folder.getUuid());
+        final Folder f = this.folderMap.get(folder.getUuid());
         final List<Note> notes = this.backend.getMessages(f,
                 this.msgMap, this.folderMap);
         // TODO
@@ -130,21 +131,23 @@ public class IMAPNoteProvider implements INoteProvider {
 
         Folder newFolder = this.backend.renameFolder(oldFolder, newName);
         String newUUID = newFolder.getFullName();
-        // note.setImapMessage();
+
         this.folderMap.put(newUUID, newFolder);
         this.folderMap.remove(oldUUID);
         folder.setSubject(newName);
         folder.setUuid(newUUID);
+        // reload for updating references in UUID maps
         getNotesFromFolder(folder);
     }
 
+    // TODO Implement moving of folders
     @Override
     public Note move(Note message, Note folder) throws Exception {
         final Message msg = this.msgMap.get(message.getUuid());
-        Folder imapFolder = this.folderMap.get(folder.getUuid());
+        final Folder imapFolder = this.folderMap.get(folder.getUuid());
         this.backend.moveMessage(msg, imapFolder);
+        // reload for updating references in UUID maps
         getNotesFromFolder(folder);
-
         return message;
     }
 

@@ -21,12 +21,6 @@ import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
-// TODO 
-// Syntax-Highlighting 
-// Font-Größe konfigurabel machen
-// Keyboard-Shortcuts für Historie
-// Keyboard-Shortcurts ins Menü bringen ...
-
 public class QuillEditor extends StackPane {
 	final WebView webview = new WebView();
 	private static final Logger log = LoggerFactory.getLogger(QuillEditor.class);
@@ -53,14 +47,13 @@ public class QuillEditor extends StackPane {
 	}
 
 	public void setHtmlText(String content) {
-		//log.info("Setting neu content: {}", content);
 		this.setHTMLContent(content);
 	}
 
 	private BooleanProperty contentUpdate = new SimpleBooleanProperty(false);
-	
+
 	public final BooleanProperty contentUpdateProperty() {
-		 return contentUpdate; 
+		return contentUpdate; 
 	}
 
 	public void logMe(String message) {
@@ -78,7 +71,7 @@ public class QuillEditor extends StackPane {
 
 	public void setCssStyle(String styleName, String value) {
 		webview.getEngine().executeScript("document.getElementById('editor').style['" + styleName + "']='" 
-			+ value + "';");
+				+ value + "';");
 	}
 
 	public QuillEditor(HostServices hostServices, String string, Configuration configuration) {
@@ -104,9 +97,6 @@ public class QuillEditor extends StackPane {
 				if (newValue == State.SUCCEEDED) {
 					JSObject window = (JSObject) webview.getEngine().executeScript("window");
 					window.setMember("app", backReference);
-					//webview.getEngine().executeScript("app.logMe('Gallo');");
-					// TODO Auf diese Weise von außen Schriftfamilie und Schriftgröße anpassen ...
-//					webview.getEngine().executeScript("document.getElementById('editor').style['font-family']='serif';");
 					setCssStyle("font-family", configuration.getFontFamily());
 					setCssStyle("font-size", configuration.getFontSize());
 					setHtmlText(string);
@@ -138,13 +128,10 @@ public class QuillEditor extends StackPane {
 				}
 			}
 		});
-		// webview.setOnKeyPressed( e-> {
-		// 	log.info("Key: {}", e.getCode().toString());
-		// });
 	}
 
-    public void findString(String entered) {
-        final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
-	webview.getEngine().executeScript("findQuillContent('" + content_js + "');");
-    }
+	public void findString(String entered) {
+		final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
+		webview.getEngine().executeScript("findQuillContent('" + content_js + "');");
+	}
 }

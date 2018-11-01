@@ -130,7 +130,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	@Override
 	public Note move(Note msg, Note folder) throws Exception {
 		Path itemPath = Paths.get(msg.getUuid());
-		Path target = Paths.get(folder.getUuid());
+		Path target = Paths.get(folder.getUuid()).resolve(itemPath.getFileName());
 		Path newFile = Files.move(itemPath, target);
 		msg.setUuid(newFile.toAbsolutePath().toString());
 		return msg;
