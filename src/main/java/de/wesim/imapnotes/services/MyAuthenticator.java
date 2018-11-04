@@ -17,7 +17,7 @@ public class MyAuthenticator extends Authenticator implements HasLogger {
     private final PasswordProvider passwordProvider;
     private boolean retry = false;
 
-    MyAuthenticator(Account account) {
+    public MyAuthenticator(Account account) {
         this.account = account;
         this.passwordProvider = new PasswordProvider();
         this.passwordProvider.init();

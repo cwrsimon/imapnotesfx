@@ -4,11 +4,14 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+
+import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.Alert;
 
 
 // TODO Refactor into Dialog
+// TODO Integrate version number ???
 // cf. Featerpad menu
 // License !!!
 @Component
@@ -27,6 +30,7 @@ public class PrefixedAlertBox extends Alert {
         setHeight(500);
         setWidth(500);
         setResizable(true);
+        MyScene.setFontSize(getDialogPane());
     }
     
     public PrefixedAlertBox(String prefix, String messageArgument) {

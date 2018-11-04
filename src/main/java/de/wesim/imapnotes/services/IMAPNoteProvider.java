@@ -140,7 +140,6 @@ public class IMAPNoteProvider implements INoteProvider {
         getNotesFromFolder(folder);
     }
 
-    // TODO Implement moving of folders
     @Override
     public Note move(Note message, Note folder) throws Exception {
         final Message msg = this.msgMap.get(message.getUuid());

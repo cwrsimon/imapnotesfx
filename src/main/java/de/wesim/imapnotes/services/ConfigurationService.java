@@ -16,7 +16,6 @@ import de.wesim.imapnotes.models.Configuration;
 @Service
 public class ConfigurationService implements HasLogger {
 
-
 	public void writeConfig(Configuration config) {
 		getLogger().info("Writing config ...");
 		Gson gson = new Gson();
@@ -31,18 +30,16 @@ public class ConfigurationService implements HasLogger {
 	}
 
     public Configuration readConfig() {
-		getLogger().info("Writing config ...");
+		getLogger().info("Reading config ...");
 
-		Gson gson = new Gson();
-		Configuration newConfig;
+		final Gson gson = new Gson();
+		final Configuration newConfig;
 		try {
 			newConfig = gson.fromJson(Files.newBufferedReader(Consts.JSON_CONFIGURATION_FILE), Configuration.class);
 			return newConfig;
 		} catch (JsonSyntaxException | JsonIOException | IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			getLogger().error("Reading configuration file from '{}' failed.", Consts.JSON_CONFIGURATION_FILE, e );
 		}
-
         return new Configuration();
     }
 

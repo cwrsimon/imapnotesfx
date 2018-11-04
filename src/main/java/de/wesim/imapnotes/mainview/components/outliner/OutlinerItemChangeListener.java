@@ -7,11 +7,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeItem;
 
-public class MyTreeItemChangeListener implements ChangeListener<Boolean> {
+public class OutlinerItemChangeListener implements ChangeListener<Boolean> {
 
     private MainViewController controller;
 
-	public MyTreeItemChangeListener(MainViewController controller) {
+	public OutlinerItemChangeListener(MainViewController controller) {
         this.controller = controller;
     }
 
@@ -25,7 +25,8 @@ public class MyTreeItemChangeListener implements ChangeListener<Boolean> {
 
         // get TreeItem object for which the event was triggered 
         final BooleanProperty bb = (BooleanProperty) observable;
-        final TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
+        @SuppressWarnings("unchecked")
+		final TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();
         if (callee.getChildren().size() != 1)
             return;
         

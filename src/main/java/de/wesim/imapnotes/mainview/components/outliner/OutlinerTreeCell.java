@@ -22,12 +22,12 @@ import javafx.scene.paint.Color;
 
 @Component
 @Scope("prototype")
-public class MyTreeCell extends TreeCell<Note> implements HasLogger {
+public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 
 	@Autowired
 	private I18NService i18N;
 	
-	private static final DataFormat myNotes = new DataFormat("de.wesim.imapnotes.models.Note");
+	private static final DataFormat NOTE_FORMAT = new DataFormat("de.wesim.imapnotes.models.Note");
 
 	private final ContextMenu noteMenu = new ContextMenu();
 	private final ContextMenu genericMenu = new ContextMenu();
@@ -36,7 +36,7 @@ public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 	private MainViewController caller;
 
 	@Autowired
-	public MyTreeCell(MainViewController caller) {
+	public OutlinerTreeCell(MainViewController caller) {
 		this.caller = caller;
 	}
 	
@@ -89,51 +89,46 @@ public class MyTreeCell extends TreeCell<Note> implements HasLogger {
 		folderMenu.getItems().add(renameItem);
 		folderMenu.getItems().add(deleteItem);
 
-		// TODO Moving überarbeiten ...
+		// all necessary for moving notes ...
 		this.setOnDragDetected(e -> {
 			final Dragboard db = this.startDragAndDrop(TransferMode.MOVE);
 			final ClipboardContent content = new ClipboardContent();
-			content.put(myNotes, getItem());
+			content.put(NOTE_FORMAT, getItem());
 			db.setContent(content);
 			e.consume();
-			getLogger().info("Drag Detected");
-
+			getLogger().debug("Drag Detected");
 		});
 		this.setOnDragOver((DragEvent event) -> {
-			getLogger().info("Drag Over");
+			getLogger().debug("Drag Over");
 
 			final Dragboard db = event.getDragboard();
-			if (db.hasContent(myNotes) && getItem().isFolder() && getTreeItem().getValue().isFolder()) {
-				getLogger().info("onDragOver:" + getItem());
+			if (db.hasContent(NOTE_FORMAT) && getItem().isFolder() && getTreeItem().getValue().isFolder()) {
+				getLogger().debug("onDragOver:" + getItem());
 				event.acceptTransferModes(TransferMode.MOVE);
 			}
 			event.consume();
 		});
 
 		this.setOnDragEntered((DragEvent event) -> {
-			getLogger().info("Drag Entered");
+			getLogger().debug("Drag Entered");
 
-			if (event.getGestureSource() != getItem() && event.getDragboard().hasContent(myNotes)
-
+			if (event.getGestureSource() != getItem() && event.getDragboard().hasContent(NOTE_FORMAT)
 					&& getTreeItem().getValue().isFolder()) {
 				this.setTextFill(Color.RED);
 			}
 			event.consume();
 		});
 		this.setOnDragExited((DragEvent event) -> {
-			getLogger().info("setOnDragExited");
-
-			// this.setUnderline(false);
+			getLogger().debug("setOnDragExited");
 			this.setTextFill(Color.BLACK);
-			// items.pop();
 			event.consume();
 		});
-		// Beim Ziel, hier muss dann verschoben werden ...
+		
 		this.setOnDragDropped((DragEvent event) -> {
-			getLogger().info("setOnDragDropped");
+			getLogger().debug("setOnDragDropped");
 
 			final Dragboard db = event.getDragboard();
-			final Note source = (Note) db.getContent(myNotes);
+			final Note source = (Note) db.getContent(NOTE_FORMAT);
 			caller.move(source, getTreeItem());
 			event.setDropCompleted(true);
 			event.consume();

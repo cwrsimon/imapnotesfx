@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -26,6 +27,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	private static final String DEFAULT_FILE_ENDING = ".json";
 
 	private Path rootDirectory;
+	
+	// TODO implement me!
+	private Map<String, Path> uuid2Path;
 
 	public FSNoteProvider() {
 	}

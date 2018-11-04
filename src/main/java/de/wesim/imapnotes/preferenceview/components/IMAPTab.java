@@ -6,6 +6,7 @@ import java.util.List;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
+import de.wesim.imapnotes.services.I18NService;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Hyperlink;
@@ -22,9 +23,10 @@ import javafx.scene.layout.VBox;
 public class IMAPTab extends Tab implements HasLogger {
 
 
+	// TODO check connection
     private class IMAPForm extends GridPane {
 
-        Hyperlink removeMe = new Hyperlink("Remove");
+        private Hyperlink removeMe = new Hyperlink(i18N.getTranslation("remove"));
 
         final TextField nameField;
         final TextField pathField;
@@ -32,35 +34,33 @@ public class IMAPTab extends Tab implements HasLogger {
         final TextField loginField;
         final TextField addressField;
 
-        // TODO Name als Property
-        // UNd mit Name der TitledPane verbinden
+        // TODO Use Properties
         public IMAPForm() {
-            //this.setAlignment(Pos.);
             this.setHgap(10);
             this.setVgap(10);
             this.setPadding(new Insets(5, 5, 5, 5));
 
-            Label nameLabel = new Label("Name");
+            final Label nameLabel = new Label(i18N.getTranslation("name"));
             this.add(nameLabel, 0, 0);
             nameField = new TextField();
             this.add(nameField, 1, 0);
 
-            Label hostLabel = new Label("Host");
+            final Label hostLabel = new Label(i18N.getTranslation("host"));
             this.add(hostLabel, 0, 1);
             hostField = new TextField();
             this.add(hostField, 1, 1);
 
-            Label loginLabel = new Label("Login");
+            final Label loginLabel = new Label(i18N.getTranslation("login"));
             this.add(loginLabel, 0, 2);
             loginField = new TextField();
             this.add(loginField, 1, 2);
 
-            Label addressLabel = new Label("From Address");
+            final Label addressLabel = new Label(i18N.getTranslation("from_address"));
             this.add(addressLabel, 0, 3);
             addressField = new TextField();
             this.add(addressField, 1, 3);
 
-            Label pathLabel = new Label("File Path");
+            final Label pathLabel = new Label(i18N.getTranslation("path"));
             this.add(pathLabel, 0, 4);
 
             pathField = new TextField();
@@ -75,14 +75,6 @@ public class IMAPTab extends Tab implements HasLogger {
 
             column2.setHgrow(Priority.ALWAYS);
             this.getColumnConstraints().addAll(column1, column2);
-
-//            dirButton.setOnAction(e -> {
-//                DirectoryChooser dirChooser = new DirectoryChooser();
-//                File selectedDir = dirChooser.showDialog(getScene().getWindow());
-//                if (selectedDir != null) {
-//                    pathField.setText(selectedDir.getAbsolutePath());
-//                }
-//            });
         }
 
         public Account getAccount() {
@@ -114,9 +106,11 @@ public class IMAPTab extends Tab implements HasLogger {
     }
 
     final Accordion acco;
+	private I18NService i18N;
 
-    public IMAPTab() {
+    public IMAPTab(I18NService i18n) {
         super("IMAP");
+        this.i18N = i18n;
 
         final VBox vbox = new VBox();
         setContent(vbox);
@@ -125,7 +119,7 @@ public class IMAPTab extends Tab implements HasLogger {
 
         acco = new Accordion();
 
-        final Hyperlink button = new Hyperlink("New");
+        final Hyperlink button = new Hyperlink(i18n.getTranslation("new"));
         final ToolBar toolbar = new ToolBar(button);
 
         vbox.getChildren().add(toolbar);

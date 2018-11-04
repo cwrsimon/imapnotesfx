@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.TextInputDialog;
+import javafx.stage.Window;
 
 @Component
 @Scope("prototype")
@@ -26,7 +28,7 @@ public class PrefixedTextInputDialog extends TextInputDialog {
         setHeight(500);
         setWidth(500);
         setResizable(true);
-        
+        MyScene.setFontSize(getDialogPane());
     }
     
     public PrefixedTextInputDialog(String prefix, String messageArgument) {

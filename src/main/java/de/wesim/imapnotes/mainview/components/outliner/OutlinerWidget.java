@@ -15,17 +15,17 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 @Component
-public class MyListView extends TreeView<Note> {
+public class OutlinerWidget extends TreeView<Note> {
 
 	@Autowired
 	protected MainViewController mainViewController;
 
 	@Autowired
-	private ListCellFactory listCellFactory;
+	private OutlinerCellFactory listCellFactory;
 
-	private MyTreeItemChangeListener changeListener;
+	private OutlinerItemChangeListener changeListener;
 	
-	public MyListView() {
+	public OutlinerWidget() {
 		super(new TreeItem<Note>());
 		setShowRoot(false);
 		setPrefWidth(150);
@@ -33,7 +33,7 @@ public class MyListView extends TreeView<Note> {
 	
 	@PostConstruct
 	public void init() {
-		this.changeListener = new MyTreeItemChangeListener(mainViewController);
+		this.changeListener = new OutlinerItemChangeListener(mainViewController);
 		this.setCellFactory(listCellFactory);
 		// set default selection listener
 		getSelectionModel().selectedItemProperty().addListener(new ChangeListener<TreeItem<Note>>() {
@@ -79,7 +79,7 @@ public class MyListView extends TreeView<Note> {
 		}
 		if (parent.getChildren().isEmpty()) return null;
 		for (TreeItem<Note> child : parent.getChildren()) {
-			TreeItem<Note> found = MyListView.searchTreeItem(searchItem, child);
+			TreeItem<Note> found = OutlinerWidget.searchTreeItem(searchItem, child);
 			if (found != null) return found;
 		}
 		return null;

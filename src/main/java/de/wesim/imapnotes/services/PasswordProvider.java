@@ -20,29 +20,19 @@ public class PasswordProvider implements HasLogger {
     }
 
     public void init() {
-    	
         try {
             keyring = Keyring.create();
             if (keyring.isKeyStorePathRequired()) {
             	keyring.setKeyStorePath(Consts.KEYSTORE_PATH.toAbsolutePath().toString());
             }
         } catch (BackendNotSupportedException ex) {
-        	getLogger().warn("Probably neither Win or MacOS environment ...", ex);
+        	// TODO
+        	ex.printStackTrace();
             return;
         }
-        getLogger().info("{}", System.getProperty("os.name"));
     }
 
     public String retrievePassword(String accountName) {
-        System.out.println("Retrieving password " + accountName);
-        
-        //
-        // Retrieve password from key store
-        //
-
-        // Password can be retrieved by using Keyring.getPassword method.
-        // PasswordRetrievalException is thrown when some error happened while getting password.
-        // LockException is thrown when keyring backend failed to lock key store file.
         try {
             String password = keyring.getPassword(Consts.KEYSTORE_SERVICE_NAME, accountName);
             return password;
@@ -59,6 +49,12 @@ public class PasswordProvider implements HasLogger {
             Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
         }
        
+    }
+    
+    public static void main(String [] args) {
+    	PasswordProvider provider = new PasswordProvider();
+    	provider.init();
+    	System.out.println(provider.retrievePassword("Wesim"));
     }
 
 }

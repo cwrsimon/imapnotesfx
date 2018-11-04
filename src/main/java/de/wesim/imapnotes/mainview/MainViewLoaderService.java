@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import de.wesim.imapnotes.HasLogger;
-import javafx.scene.Parent;
+import de.wesim.imapnotes.MyScene;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
@@ -19,11 +19,7 @@ public class MainViewLoaderService implements HasLogger {
     private MainViewController mainViewController;
 
     public void init(Stage stage) {
-        final Scene myScene = new Scene(mainView);
-        Parent root = myScene.getRoot();
-        // TODO read value from config file
-		//root.setStyle("-fx-font-size: 18;");
-        //stage.initModality(Modality.APPLICATION_MODAL);
+        final Scene myScene = new MyScene(mainView);
         stage.setScene(myScene);
         stage.setWidth(1024);
         stage.setHeight(550);

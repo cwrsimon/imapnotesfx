@@ -1,7 +1,5 @@
 package imapnotesfx;
 
-import java.util.UUID;
-
 import com.google.gson.Gson;
 
 import de.wesim.imapnotes.models.Configuration;

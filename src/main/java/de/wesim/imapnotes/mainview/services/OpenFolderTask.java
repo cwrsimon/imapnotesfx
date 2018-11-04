@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.mainview.components.outliner.MyListView;
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -20,7 +20,7 @@ public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     
     @Autowired
 	@Qualifier("myListView")
-	private MyListView noteCB;
+	private OutlinerWidget noteCB;
     
 	private TreeItem<Note> folderTreeItem;
 

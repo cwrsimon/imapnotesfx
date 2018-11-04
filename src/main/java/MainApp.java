@@ -30,14 +30,12 @@ public class MainApp extends Application {
 	}
 
 
-
 	@Override
 	public void stop() throws Exception {
 		if (this.context != null) {
 			this.context.close();
 		}
 	}
-
 
 
 	public static void main(String[] args) throws IOException {
@@ -48,7 +46,7 @@ public class MainApp extends Application {
 					+ Consts.APP_DIRECTORY.toAbsolutePath().toString());
 			Files.createDirectory(Consts.APP_DIRECTORY);
 		}
-		// TODO give it a try some day ...
+		// give it a try some day ...
 		// System.setProperty("prism.subpixeltext", "false");
 
 		// suppress the logging output to the console
@@ -56,7 +54,6 @@ public class MainApp extends Application {
 		final Logger rootLogger = Logger.getLogger("");
 		final FileHandler fileHandler = new FileHandler(Consts.LOG_FILE.toAbsolutePath().toString());
 		fileHandler.setFormatter(new SimpleFormatter());
-		// TODO configure log level as a parameter 
 		fileHandler.setLevel(Level.SEVERE);
 		rootLogger.addHandler(fileHandler);
 		launch(args);

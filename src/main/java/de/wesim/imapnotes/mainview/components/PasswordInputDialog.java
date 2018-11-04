@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -86,12 +87,10 @@ public class PasswordInputDialog extends Dialog<String> {
         this.grid.setAlignment(Pos.CENTER_LEFT);
 
         dialogPane.contentTextProperty().addListener(o -> updateGrid());
-
-      
-        
         dialogPane.getStyleClass().add("text-input-dialog");
         dialogPane.getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
+        MyScene.setFontSize(getDialogPane());
         updateGrid();
 
         setResultConverter((dialogButton) -> {
@@ -102,14 +101,13 @@ public class PasswordInputDialog extends Dialog<String> {
     
     @PostConstruct
     public void init() {
-    	  final String titleText = i18N.getTranslation("password_input_title_text");
+    	final String titleText = i18N.getTranslation("password_input_title_text");
       	final String contentText = i18N.getTranslation("password_input_content_text");
       	final String headerText = i18N.getTranslation("password_input_header_text");
       	
-          setTitle(titleText);
-          getDialogPane().setContentText(contentText);
-          getDialogPane().setHeaderText(headerText);
-
+      	setTitle(titleText);
+        getDialogPane().setContentText(contentText);
+        getDialogPane().setHeaderText(headerText);
     }
 
 

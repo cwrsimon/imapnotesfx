@@ -22,14 +22,10 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 
 public class QuillEditor extends StackPane {
+	
 	final WebView webview = new WebView();
+	
 	private static final Logger log = LoggerFactory.getLogger(QuillEditor.class);
-
-	public String getFullHTMLContent() {
-		final String editingCode = (String) webview.getEngine().executeScript("getQuillContent();");
-
-		return "<html><head></head><body contenteditable=\"true\">" + editingCode + "</body></html>";
-	}
 
 	public String getHTMLContent() {
 		final String editingCode = (String) webview.getEngine().executeScript("getQuillContent();");
@@ -61,7 +57,6 @@ public class QuillEditor extends StackPane {
 	}
 
 	public final void setContentUpdate(boolean newValue) {	
-		//	log.info("Updating content for  {} with {}", toString(), newValue); 
 		contentUpdate.set(newValue);
 	}
 

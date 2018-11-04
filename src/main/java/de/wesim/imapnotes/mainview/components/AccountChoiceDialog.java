@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.mainview.components;
 
+import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.services.I18NService;
 import java.util.List;
@@ -21,6 +22,7 @@ public class AccountChoiceDialog extends ChoiceDialog<Account> {
         setHeight(500);
         setWidth(500);
         setResizable(true);
+        MyScene.setFontSize(getDialogPane());
     }
 
     @PostConstruct

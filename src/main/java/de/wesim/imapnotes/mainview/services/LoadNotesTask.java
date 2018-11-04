@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.wesim.imapnotes.mainview.components.outliner.MyListView;
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -22,7 +22,7 @@ public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
 
     @Autowired
 	@Qualifier("myListView")
-	private MyListView noteCB;
+	private OutlinerWidget noteCB;
 
 
     // TODO

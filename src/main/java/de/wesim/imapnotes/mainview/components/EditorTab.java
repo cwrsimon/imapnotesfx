@@ -14,6 +14,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 
 // TODO Convert to Spring component  ...
+// TODO Übersetzungen ...
 public class EditorTab extends Tab {
 
 	private final QuillEditor qe;

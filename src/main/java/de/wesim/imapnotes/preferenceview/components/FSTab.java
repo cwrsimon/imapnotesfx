@@ -6,6 +6,7 @@ import java.util.List;
 
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
+import de.wesim.imapnotes.services.I18NService;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
@@ -25,23 +26,23 @@ public class FSTab extends Tab {
 
     private class FSForm extends GridPane {
 
-        final TextField nameField;
-        final TextField pathField;
+        final private TextField nameField;
+        final private TextField pathField;
 
-        Hyperlink removeMe = new Hyperlink("Remove");
+        private Hyperlink removeMe = new Hyperlink(i18N.getTranslation("remove"));
 
         public FSForm() {
             this.setHgap(10);
             this.setVgap(10);
             this.setPadding(new Insets(5, 5, 5, 5));
 
-            Label nameLabel = new Label("Name");
+            Label nameLabel = new Label(i18N.getTranslation("name"));
             this.add(nameLabel, 0, 0, 1, 1);
             nameField = new TextField();
             this.add(nameField, 1, 0, 2, 1);
             
 
-            Label pathLabel = new Label("File Path");
+            Label pathLabel = new Label(i18N.getTranslation("file_path"));
             this.add(pathLabel, 0, 1, 1, 1);
 
             pathField = new TextField();
@@ -88,17 +89,18 @@ public class FSTab extends Tab {
     }
 
     final Accordion acco;
+	private final I18NService i18N;
 
-    public FSTab() {
+    public FSTab(I18NService i18n) {
         super("FS");
-
+        this.i18N = i18n;
         final VBox vbox = new VBox();
         setContent(vbox);
         vbox.setPadding(new Insets(5, 5, 5, 5));
 
         acco = new Accordion();
 
-        final Hyperlink button = new Hyperlink("New");
+        final Hyperlink button = new Hyperlink(this.i18N.getTranslation("new"));
         final ToolBar toolbar = new ToolBar(button);
 
         vbox.getChildren().add(toolbar);

@@ -12,7 +12,7 @@ import javafx.scene.input.KeyCombination;
 @Configuration
 @ComponentScan(basePackages = "de.wesim")
 public class AppConfig {
-
+	
 	@Bean
 	public ProgressBar p1() {
 		return new ProgressBar();

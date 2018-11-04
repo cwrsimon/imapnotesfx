@@ -2,7 +2,10 @@ package de.wesim.imapnotes;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
+// TODO Überarbeiten
 public final class Consts {
 
 	public static final String SHORTCUT_QUIT = "Shortcut+Q";
@@ -31,6 +34,24 @@ public final class Consts {
     public static final String EMPTY_NOTE
             = "<html dir=\"ltr\"><head></head><body contenteditable=\"true\"></body></html>";
 
+    public static final List<String> fontFamilies = List.of("sans-serif", "serif", "monospace", "arial", "courier");
+	
+	public static List<String> fontSizes;
+	
+	static {
+		fontSizes = new ArrayList<>();
+		for (int i=8; i<50; i++) {
+			fontSizes.add(String.format("%dpx", i));
+		}
+	}
+
+	public static final String DEFAULT_FONT_SIZE = "17px";
+
+	public static final String DEFAULT_FONT_FAMILY = "sans-serif";
+
+
+    
+    // FIXME
     // private String parse(String htmlContent) {
     // final String plainContent = Jsoup.parse(htmlContent).text();
     // return plainContent;

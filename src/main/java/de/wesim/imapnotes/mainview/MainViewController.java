@@ -16,7 +16,7 @@ import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
 import de.wesim.imapnotes.mainview.components.PrefixedAlertBox;
 import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
-import de.wesim.imapnotes.mainview.components.outliner.MyListView;
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.mainview.services.DeleteNoteTask;
 import de.wesim.imapnotes.mainview.services.LoadNotesTask;
 import de.wesim.imapnotes.mainview.services.MoveNoteTask;
@@ -28,7 +28,7 @@ import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
 import de.wesim.imapnotes.models.Note;
-import de.wesim.imapnotes.preferenceview.Preferences;
+import de.wesim.imapnotes.preferenceview.PreferenceView;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
@@ -101,6 +101,7 @@ public class MainViewController implements HasLogger {
     @Autowired
 	private MenuItem newFolder;
         
+    // FIXME
     // these fields cannot be autowired, but must be set manually
     // don't ask ...
     private HostServices hostServices;
@@ -155,26 +156,12 @@ public class MainViewController implements HasLogger {
         });
 
         preferences.setOnAction(e -> {
-            final Preferences prefs = new Preferences(stage);
-//            final Stage newStage = new Stage();
-//            newStage.initModality(Modality.APPLICATION_MODAL);
-//            newStage.setHeight(500);
-//            newStage.setWidth(600);
-//            // TODO !!!
-//            newStage.setScene(prefs.getScene());
-//            prefs.getCancelButton().setOnAction(e2 -> {
-//                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-//            });
-//            prefs.getApplyButton().setOnAction(e2 -> {
-//                prefs.savePreferences();
-//                newStage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
-//                refreshConfig();
-//                startup();
-//            });
+            final PreferenceView prefs = this.context.getBean(PreferenceView.class, stage);
             prefs.showAndWait();
-            // TODO Rückgabe abfangen
-            refreshConfig();
-            startup();
+            if (prefs.isPreferencesSaved()) {
+                refreshConfig();
+                startup();
+            }
         });
         
         find.setOnAction( e-> {
@@ -285,7 +272,7 @@ public class MainViewController implements HasLogger {
     public void move(Note msg, TreeItem<Note> target) {
         
         // find the tree item with the note to be removed
-        final TreeItem<Note> foundTreeItem = MyListView.searchTreeItem(msg, this.noteCB.getRoot());
+        final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.noteCB.getRoot());
         getLogger().info("Moving source {} ", foundTreeItem);
         getLogger().info("Moving target {} ", target);
 
@@ -466,13 +453,13 @@ public class MainViewController implements HasLogger {
         // Das alles nach ListView verschieben ...
         final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
         if (newNote.isFolder()) {
-            if (MyListView.isEmptyTreeItem(newTreeItem)) {
+            if (OutlinerWidget.isEmptyTreeItem(newTreeItem)) {
                 newTreeItem.getChildren().clear();
             }
             newTreeItem.getChildren().add(new TreeItem<Note>(null));
         }
         if (treeItem != null) {
-            if (MyListView.isEmptyTreeItem(treeItem)) {
+            if (OutlinerWidget.isEmptyTreeItem(treeItem)) {
             	treeItem.getChildren().clear();
             }
             treeItem.getChildren().add(newTreeItem);
