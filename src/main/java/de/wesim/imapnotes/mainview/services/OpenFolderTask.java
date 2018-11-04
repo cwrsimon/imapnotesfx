@@ -3,7 +3,6 @@ package de.wesim.imapnotes.mainview.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -19,8 +18,7 @@ import javafx.scene.control.TreeItem;
 public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     
     @Autowired
-	@Qualifier("myListView")
-	private OutlinerWidget noteCB;
+	private OutlinerWidget outlinerWidget;
     
 	private TreeItem<Note> folderTreeItem;
 
@@ -34,7 +32,7 @@ public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     	super.succeeded();
         final ObservableList<Note> loadedItems = getValue();
         Platform.runLater( () -> 
-        	this.noteCB.addChildrenToNode(loadedItems, folderTreeItem)
+        	this.outlinerWidget.addChildrenToNode(loadedItems, folderTreeItem)
         		);
     }
 

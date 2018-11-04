@@ -44,7 +44,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
@@ -70,9 +69,8 @@ public class MainViewController implements HasLogger {
     @Autowired
     private TabPane tp;
 
-    @Autowired
-    @Qualifier("myListView")
-    private TreeView<Note> noteCB;
+	@Autowired
+	private OutlinerWidget outlinerWidget;
 
     @Autowired
     private MenuItem reloadMenuTask;
@@ -272,7 +270,7 @@ public class MainViewController implements HasLogger {
     public void move(Note msg, TreeItem<Note> target) {
         
         // find the tree item with the note to be removed
-        final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.noteCB.getRoot());
+        final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
         getLogger().info("Moving source {} ", foundTreeItem);
         getLogger().info("Moving target {} ", target);
 
@@ -464,7 +462,7 @@ public class MainViewController implements HasLogger {
             }
             treeItem.getChildren().add(newTreeItem);
         } else {
-            this.noteCB.getRoot().getChildren().add(newTreeItem);
+            this.outlinerWidget.getRoot().getChildren().add(newTreeItem);
         }
         openNote(newNote);
     }

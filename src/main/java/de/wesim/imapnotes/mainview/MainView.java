@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.geometry.HPos;
@@ -46,8 +47,7 @@ public class MainView extends BorderPane implements HasLogger {
 	private TabPane tp;
 	
 	@Autowired
-	@Qualifier("myListView")
-	private TreeView<Note> noteCB;
+	private OutlinerWidget outlinerWidget;
 
 	@Autowired
 	private MenuItem reloadMenuTask;
@@ -129,7 +129,7 @@ public class MainView extends BorderPane implements HasLogger {
 		column2.setPercentWidth(50);        
         statusPane.getColumnConstraints().addAll(column1, column2);
 
-		final SplitPane sp = new SplitPane(new StackPane(noteCB), tp);
+		final SplitPane sp = new SplitPane(new StackPane(outlinerWidget), tp);
 		sp.setOrientation(Orientation.HORIZONTAL);
 		sp.setDividerPositions(0.25);
 		

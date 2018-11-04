@@ -21,15 +21,14 @@ public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
     }
 
     @Autowired
-	@Qualifier("myListView")
-	private OutlinerWidget noteCB;
+	private OutlinerWidget outlinerWidget;
 
 
     // TODO
     @Override
 	protected void succeeded() {
         final ObservableList<Note> loadedItems = getValue();
-        this.noteCB.addChildrenToNode(loadedItems, noteCB.getRoot());
+        this.outlinerWidget.addChildrenToNode(loadedItems, outlinerWidget.getRoot());
 
         // open the first element
         if (loadedItems.isEmpty()) return;

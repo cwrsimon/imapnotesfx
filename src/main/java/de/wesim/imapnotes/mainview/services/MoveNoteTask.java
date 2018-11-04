@@ -1,22 +1,20 @@
 package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
 import javafx.application.Platform;
 import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 
 @Component
 @Scope("prototype")
 public class MoveNoteTask extends AbstractNoteTask<Void> {
     
     @Autowired
-	@Qualifier("myListView")
-	private TreeView<Note> noteCB;
+	private OutlinerWidget outlinerWidget;
     
 	private final TreeItem<Note> moveItem;
 	private final TreeItem<Note> target;
@@ -33,7 +31,7 @@ public class MoveNoteTask extends AbstractNoteTask<Void> {
     	Platform.runLater( () -> {	
     		mainViewController.removeTreeItem(this.moveItem);
     		target.getChildren().add(new TreeItem<Note>(this.moveItem.getValue()));    		
-    		noteCB.refresh();    		
+    		outlinerWidget.refresh();    		
     	});
 	}
 
