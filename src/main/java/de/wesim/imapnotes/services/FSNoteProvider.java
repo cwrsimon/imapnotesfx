@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -29,7 +30,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 	private Path rootDirectory;
 	
 	// TODO implement me!
-	private Map<String, Path> uuid2Path;
+	private Map<String, Path> uuid2Path = new HashMap<>();
 
 	public FSNoteProvider() {
 	}
@@ -53,19 +54,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public void load(Note note) throws Exception {
-		if (note.getContent() == null) {
-			final Path path = Paths.get(note.getUuid());
-			final String loadedContent = new String(Files.readAllBytes(path), DEFAULT_ENCODING);
-			int startIndex = loadedContent.indexOf("<html ");
-			if (startIndex == -1) {
-				startIndex = loadedContent.indexOf(System.lineSeparator());
-			}
-			if (startIndex == -1) {
-				note.setContent(loadedContent);
-			} else {
-				note.setContent(loadedContent.substring(startIndex));
-			}
-		}
 	}
 
 	@Override
@@ -78,8 +66,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public void delete(Note note) throws Exception {
-		final Path path = Paths.get(note.getUuid());
+		final Path path = uuid2Path.get(note.getUuid());
 		Files.delete(path);
+		uuid2Path.remove(note.getUuid());
 	}
 
 	@Override
@@ -150,24 +139,26 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 			fileStream.forEach(filePath -> {
 				final String fileName = filePath.toAbsolutePath().toString();
+				Note newNote = null;
 				if (Files.isRegularFile(filePath) 
 						&& fileName.endsWith(DEFAULT_FILE_ENDING)) {
 					try {
 						byte[] rawContent = Files.readAllBytes(filePath);
 						final String jsonContent = new String(rawContent, DEFAULT_ENCODING);
-						final Note newNote = gson.fromJson(jsonContent, Note.class);
-						if (newNote != null) {
-							notes.add(newNote);						
-						}
+						newNote = gson.fromJson(jsonContent, Note.class);
+						
 					} catch (JsonSyntaxException | IOException e) {
 						getLogger().error("Reading note {} has failed.", fileName);
 					}
 				}
 				if (Files.isDirectory(filePath)) {
-					final Note newNote = new Note(fileName);
+					newNote = new Note(fileName);
 					newNote.setIsFolder(true);
 					newNote.setSubject(filePath.getFileName().toString());
-					notes.add(newNote);
+				}
+				if (newNote != null) {
+					notes.add(newNote);		
+					uuid2Path.put(newNote.getUuid(), filePath);
 				}
 			});
 		}
