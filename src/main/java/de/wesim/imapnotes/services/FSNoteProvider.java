@@ -60,7 +60,13 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public void update(Note note) throws Exception {
-		final Path path = uuid2Path.get(note.getUuid());
+		final Path path;
+		if (!note.isFolder()) {
+			path = uuid2Path.get(note.getUuid());
+		} else {
+			final Path parent = uuid2Path.get(note.getUuid()).getParent();
+			path = parent.resolve(note.getUuid() + DEFAULT_FILE_ENDING);
+		}
 		final Gson gson = new Gson();
 		final String json = gson.toJson(note);
 		Files.write(path, json.getBytes(DEFAULT_ENCODING));
@@ -98,11 +104,11 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 					}
 				}
 				// TODO vollen Ordnerpfad als UUID nutzen!
-				if (Files.isDirectory(filePath)) {
-					newNote = new Note(fileName);
-					newNote.setIsFolder(true);
-					newNote.setSubject(filePath.getFileName().toString());
-				}
+				// if (Files.isDirectory(filePath)) {
+				// 	newNote = new Note(fileName);
+				// 	newNote.setIsFolder(true);
+				// 	newNote.setSubject(filePath.getFileName().toString());
+				// }
 				if (newNote != null) {
 					notes.add(newNote);		
 					uuid2Path.put(newNote.getUuid(), filePath);
@@ -119,21 +125,21 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public Note createNewFolder(String name, Note parent) throws Exception {
-		// TODO FIXME 
-		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
 		final Path parentPath;
 		if (parent != null) {
 			parentPath = uuid2Path.get(parent.getUuid());
 		} else {
 			parentPath = rootDirectory;
 		}
-		final Path newFolderPath = parentPath.resolve(name);
-		// FIXME Gibt es den Folder bereits?
+		final UUID uuid = UUID.randomUUID();
+		final Path newFolderPath = parentPath.resolve(uuid.toString());
 		Files.createDirectory(newFolderPath);
-		final Note newNote = new Note(newFolderPath.toAbsolutePath().toString());
+		final Note newNote = new Note(uuid.toString());
 		uuid2Path.put(newNote.getUuid(), newFolderPath);
 		newNote.setIsFolder(true);
 		newNote.setSubject(name);	
+		// save as json, too, although folder
+		update(newNote);
 		return newNote;
 	}
 
@@ -150,7 +156,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		final Path newFolderPath = oldPath.getParent().resolve(newName);
 		final Path newPath = Files.move(oldPath, newFolderPath);
 		uuid2Path.put(folder.getUuid(), newPath);
-		getNotesFromFolder(folder);
+		update(folder);
 	}
 
 	@Override
@@ -164,7 +170,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		final Path targetFolder = uuid2Path.get(folder.getUuid());
 		final Path target = targetFolder.resolve(itemPath.getFileName());
 		Files.move(itemPath, target);
-		getNotesFromFolder(folder);
+		//getNotesFromFolder(folder);
 		// final Message msg = this.msgMap.get(message.getUuid());
         // final Folder imapFolder = this.folderMap.get(folder.getUuid());
         // this.backend.moveMessage(msg, imapFolder);
