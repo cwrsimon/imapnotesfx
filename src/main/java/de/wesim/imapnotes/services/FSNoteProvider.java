@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.lang.String;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
@@ -29,8 +30,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	private Path rootDirectory;
 	
-	// TODO implement me!
-	private Map<String, Path> uuid2Path = new HashMap<>();
+	private final Map<String, Path> uuid2Path = new HashMap<>();
 
 	public FSNoteProvider() {
 	}
@@ -40,12 +40,13 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		final UUID uuid = UUID.randomUUID();
 		final Path parentPath;
 		if (parentFolder != null) {
-			parentPath = Paths.get(parentFolder.getUuid()); 
+			parentPath = uuid2Path.get(parentFolder.getUuid()); 
 		} else {
 			parentPath = rootDirectory;
 		}
 		final Path newFile = parentPath.resolve(uuid.toString() + DEFAULT_FILE_ENDING);
-		final Note newNote = new Note(newFile.toAbsolutePath().toString());
+		final Note newNote = new Note(uuid.toString());
+		uuid2Path.put(uuid.toString(), newFile);
 		newNote.setSubject(subject);
 		newNote.setContent(Consts.EMPTY_NOTE);
 		update(newNote);
@@ -54,11 +55,12 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public void load(Note note) throws Exception {
+		// nothing to do
 	}
 
 	@Override
 	public void update(Note note) throws Exception {
-		final Path path = Paths.get(note.getUuid());
+		final Path path = uuid2Path.get(note.getUuid());
 		final Gson gson = new Gson();
 		final String json = gson.toJson(note);
 		Files.write(path, json.getBytes(DEFAULT_ENCODING));
@@ -73,70 +75,14 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public List<Note> getNotes() throws Exception {
-		return getNotesFromFolder(new Note(rootDirectory.toAbsolutePath().toString()));
+		this.uuid2Path.clear();
+		return loadNotesFromFSDirectory(rootDirectory);
 	}
 
-	@Override
-	public void destroy() throws Exception {
-		;
-	}
-
-	@Override
-	public Note createNewFolder(String name, Note parent) throws Exception {
-		// TODO FIXME 
-		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
-		final Path parentPath;
-		if (parent != null) {
-			parentPath = Paths.get(parent.getUuid());
-		} else {
-			parentPath = rootDirectory;
-		}
-		final Path newFolderPath = parentPath.resolve(name);
-		// Gibt es den Folder bereits?
-		Files.createDirectory(newFolderPath);
-		final Note newNote = new Note(newFolderPath.toAbsolutePath().toString());
-		newNote.setIsFolder(true);
-		newNote.setSubject(name);	
-		return newNote;
-	}
-
-	@Override
-	public void renameNote(Note note, String newName) throws Exception {
-		note.setSubject(newName);
-		update(note);
-	}
-
-	@Override
-	public void renameFolder(Note note, String newName) throws Exception {
-		note.setSubject(newName);
-		final Path oldPath = Paths.get(note.getUuid());
-		final Path newFolderPath = oldPath.getParent().resolve(newName);
-		Path newPath = Files.move(oldPath, newFolderPath);
-		note.setUuid(newPath.toAbsolutePath().toString());
-	}
-
-	@Override
-	public void init(Account account) throws Exception {
-		this.rootDirectory = Paths.get(account.getRoot_folder());
-	}
-
-	@Override
-	public Note move(Note msg, Note folder) throws Exception {
-		Path itemPath = Paths.get(msg.getUuid());
-		Path target = Paths.get(folder.getUuid()).resolve(itemPath.getFileName());
-		Path newFile = Files.move(itemPath, target);
-		msg.setUuid(newFile.toAbsolutePath().toString());
-		return msg;
-	}
-
-	@Override
-	public List<Note> getNotesFromFolder(Note folder) throws Exception {
+	private List<Note> loadNotesFromFSDirectory(Path directory) throws Exception {
 		final List<Note> notes = new ArrayList<>();
-		final Path directory = Paths.get(folder.getUuid());
 		final Gson gson = new Gson();
-
 		try (Stream<Path> fileStream = Files.list(directory)) {
-
 			fileStream.forEach(filePath -> {
 				final String fileName = filePath.toAbsolutePath().toString();
 				Note newNote = null;
@@ -151,6 +97,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 						getLogger().error("Reading note {} has failed.", fileName);
 					}
 				}
+				// TODO vollen Ordnerpfad als UUID nutzen!
 				if (Files.isDirectory(filePath)) {
 					newNote = new Note(fileName);
 					newNote.setIsFolder(true);
@@ -163,5 +110,72 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 			});
 		}
 		return notes;
+	}
+
+	@Override
+	public void destroy() throws Exception {
+		;
+	}
+
+	@Override
+	public Note createNewFolder(String name, Note parent) throws Exception {
+		// TODO FIXME 
+		// TODO Auf existierenden Ordernamen prüfen und Exception werfen
+		final Path parentPath;
+		if (parent != null) {
+			parentPath = uuid2Path.get(parent.getUuid());
+		} else {
+			parentPath = rootDirectory;
+		}
+		final Path newFolderPath = parentPath.resolve(name);
+		// FIXME Gibt es den Folder bereits?
+		Files.createDirectory(newFolderPath);
+		final Note newNote = new Note(newFolderPath.toAbsolutePath().toString());
+		uuid2Path.put(newNote.getUuid(), newFolderPath);
+		newNote.setIsFolder(true);
+		newNote.setSubject(name);	
+		return newNote;
+	}
+
+	@Override
+	public void renameNote(Note note, String newName) throws Exception {
+		note.setSubject(newName);
+		update(note);
+	}
+
+	@Override
+	public void renameFolder(Note folder, String newName) throws Exception {
+		folder.setSubject(newName);
+		final Path oldPath = uuid2Path.get(folder.getUuid());
+		final Path newFolderPath = oldPath.getParent().resolve(newName);
+		final Path newPath = Files.move(oldPath, newFolderPath);
+		uuid2Path.put(folder.getUuid(), newPath);
+		getNotesFromFolder(folder);
+	}
+
+	@Override
+	public void init(Account account) throws Exception {
+		this.rootDirectory = Paths.get(account.getRoot_folder());
+	}
+
+	@Override
+	public Note move(Note msg, Note folder) throws Exception {
+		final Path itemPath = uuid2Path.get(msg.getUuid());
+		final Path targetFolder = uuid2Path.get(folder.getUuid());
+		final Path target = targetFolder.resolve(itemPath.getFileName());
+		Files.move(itemPath, target);
+		getNotesFromFolder(folder);
+		// final Message msg = this.msgMap.get(message.getUuid());
+        // final Folder imapFolder = this.folderMap.get(folder.getUuid());
+        // this.backend.moveMessage(msg, imapFolder);
+        // // reload for updating references in UUID maps
+        // getNotesFromFolder(folder);
+		return msg;
+	}
+
+	@Override
+	public List<Note> getNotesFromFolder(Note folder) throws Exception {
+		final Path directory = uuid2Path.get(folder.getUuid());
+		return loadNotesFromFSDirectory(directory);
 	}
 }

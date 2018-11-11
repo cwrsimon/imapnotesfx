@@ -35,9 +35,9 @@ public class RenameNoteTask extends AbstractNoteTask<Void> {
     	Platform.runLater( () -> {
     		outlinerWidget.refresh();
     		// TODO FIXME unnötig, falls wir nur den Ordner neu laden ...
-        	if (this.note.isFolder()) {
-            	mainViewController.triggerReload();
-        	}
+        	// if (this.note.isFolder()) {
+            // 	mainViewController.triggerReload();
+        	// }
     	});
 	}
 
