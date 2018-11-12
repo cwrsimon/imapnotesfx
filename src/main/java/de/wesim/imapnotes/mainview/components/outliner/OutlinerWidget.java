@@ -64,8 +64,6 @@ public class OutlinerWidget extends TreeView<Note> {
             final TreeItem<Note> newItem = new TreeItem<Note>(n);
             if (n.isFolder()) {
                 newItem.getChildren().add(new TreeItem<Note>());
-                // TODO
-                // https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
                 newItem.setExpanded(false);
                 newItem.expandedProperty().addListener(this.changeListener);
             }

@@ -94,7 +94,7 @@ public class IMAPNoteProvider implements INoteProvider {
         final Folder f = this.folderMap.get(folder.getUuid());
         final List<Note> notes = this.backend.getMessages(f,
                 this.msgMap, this.folderMap);
-        // TODO
+        // sort by date
         Collections.sort(notes);
         return notes;
     }

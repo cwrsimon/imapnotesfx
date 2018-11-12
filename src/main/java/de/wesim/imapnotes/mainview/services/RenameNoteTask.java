@@ -1,14 +1,12 @@
 package de.wesim.imapnotes.mainview.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
 import javafx.application.Platform;
-import javafx.scene.control.TreeView;
 
 @Component
 @Scope("prototype")
@@ -34,10 +32,6 @@ public class RenameNoteTask extends AbstractNoteTask<Void> {
     	super.succeeded();
     	Platform.runLater( () -> {
     		outlinerWidget.refresh();
-    		// TODO FIXME unnötig, falls wir nur den Ordner neu laden ...
-        	// if (this.note.isFolder()) {
-            // 	mainViewController.triggerReload();
-        	// }
     	});
 	}
 

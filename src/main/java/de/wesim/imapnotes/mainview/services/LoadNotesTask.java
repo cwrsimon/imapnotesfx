@@ -3,12 +3,12 @@ package de.wesim.imapnotes.mainview.services;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.models.Note;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -24,18 +24,19 @@ public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
 	private OutlinerWidget outlinerWidget;
 
 
-    // TODO
     @Override
 	protected void succeeded() {
+    	super.succeeded();
         final ObservableList<Note> loadedItems = getValue();
-        this.outlinerWidget.addChildrenToNode(loadedItems, outlinerWidget.getRoot());
-
-        // open the first element
-        if (loadedItems.isEmpty()) return;
-        final Note firstELement = loadedItems.get(0);
-        if (!firstELement.isFolder()) {
-        	mainViewController.openNote(firstELement);
-        }
+        Platform.runLater( () -> {
+        	this.outlinerWidget.addChildrenToNode(loadedItems, outlinerWidget.getRoot());
+        	// open the first element
+        	if (loadedItems.isEmpty()) return;
+        	final Note firstELement = loadedItems.get(0);
+        	if (!firstELement.isFolder()) {
+        		mainViewController.openNote(firstELement);
+        	}
+        });
     }
 
 	@Override

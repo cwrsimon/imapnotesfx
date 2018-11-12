@@ -24,6 +24,7 @@ public class NewNoteTask extends AbstractNoteTask<Note> {
     
     @Override
 	protected void succeeded() {
+    	super.succeeded();
     	Platform.runLater( () -> 
     		mainViewController.addNoteToTree(this.parentFolder, getValue())
     	);

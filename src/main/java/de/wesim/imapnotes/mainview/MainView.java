@@ -3,13 +3,11 @@ package de.wesim.imapnotes.mainview;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
-import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
@@ -21,7 +19,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TreeView;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;

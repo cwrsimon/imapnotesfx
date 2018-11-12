@@ -28,6 +28,7 @@ public class MoveNoteTask extends AbstractNoteTask<Void> {
    
     @Override
 	protected void succeeded() {
+    	super.succeeded();
     	Platform.runLater( () -> {	
     		mainViewController.removeTreeItem(this.moveItem);
     		target.getChildren().add(new TreeItem<Note>(this.moveItem.getValue()));    		

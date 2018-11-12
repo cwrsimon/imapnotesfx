@@ -21,7 +21,7 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
-
+// TODO Beim Abspeichern Datum setzen
 public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
@@ -103,12 +103,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 						getLogger().error("Reading note {} has failed.", fileName);
 					}
 				}
-				// TODO vollen Ordnerpfad als UUID nutzen!
-				// if (Files.isDirectory(filePath)) {
-				// 	newNote = new Note(fileName);
-				// 	newNote.setIsFolder(true);
-				// 	newNote.setSubject(filePath.getFileName().toString());
-				// }
 				if (newNote != null) {
 					notes.add(newNote);		
 					uuid2Path.put(newNote.getUuid(), filePath);
@@ -151,12 +145,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public void renameFolder(Note folder, String newName) throws Exception {
-		folder.setSubject(newName);
-		final Path oldPath = uuid2Path.get(folder.getUuid());
-		final Path newFolderPath = oldPath.getParent().resolve(newName);
-		final Path newPath = Files.move(oldPath, newFolderPath);
-		uuid2Path.put(folder.getUuid(), newPath);
-		update(folder);
+		renameNote(folder, newName);
 	}
 
 	@Override
@@ -181,7 +170,8 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	@Override
 	public List<Note> getNotesFromFolder(Note folder) throws Exception {
-		final Path directory = uuid2Path.get(folder.getUuid());
+		final Path jsonFile = uuid2Path.get(folder.getUuid());
+		final Path directory = jsonFile.getParent().resolve(folder.getUuid());
 		return loadNotesFromFSDirectory(directory);
 	}
 }

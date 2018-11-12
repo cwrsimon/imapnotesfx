@@ -24,6 +24,7 @@ public class OutlinerItemChangeListener implements ChangeListener<Boolean> {
         }
 
         // get TreeItem object for which the event was triggered 
+        // https://stackoverflow.com/questions/14236666/how-to-get-current-treeitem-reference-which-is-expanding-by-user-click-in-javafx#14241151
         final BooleanProperty bb = (BooleanProperty) observable;
         @SuppressWarnings("unchecked")
 		final TreeItem<Note> callee = (TreeItem<Note>) bb.getBean();

@@ -20,6 +20,7 @@ public class DeleteNoteTask extends AbstractNoteTask<Void> {
 
 	@Override
 	protected void succeeded() {
+    	super.succeeded();
 		Platform.runLater( () -> {
 			mainViewController.removeTreeItem( this.treeItem );
 		});

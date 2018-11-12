@@ -33,10 +33,10 @@ public class GeneralTab extends Tab {
 		fontFamilyField = new ChoiceBox<String>();
 		vbox.add(fontFamilyField, 1,1);
 		
-		fontSizeField.setItems(FXCollections.observableArrayList(Consts.fontSizes));
+		fontSizeField.setItems(FXCollections.observableArrayList(Consts.AVAILABLE_FONT_SIZE));
 		fontSizeField.getSelectionModel().select(Consts.DEFAULT_FONT_SIZE);
 
-		fontFamilyField.setItems(FXCollections.observableArrayList(Consts.fontFamilies));
+		fontFamilyField.setItems(FXCollections.observableArrayList(Consts.AVAILABLE_FONT_FAMILIES));
 		fontFamilyField.getSelectionModel().select(Consts.DEFAULT_FONT_FAMILY);
 	}
 
