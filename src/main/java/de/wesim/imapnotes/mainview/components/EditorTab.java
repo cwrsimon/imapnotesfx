@@ -72,6 +72,7 @@ public class EditorTab extends Tab {
 		return note;
 	}
 
+	// TODO Auslagern
 	public void saveContents() {
 		Task<Void> task = new Task<Void>() {
 
