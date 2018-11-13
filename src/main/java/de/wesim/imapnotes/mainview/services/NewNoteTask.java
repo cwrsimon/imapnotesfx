@@ -43,7 +43,7 @@ public class NewNoteTask extends AbstractNoteTask<Note> {
 
 	@Override
 	public String getRunningMessage() {
-		return i18N.getMessageAndTranslation("user_message_start_creating",
+		return i18N.getMessageAndTranslation("user_folder_start_creating",
         		this.subject);           
 	}
 
