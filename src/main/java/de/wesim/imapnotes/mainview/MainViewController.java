@@ -24,6 +24,7 @@ import de.wesim.imapnotes.mainview.services.NewNoteTask;
 import de.wesim.imapnotes.mainview.services.OpenFolderTask;
 import de.wesim.imapnotes.mainview.services.OpenNoteTask;
 import de.wesim.imapnotes.mainview.services.RenameNoteTask;
+import de.wesim.imapnotes.mainview.services.SaveNoteTask;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.models.Configuration;
@@ -239,7 +240,7 @@ public class MainViewController implements HasLogger {
     }
 
     public void openEditor(final Note openedNote) {
-        final Tab editorTab = new EditorTab(this, openedNote);
+        final Tab editorTab = context.getBean(EditorTab.class, openedNote);
         tp.getTabs().add(editorTab);
         tp.getSelectionModel().select(editorTab);
     }
@@ -386,7 +387,8 @@ public class MainViewController implements HasLogger {
         getLogger().info("Saving new content: {}", newContent);
 
         et.getNote().setContent(newContent);
-        et.saveContents();
+        final SaveNoteTask saveTask = context.getBean(SaveNoteTask.class, et);
+        saveTask.run();
     }
 
     public boolean exitPossible() {

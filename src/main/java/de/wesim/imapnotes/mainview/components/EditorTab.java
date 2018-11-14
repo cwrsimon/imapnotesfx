@@ -2,45 +2,56 @@ package de.wesim.imapnotes.mainview.components;
 
 import java.util.Optional;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.binding.Bindings;
-import javafx.concurrent.Task;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 
-// TODO Convert to Spring component  ...
-// TODO Übersetzungen ...
+
+@Component
+@Scope("prototype")
 public class EditorTab extends Tab {
 
-	private final QuillEditor qe;
+	@Autowired
+	protected MainViewController mainViewController;
+	
+	@Autowired
+    private ApplicationContext context;
 
-	private Note note;
+	private QuillEditor qe;
 
-	private MainViewController controller;
+	private final Note note;
 
 	private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
 
 	private Optional<ButtonType> demandConfirmation() {
-		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-		alert.setTitle("Content has changed ...");
-		alert.setContentText("Do you want to continue without saving first?");
-		alert.setResizable(true);
+		Alert alert = context.getBean(PrefixedAlertBox.class, "close_tab");
+		alert.setAlertType(AlertType.CONFIRMATION);
 		return alert.showAndWait();
 	}
 
-	public EditorTab(MainViewController noteController, Note note) {
+	public EditorTab(Note note) {
 		super(note.getSubject());
-		this.controller = noteController;
-		this.qe = new QuillEditor(noteController.getHostServices(),  note.getContent(), noteController.getConfiguration());
-		setContent(this.qe);
 		this.note = note;
+	}
+	
+	@PostConstruct
+	public void init() {
+		this.qe = new QuillEditor(mainViewController.getHostServices(),  note.getContent(), mainViewController.getConfiguration());
+		setContent(this.qe);
 		setOnCloseRequest(e-> {
-			// Speicherstatus auslesen
 			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
 			if (!this.qe.getContentUpdate()) {
 				return;
@@ -72,26 +83,4 @@ public class EditorTab extends Tab {
 		return note;
 	}
 
-	// TODO Auslagern
-	public void saveContents() {
-		Task<Void> task = new Task<Void>() {
-
-			@Override
-			protected Void call() throws Exception {
-				updateProgress(0, 1);
-				controller.getBackend().update(note);
-				updateProgress(1, 1);
-				return null;
-			}
-
-			@Override
-			protected void succeeded() {
-				// TODO Auto-generated method stub
-				super.succeeded();
-				getQe().setContentUpdate(false);
-				// TODO Text im Tab anpassen
-			}
-		};
-		task.run();
-	}
 }
