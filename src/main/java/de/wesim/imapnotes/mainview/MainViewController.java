@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.mainview;
 
+import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
@@ -100,14 +104,12 @@ public class MainViewController implements HasLogger {
     @Autowired
 	private MenuItem newFolder;
         
-    // FIXME
-    // these fields cannot be autowired, but must be set manually
-    // don't ask ...
+    // these two fields must be injected
+    // after the bean has been created
     private HostServices hostServices;
     private Stage stage;
-    private INoteProvider backend;
 
-    private Configuration config;
+    private INoteProvider backend;
     
     public MainViewController() {
 
@@ -131,9 +133,17 @@ public class MainViewController implements HasLogger {
         });
         
 		about.setOnAction( e-> {
-			// TODO Find a better solution
-			final PrefixedAlertBox aboutBox = context.getBean(PrefixedAlertBox.class, "about");
-			aboutBox.showAndWait();
+			final Gson gson = new Gson();
+			try {
+				final Note aboutNote;
+				aboutNote = gson.fromJson(new String(MainViewController.class.getResourceAsStream("/about.json").readAllBytes(),
+							"UTF-8"), Note.class);
+				openEditor(aboutNote);
+
+			} catch (JsonSyntaxException | IOException e1) {
+				getLogger().error("Opening about.json failed.", e1);
+			}
+
 		});
 
         reloadMenuTask.setOnAction(e -> {
@@ -147,7 +157,7 @@ public class MainViewController implements HasLogger {
         exit.setOnAction(event -> {
             if (exitPossible()) {
                 destroyBackend();
-                configurationService.writeConfig(config);
+                configurationService.writeConfig();
                 stage.fireEvent(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
             } else {
                 getLogger().error("Quitting application not possible ...");
@@ -193,11 +203,11 @@ public class MainViewController implements HasLogger {
     }
 
     private void refreshConfig() {
-        this.config = configurationService.readConfig();
+        configurationService.refresh();
     }
 
     public void chooseAccount() {
-        final List<Account> availableAccounts = this.config.getAccountList();
+        final List<Account> availableAccounts = this.configurationService.getConfig().getAccountList();
         if (availableAccounts.size() < 2) return;
         final ChoiceDialog<Account> cd = 
             this.context.getBean(AccountChoiceDialog.class, availableAccounts);
@@ -235,7 +245,7 @@ public class MainViewController implements HasLogger {
         }
         final String account_name = first.getAccount_name();
 		this.account.setText(account_name);
-        this.config.setLastOpenendAccount(account_name);
+        this.configurationService.getConfig().setLastOpenendAccount(account_name);
         loadNotes();
     }
 
@@ -246,15 +256,16 @@ public class MainViewController implements HasLogger {
     }
 
     public void startup() {
+    	final Configuration config = configurationService.getConfig();
         final String lastOpenedAccount = config.getLastOpenendAccount();
 
         Account firstAccount = null;
-        if (!this.config.getAccountList().isEmpty()) {
-            firstAccount = this.config.getAccountList().get(0);
+        if (!config.getAccountList().isEmpty()) {
+            firstAccount = config.getAccountList().get(0);
         }
 
         if (lastOpenedAccount != null) {
-            for (Account account : this.config.getAccountList()) {
+            for (Account account : config.getAccountList()) {
                 if (account.getAccount_name().equals(lastOpenedAccount)) {
                     firstAccount = account;
                     break;
@@ -269,13 +280,15 @@ public class MainViewController implements HasLogger {
     }
 
     public void move(Note msg, TreeItem<Note> target) {
-        
         // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
         getLogger().info("Moving source {} ", foundTreeItem);
         getLogger().info("Moving target {} ", target);
-
-        // TODO what if foudnTreeItem == null?
+        if (foundTreeItem == null) {
+        	// this should never happen ...
+        	getLogger().error("Unable to find {} in outliner.", msg.toString());
+        	return;
+        }
         final MoveNoteTask moveNoteTask = 
         		context.getBean(MoveNoteTask.class, foundTreeItem, target);
         moveNoteTask.run();
@@ -345,22 +358,11 @@ public class MainViewController implements HasLogger {
         
     }
 
-    // Aufgerufen beim Klick aufs ListViewItem
+    // Needed by OutlinerItemChangeListener
     public void openFolder(TreeItem<Note> m) {
         if (m == null) {
             return;
         }
-        // TODO Brauchen wir das noch ????
-        // Böse, aber funktioniert ...
-        for (Tab t : this.tp.getTabs()) {
-            final EditorTab et = (EditorTab) t;
-            // TODO
-            if (et.getNote().equals(m)) {
-                this.tp.getSelectionModel().select(t);
-                return;
-            }
-        }
-
         getLogger().info("Opening Folder {}", m.getValue().getSubject());
 
         final OpenFolderTask openFolderTask = context.getBean(OpenFolderTask.class, m);
@@ -419,11 +421,6 @@ public class MainViewController implements HasLogger {
         return this.backend;
     }
 
-    // TODO make unnecessary
-    public Configuration getConfiguration() {
-        return this.config;
-    }
-
     public void closeTab(Note deletedNote) {
         Iterator<Tab> tabIter = this.tp.getTabs().iterator();
         while (tabIter.hasNext()) {
@@ -448,24 +445,4 @@ public class MainViewController implements HasLogger {
 		openNote(previous.getValue());
     }
     
-    public void addNoteToTree(TreeItem<Note> treeItem, Note newNote) {
-        // FIXME
-        // Das alles nach ListView verschieben ...
-        final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
-        if (newNote.isFolder()) {
-            if (OutlinerWidget.isEmptyTreeItem(newTreeItem)) {
-                newTreeItem.getChildren().clear();
-            }
-            newTreeItem.getChildren().add(new TreeItem<Note>(null));
-        }
-        if (treeItem != null) {
-            if (OutlinerWidget.isEmptyTreeItem(treeItem)) {
-            	treeItem.getChildren().clear();
-            }
-            treeItem.getChildren().add(newTreeItem);
-        } else {
-            this.outlinerWidget.getRoot().getChildren().add(newTreeItem);
-        }
-        openNote(newNote);
-    }
 }

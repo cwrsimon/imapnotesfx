@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
+import de.wesim.imapnotes.services.ConfigurationService;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -29,6 +30,9 @@ public class EditorTab extends Tab {
 	
 	@Autowired
     private ApplicationContext context;
+	
+	@Autowired
+	private ConfigurationService configurationService;
 
 	private QuillEditor qe;
 
@@ -49,7 +53,7 @@ public class EditorTab extends Tab {
 	
 	@PostConstruct
 	public void init() {
-		this.qe = new QuillEditor(mainViewController.getHostServices(),  note.getContent(), mainViewController.getConfiguration());
+		this.qe = new QuillEditor(mainViewController.getHostServices(),  note.getContent(), configurationService.getConfig());
 		setContent(this.qe);
 		setOnCloseRequest(e-> {
 			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());

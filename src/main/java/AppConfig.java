@@ -90,11 +90,10 @@ public class AppConfig {
 	
 	@Bean
 	public TabPane tp() {
-		TabPane newObj = new TabPane();
-		// TODO
+		final TabPane newObj = new TabPane();
 		newObj.setMinWidth(500);
-		newObj.setPrefWidth(500);
 		return newObj; 
 	}
+	
 	
 }

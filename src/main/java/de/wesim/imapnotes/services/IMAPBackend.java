@@ -61,14 +61,12 @@ public class IMAPBackend implements HasLogger {
         return folder.delete(true);
     }
 
-    // TODO
     public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
+    	// make sure the folder is closed
         this.endTransaction((IMAPFolder) oldFolder);
-        // Sicherstellen, dass Folder geschlossen ist
-        Folder parentFolder = oldFolder.getParent();
+        final Folder parentFolder = oldFolder.getParent();
         Folder newFolder = parentFolder.getFolder(newName);
-        oldFolder.renameTo(newFolder);
-
+        oldFolder.renameTo(newFolder);        
         return newFolder;
     }
 
@@ -163,30 +161,6 @@ public class IMAPBackend implements HasLogger {
             messages.add(newNote);
         }
 
-        // if (!this.folderStack.isEmpty()) {
-        // 	final String prevFolder = this.folderStack.peek();
-        // 	if (prevFolder != null) {
-        // 		final String uuid = "BACKTOPARENT" + String.valueOf(this.folderStack.size());
-        // 		final Note newNote = new Note(uuid);
-        // 		newNote.setIsFolder(true);
-        // 		folderMap.put(uuid, null);
-        // 		newNote.setSubject("Zurück");
-        // 		newNote.setDate(new Date());
-        // 		messages.add(newNote);
-        // 	}	
-        // }
-        // TODO Reintegrate me!
-//		Collections.sort(messages, new Comparator<Message>() {
-//			@Override
-//			public int compare(Message o1, Message o2) {
-//				try {
-//					return o1.getReceivedDate().compareTo(o2.getReceivedDate());
-//				} catch (MessagingException e) {
-//					// TODO passt das?
-//					return -1;
-//				}
-//			}
-//		});
         this.endTransaction(((IMAPFolder) folder));
         return messages;
     }

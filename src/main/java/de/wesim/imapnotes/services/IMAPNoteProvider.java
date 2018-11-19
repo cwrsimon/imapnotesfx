@@ -12,8 +12,6 @@ import javax.mail.Message;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
-// TODO Exceptions durchgehen ...
-// Passwort abfragen ...
 public class IMAPNoteProvider implements INoteProvider {
 
     private IMAPBackend backend;
@@ -69,7 +67,6 @@ public class IMAPNoteProvider implements INoteProvider {
     @Override
     public void delete(Note note) throws Exception {
         if (note.isFolder()) {
-            // TODO verify me
             Folder folder = this.folderMap.get(note.getUuid());
             backend.deleteFolder(folder);
         } else {
@@ -77,14 +74,13 @@ public class IMAPNoteProvider implements INoteProvider {
         }
     }
 
-    // TODO Nur für die Wurzel ...
     @Override
     public List<Note> getNotes() throws Exception {
         this.msgMap.clear();
         this.folderMap.clear();
         final List<Note> notes = this.backend.getMessages(this.backend.getNotesFolder(),
                 this.msgMap, this.folderMap);
-        // TODO
+        // sort by date
         Collections.sort(notes);
         return notes;
     }
@@ -125,12 +121,11 @@ public class IMAPNoteProvider implements INoteProvider {
 
     @Override
     public void renameFolder(Note folder, String newName) throws Exception {
-        // TODO Folders mit einer anderen UUID versehen ...
-        String oldUUID = folder.getUuid();
-        Folder oldFolder = this.folderMap.get(oldUUID);
+        final String oldUUID = folder.getUuid();
+        final Folder oldFolder = this.folderMap.get(oldUUID);
 
-        Folder newFolder = this.backend.renameFolder(oldFolder, newName);
-        String newUUID = newFolder.getFullName();
+        final Folder newFolder = this.backend.renameFolder(oldFolder, newName);
+        final String newUUID = newFolder.getFullName();
 
         this.folderMap.put(newUUID, newFolder);
         this.folderMap.remove(oldUUID);

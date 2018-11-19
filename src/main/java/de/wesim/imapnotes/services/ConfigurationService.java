@@ -16,31 +16,37 @@ import de.wesim.imapnotes.models.Configuration;
 @Service
 public class ConfigurationService implements HasLogger {
 
-	public void writeConfig(Configuration config) {
+	private Configuration config = new Configuration();
+	
+	public void writeConfig() {
 		getLogger().info("Writing config ...");
-		Gson gson = new Gson();
-		String json = gson.toJson(config);
+		final Gson gson = new Gson();
+		final String json = gson.toJson(this.config);
 
 		try {
 			Files.write(Consts.JSON_CONFIGURATION_FILE, json.getBytes("UTF-8"));
 		} catch (IOException e) {
 			getLogger().error("Writing configuration file to '{}' failed.", Consts.JSON_CONFIGURATION_FILE, e );
 		}
-
 	}
 
-    public Configuration readConfig() {
+    public void refresh() {
 		getLogger().info("Reading config ...");
 
 		final Gson gson = new Gson();
 		final Configuration newConfig;
 		try {
 			newConfig = gson.fromJson(Files.newBufferedReader(Consts.JSON_CONFIGURATION_FILE), Configuration.class);
-			return newConfig;
+			this.config = newConfig;
 		} catch (JsonSyntaxException | JsonIOException | IOException e) {
 			getLogger().error("Reading configuration file from '{}' failed.", Consts.JSON_CONFIGURATION_FILE, e );
 		}
-        return new Configuration();
     }
+
+	public Configuration getConfig() {
+		return config;
+	}
+    
+    
 
 }

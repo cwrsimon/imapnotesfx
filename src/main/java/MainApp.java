@@ -22,7 +22,7 @@ public class MainApp extends Application {
 	public void start(Stage primaryStage) {
 		this.context = new AnnotationConfigApplicationContext(AppConfig.class);
 		final MainViewController mainViewController = this.context.getBean(MainViewController.class);
-		// FIXME EVIL ...
+		// not nice, but the best we can do at the moment ...
 		mainViewController.setHostServices(getHostServices());
 		mainViewController.setStage(primaryStage);
 		final MainViewLoaderService myService = this.context.getBean(MainViewLoaderService.class);

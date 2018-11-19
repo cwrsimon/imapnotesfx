@@ -10,7 +10,8 @@ public class ConfigurationJSON {
 
 	public static void main(String[] args) {
 		final ConfigurationService cs = new ConfigurationService();
-		final Configuration conf = cs.readConfig();
+		cs.refresh();
+		final Configuration conf = cs.getConfig();
 		
 		Gson gson = new Gson();
 		String json = gson.toJson(conf);

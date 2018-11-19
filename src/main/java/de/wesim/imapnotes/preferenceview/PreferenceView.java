@@ -74,6 +74,8 @@ public class PreferenceView extends Stage implements HasLogger {
 		final Button save2 = new Button(i18N.getTranslation("apply_button"));
 
 		cancel.setOnAction(e2 -> {
+			// discard changes
+			configurationService.refresh();
 			fireEvent(new WindowEvent(this.parentStage, WindowEvent.WINDOW_CLOSE_REQUEST));
 		});
 		save2.setOnAction(e2 -> {
@@ -102,7 +104,7 @@ public class PreferenceView extends Stage implements HasLogger {
 		configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
 		configuration.setFontSize(generalTab.getFontSize());
 		configuration.setFontFamily(generalTab.getFontFamily());
-		this.configurationService.writeConfig(configuration);
+		this.configurationService.writeConfig();
 		this.preferencesSaved = true;
 	}
 
@@ -112,7 +114,8 @@ public class PreferenceView extends Stage implements HasLogger {
 
 	@Override
 	public void showAndWait() {
-		this.configuration = configurationService.readConfig();
+		this.configurationService.refresh();
+		this.configuration = configurationService.getConfig();
 		for (Account account : configuration.getAccountList()) {
 			if (account.getType() == Account_Type.FS) {
 				fsTab.addAccount(account);

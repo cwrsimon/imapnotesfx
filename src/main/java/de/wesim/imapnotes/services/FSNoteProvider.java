@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,6 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
-// TODO Beim Abspeichern Datum setzen
 public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
@@ -67,6 +67,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 			final Path parent = uuid2Path.get(note.getUuid()).getParent();
 			path = parent.resolve(note.getUuid() + DEFAULT_FILE_ENDING);
 		}
+		// set current timestamp as date
+		note.setDate(new Date());
+		
 		final Gson gson = new Gson();
 		final String json = gson.toJson(note);
 		Files.write(path, json.getBytes(DEFAULT_ENCODING));
@@ -159,12 +162,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		final Path targetFolder = uuid2Path.get(folder.getUuid());
 		final Path target = targetFolder.resolve(itemPath.getFileName());
 		Files.move(itemPath, target);
-		//getNotesFromFolder(folder);
-		// final Message msg = this.msgMap.get(message.getUuid());
-        // final Folder imapFolder = this.folderMap.get(folder.getUuid());
-        // this.backend.moveMessage(msg, imapFolder);
-        // // reload for updating references in UUID maps
-        // getNotesFromFolder(folder);
 		return msg;
 	}
 

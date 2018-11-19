@@ -24,13 +24,13 @@ public class OutlinerWidget extends TreeView<Note> {
 	private OutlinerCellFactory listCellFactory;
 
 	private OutlinerItemChangeListener changeListener;
-	
+
 	public OutlinerWidget() {
 		super(new TreeItem<Note>());
 		setShowRoot(false);
 		setPrefWidth(150);
-    }
-	
+	}
+
 	@PostConstruct
 	public void init() {
 		this.changeListener = new OutlinerItemChangeListener(mainViewController);
@@ -60,15 +60,15 @@ public class OutlinerWidget extends TreeView<Note> {
 
 	public void addChildrenToNode(List<Note> loadedItems, TreeItem<Note> containedTreeItem) {
 		containedTreeItem.getChildren().clear();
-        for (Note n : loadedItems) {
-            final TreeItem<Note> newItem = new TreeItem<Note>(n);
-            if (n.isFolder()) {
-                newItem.getChildren().add(new TreeItem<Note>());
-                newItem.setExpanded(false);
-                newItem.expandedProperty().addListener(this.changeListener);
-            }
-            containedTreeItem.getChildren().add(newItem);
-        }
+		for (Note n : loadedItems) {
+			final TreeItem<Note> newItem = new TreeItem<Note>(n);
+			if (n.isFolder()) {
+				newItem.getChildren().add(new TreeItem<Note>());
+				newItem.setExpanded(false);
+				newItem.expandedProperty().addListener(this.changeListener);
+			}
+			containedTreeItem.getChildren().add(newItem);
+		}
 	}
 
 	public static TreeItem<Note> searchTreeItem(Note searchItem, TreeItem<Note> parent) {
@@ -81,5 +81,23 @@ public class OutlinerWidget extends TreeView<Note> {
 			if (found != null) return found;
 		}
 		return null;
+	}
+
+	public void addNoteToTree(TreeItem<Note> treeItem, Note newNote) {
+		final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);
+		if (newNote.isFolder()) {
+			if (OutlinerWidget.isEmptyTreeItem(newTreeItem)) {
+				newTreeItem.getChildren().clear();
+			}
+			newTreeItem.getChildren().add(new TreeItem<Note>(null));
+		}
+		if (treeItem != null) {
+			if (OutlinerWidget.isEmptyTreeItem(treeItem)) {
+				treeItem.getChildren().clear();
+			}
+			treeItem.getChildren().add(newTreeItem);
+		} else {
+			getRoot().getChildren().add(newTreeItem);
+		}
 	}
 }

@@ -9,7 +9,6 @@ public interface INoteProvider {
 
     public void init(Account account) throws Exception;
 	
-    // TODO Create dedicated exception type !!!
     public Note createNewNote(String subject, Note parentFolder) throws Exception;
 
     public Note createNewFolder(String name, Note parentFolder) throws Exception;
