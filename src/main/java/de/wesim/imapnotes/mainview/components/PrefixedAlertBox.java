@@ -1,6 +1,7 @@
 package de.wesim.imapnotes.mainview.components;
 
 import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -10,10 +11,6 @@ import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.Alert;
 
 
-// TODO Refactor into Dialog
-// TODO Integrate version number ???
-// cf. Featerpad menu
-// License !!!
 @Component
 @Scope("prototype")
 public class PrefixedAlertBox extends Alert {

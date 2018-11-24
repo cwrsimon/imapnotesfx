@@ -14,29 +14,7 @@ import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
-public class MainApp extends Application {
-
-	private AnnotationConfigApplicationContext context = null;
-
-	@Override
-	public void start(Stage primaryStage) {
-		this.context = new AnnotationConfigApplicationContext(AppConfig.class);
-		final MainViewController mainViewController = this.context.getBean(MainViewController.class);
-		// not nice, but the best we can do at the moment ...
-		mainViewController.setHostServices(getHostServices());
-		mainViewController.setStage(primaryStage);
-		final MainViewLoaderService myService = this.context.getBean(MainViewLoaderService.class);
-		myService.init(primaryStage);
-	}
-
-
-	@Override
-	public void stop() throws Exception {
-		if (this.context != null) {
-			this.context.close();
-		}
-	}
-
+public class MainApp {
 
 	public static void main(String[] args) throws IOException {
 		// improved font rendering with anti aliasing
@@ -46,7 +24,7 @@ public class MainApp extends Application {
 					+ Consts.APP_DIRECTORY.toAbsolutePath().toString());
 			Files.createDirectory(Consts.APP_DIRECTORY);
 		}
-		// give it a try some day ...
+		// TODO give it a try some day ...
 		// System.setProperty("prism.subpixeltext", "false");
 
 		// suppress the logging output to the console
@@ -56,6 +34,8 @@ public class MainApp extends Application {
 		fileHandler.setFormatter(new SimpleFormatter());
 		fileHandler.setLevel(Level.SEVERE);
 		rootLogger.addHandler(fileHandler);
-		launch(args);
+		// call actual JavaFX main app
+		// thanks to https://stackoverflow.com/questions/52653836/maven-shade-javafx-runtime-components-are-missing
+		JFXMain.main(args);
 	}
 }

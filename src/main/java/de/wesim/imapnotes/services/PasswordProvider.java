@@ -1,8 +1,5 @@
 package de.wesim.imapnotes.services;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
 import net.east301.keyring.BackendNotSupportedException;
@@ -26,8 +23,7 @@ public class PasswordProvider implements HasLogger {
             	keyring.setKeyStorePath(Consts.KEYSTORE_PATH.toAbsolutePath().toString());
             }
         } catch (BackendNotSupportedException ex) {
-        	// TODO
-        	ex.printStackTrace();
+        	getLogger().error("Initializing keyring backend has failed.", ex);
             return;
         }
     }
@@ -37,7 +33,7 @@ public class PasswordProvider implements HasLogger {
             String password = keyring.getPassword(Consts.KEYSTORE_SERVICE_NAME, accountName);
             return password;
         } catch (LockException | PasswordRetrievalException ex) {
-            Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
+            getLogger().error("Retrieving password for account {} has failed.", accountName, ex);
         }
         return null;
     }
@@ -46,15 +42,15 @@ public class PasswordProvider implements HasLogger {
         try {
             keyring.setPassword(Consts.KEYSTORE_SERVICE_NAME, accountName, pw);
         } catch (LockException ex) {
-            Logger.getLogger(PasswordProvider.class.getName()).log(Level.SEVERE, null, ex);
+            getLogger().error("Storing password for account {} has failed.", accountName, ex);
         }
        
     }
     
-    public static void main(String [] args) {
-    	PasswordProvider provider = new PasswordProvider();
-    	provider.init();
-    	System.out.println(provider.retrievePassword("Wesim"));
-    }
+//    public static void main(String [] args) {
+//    	PasswordProvider provider = new PasswordProvider();
+//    	provider.init();
+//    	System.out.println(provider.retrievePassword("Wesim"));
+//    }
 
 }

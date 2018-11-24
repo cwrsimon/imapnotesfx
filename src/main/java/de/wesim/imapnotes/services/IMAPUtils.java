@@ -37,12 +37,12 @@ public class IMAPUtils implements HasLogger {
 		
 	}
 	
-	// TODO !!!!
+	// TODO needs more testing with Apple's original Notes application
+	// necessary for handling mails with embedded images 
 	public String decodeMultipartMails(Message message) throws MessagingException, IOException {
 		
-		// TODO MimeMultipart hier unterstützen
-		getLogger().info("Message class: {}", message.getClass().getName());
-		getLogger().info("Content type: {}", message.getContentType());
+		getLogger().debug("Message class: {}", message.getClass().getName());
+		getLogger().debug("Content type: {}", message.getContentType());
 		String mainContent = "";
 		// TODO Später mal die Bilder auflösen ...
 		final Map<String, String> cidContentMap = new HashMap<>();
@@ -50,7 +50,7 @@ public class IMAPUtils implements HasLogger {
 		for (int i=0; i<multiPart.getCount();i++) {
 			BodyPart bp = multiPart.getBodyPart(i);
 			String[] cids = bp.getHeader("Content-Id");
-			getLogger().info("Index: {}, Content-Type: {}, Filename: {}, Content-Id: {}", i, 
+			getLogger().debug("Index: {}, Content-Type: {}, Filename: {}, Content-Id: {}", i, 
 				bp.getContentType() , bp.getFileName(), cids);
 			Object partContent = bp.getContent();
 			if (partContent instanceof String) {
@@ -75,13 +75,9 @@ public class IMAPUtils implements HasLogger {
 				}
 			}
 		}
-		getLogger().info("ReturnMe:{}", mainContent);
-		getLogger().info("{}", cidContentMap);
-		Matcher m = p.matcher(mainContent);
+		final Matcher m = p.matcher(mainContent);
 		while (m.find()) {
-			getLogger().info("Found!");
 			final String matchedCID = m.group(1);
-			// TODO Absichern
 			final String newContent = cidContentMap.get(matchedCID);
 			mainContent = m.replaceFirst(newContent);
 			m.reset(mainContent);

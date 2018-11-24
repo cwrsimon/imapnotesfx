@@ -20,10 +20,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
+
+// TODO check connection
+// TODO add support for more specific connection settings (ports, etc.)
 public class IMAPTab extends Tab implements HasLogger {
 
 
-	// TODO check connection
     private class IMAPForm extends GridPane {
 
         private Hyperlink removeMe = new Hyperlink(i18N.getTranslation("remove"));
@@ -34,7 +36,6 @@ public class IMAPTab extends Tab implements HasLogger {
         final TextField loginField;
         final TextField addressField;
 
-        // TODO Use Properties
         public IMAPForm() {
             this.setHgap(10);
             this.setVgap(10);
@@ -64,8 +65,6 @@ public class IMAPTab extends Tab implements HasLogger {
             this.add(pathLabel, 0, 4);
 
             pathField = new TextField();
-//            Button dirButton = new Button("...");
-//            HBox hbox = new HBox(pathField, dirButton);
             this.add(pathField, 1, 4);
 
             this.add(removeMe, 0, 5);
