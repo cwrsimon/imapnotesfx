@@ -109,8 +109,24 @@ overflow:auto;
             }
             quill.setSelection(offset + foundIndex, content.length);
             return;
-        }
-        
+        }   
+    }
+    
+    findQuillContents = function(content) {
+        const opsCount = quill.getContents().ops.length;
+        var offset = 0;
+        const result = [];
+        for (var i=0; i<opsCount; i++) {
+            const currentOps = quill.getContents().ops[i].insert.toLowerCase();
+            const contentLC = content.toLowerCase();
+            var foundIndex = currentOps.indexOf(contentLC);
+            while (foundIndex !== -1) {
+	            result.push(offset+foundIndex);
+                foundIndex = currentOps.indexOf(contentLC, foundIndex + contentLC.length);
+            }
+            offset = offset + currentOps.length;
+        }   
+        return result;
     }
 
     undo = function() {
