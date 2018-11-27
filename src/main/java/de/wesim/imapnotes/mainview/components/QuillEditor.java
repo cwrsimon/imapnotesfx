@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.mainview.components;
 
+import java.util.List;
+
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.EventTarget;
@@ -138,4 +140,16 @@ public class QuillEditor extends StackPane implements HasLogger {
 		final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
 		webview.getEngine().executeScript("findQuillContent('" + content_js + "');");
 	}
+	
+	// TODO Überarbeiten -> in eine LinkedList konvertieren
+	public void findOffset(String entered) {
+		final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
+		JSObject foundIndizes = (JSObject) webview.getEngine().executeScript("findQuillContents('" + content_js + "');");
+		getLogger().info("Hits: {}", foundIndizes);
+		Object ten = foundIndizes.getSlot(10);
+		getLogger().info("Type: {}", ten.getClass().getName());
+		getLogger().info("Slot 10: {}", foundIndizes.getSlot(10));
+		
+	}
+
 }

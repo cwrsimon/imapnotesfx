@@ -6,18 +6,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
 import de.wesim.imapnotes.Consts;
-import de.wesim.imapnotes.mainview.MainViewController;
-import de.wesim.imapnotes.mainview.MainViewLoaderService;
-import javafx.application.Application;
-import javafx.stage.Stage;
 
 public class MainApp {
 
 	public static void main(String[] args) throws IOException {
-		// improved font rendering with anti aliasing
+		// improved font rendering with anti aliasing under Linux
 		System.setProperty("prism.lcdtext", "false");
 		if (!Files.exists(Consts.APP_DIRECTORY)) {
 			System.out.println("Creating application directory " 

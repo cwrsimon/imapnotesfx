@@ -87,6 +87,11 @@ public class AppConfig {
         findMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND));
         return findMenuItem;                        
 	}
+    
+    // TODO find Next 
+    // TODO Find Previous
+    
+    
 	
 	@Bean
 	public TabPane tp() {

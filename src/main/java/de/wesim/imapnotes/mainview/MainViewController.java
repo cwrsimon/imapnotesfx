@@ -180,7 +180,9 @@ public class MainViewController implements HasLogger {
         	if (!result.isPresent()) return;
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            et.getQe().findString(entered);
+            // TODO Wieder zurückbauen
+            //et.getQe().findString(entered);
+            et.getQe().findOffset(entered);
         });
     }
 
@@ -230,7 +232,7 @@ public class MainViewController implements HasLogger {
         if (!closeAccount()) {
             return;
         }
-        // TODO use Spring tools
+        // currently, still hard-coded ...
         if (first.getType() == Account_Type.FS) {
             this.backend = new FSNoteProvider();
         } else {
