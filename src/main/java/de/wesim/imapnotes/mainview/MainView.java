@@ -95,8 +95,8 @@ public class MainView extends BorderPane implements HasLogger {
 		newFolder.setText(i18N.getTranslation("new_folder_menu_item"));
 		about.setText(i18N.getTranslation("about_menu"));
 		//
-		findNext.setText("Find next");
-		findPrev.setText("Find previous");
+		findNext.setText(i18N.getTranslation("find_next_menu_item"));
+		findPrev.setText(i18N.getTranslation("find_prev_menu_item"));
 
 		
 		// Redo, Undo
