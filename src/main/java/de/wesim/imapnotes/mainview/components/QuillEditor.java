@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.mainview.components;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
@@ -142,14 +144,29 @@ public class QuillEditor extends StackPane implements HasLogger {
 	}
 	
 	// TODO Überarbeiten -> in eine LinkedList konvertieren
-	public void findOffset(String entered) {
+	public LinkedList<Integer> findOffset(String entered) {
 		final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
 		JSObject foundIndizes = (JSObject) webview.getEngine().executeScript("findQuillContents('" + content_js + "');");
 		getLogger().info("Hits: {}", foundIndizes);
 		Object ten = foundIndizes.getSlot(10);
 		getLogger().info("Type: {}", ten.getClass().getName());
 		getLogger().info("Slot 10: {}", foundIndizes.getSlot(10));
-		
+		final LinkedList<Integer> indizes = new LinkedList<>();
+		// Is there a better way???
+		Object currentValue = (Object) foundIndizes.getSlot(0);
+		getLogger().info("{}", currentValue.getClass().getName());
+		int i=0;
+		while (!currentValue.equals("undefined")) {
+			indizes.add((Integer) currentValue);
+			i++;
+			currentValue = foundIndizes.getSlot(i);
+			getLogger().info("{}", currentValue.getClass().getName());
+		}
+		return indizes;
+	}
+	
+	public void goTo(int index, int length) {
+		webview.getEngine().executeScript(String.format("goTo(%d, %d)", index, length));
 	}
 
 }

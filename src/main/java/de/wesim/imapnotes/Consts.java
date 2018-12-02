@@ -12,6 +12,8 @@ public final class Consts {
 	public static final String SHORTCUT_FIND = "Shortcut+F";
 	public static final String SHORTCUT_UNDO = "Shortcut+Z";
 	public static final String SHORTCUT_REDO = "Shortcut+Shift+Z";
+	public static final String SHORTCUT_FIND_NEXT = "Shortcut+K";
+	public static final String SHORTCUT_FIND_PREV = "Shortcut+Shift+K";
 
 	
 	public static final Path APP_DIRECTORY = Paths.get(System.getProperty("user.home"))

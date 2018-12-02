@@ -94,6 +94,12 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private MenuItem find;
+
+    @Autowired
+    private MenuItem findNext;
+
+    @Autowired
+    private MenuItem findPrev;
     
     @Autowired
     private MenuItem about;
@@ -180,9 +186,20 @@ public class MainViewController implements HasLogger {
         	if (!result.isPresent()) return;
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            // TODO Wieder zurückbauen
-            //et.getQe().findString(entered);
-            et.getQe().findOffset(entered);
+            et.updateFoundItems(entered);
+            et.goToNextItem();
+        });
+        
+        // TODO Find Previous
+        findNext.setOnAction( e-> {
+            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+            et.goToNextItem();
+        });
+        
+        // TODO Find Previous
+        findPrev.setOnAction( e-> {
+            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+            et.goToPrevItem();
         });
     }
 

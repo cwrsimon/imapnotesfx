@@ -63,6 +63,12 @@ public class MainView extends BorderPane implements HasLogger {
 
     @Autowired
 	private MenuItem find;
+
+    @Autowired
+	private MenuItem findNext;
+
+    @Autowired
+	private MenuItem findPrev;
     
     @Autowired
 	private MenuItem newNote;
@@ -88,6 +94,10 @@ public class MainView extends BorderPane implements HasLogger {
 		newNote.setText(i18N.getTranslation("new_note_menu_item"));
 		newFolder.setText(i18N.getTranslation("new_folder_menu_item"));
 		about.setText(i18N.getTranslation("about_menu"));
+		//
+		findNext.setText("Find next");
+		findPrev.setText("Find previous");
+
 		
 		// Redo, Undo
 		// no actions necessary, see quill-editor.html
@@ -103,7 +113,7 @@ public class MainView extends BorderPane implements HasLogger {
 		
 		final Menu helpMenu = new Menu(i18N.getTranslation("help_menu"));
 
-        editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(), find);
+        editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(), find, findNext, findPrev);
                 
 		menuBar.getMenus().add(menu);
         menuBar.getMenus().add(editMenu);

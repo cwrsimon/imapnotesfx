@@ -1,5 +1,7 @@
 package de.wesim.imapnotes.mainview.components;
 
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
@@ -37,6 +39,13 @@ public class EditorTab extends Tab {
 	private QuillEditor qe;
 
 	private final Note note;
+
+	private LinkedList<Integer> currentItems;
+
+
+	private Integer currentFoundItemLength;
+
+	private ListIterator<Integer> foundItemsIterator;
 
 	private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
 
@@ -85,6 +94,33 @@ public class EditorTab extends Tab {
 
 	public Note getNote() {
 		return note;
+	}
+
+	public void updateFoundItems(String entered) {
+        this.currentItems = getQe().findOffset(entered);
+        this.foundItemsIterator = this.currentItems.listIterator();
+        this.currentFoundItemLength = entered.length();
+	}
+
+	public void goToNextItem() {
+		if (this.foundItemsIterator == null 
+				|| this.currentFoundItemLength == null) return;
+		if (!this.foundItemsIterator.hasNext()) {
+			this.foundItemsIterator = this.currentItems.listIterator();
+		}
+		qe.goTo(this.foundItemsIterator.next(), this.currentFoundItemLength);	
+	}
+
+	public void goToPrevItem() {
+		if (this.foundItemsIterator == null 
+				|| this.currentFoundItemLength == null) return;
+		if (!this.foundItemsIterator.hasPrevious()) {
+			this.foundItemsIterator = 
+					this.currentItems.listIterator((this.currentItems.size() - 1));
+			qe.goTo(this.foundItemsIterator.next(), this.currentFoundItemLength);
+			return;
+		}
+		qe.goTo(this.foundItemsIterator.previous(), this.currentFoundItemLength);	
 	}
 
 }
