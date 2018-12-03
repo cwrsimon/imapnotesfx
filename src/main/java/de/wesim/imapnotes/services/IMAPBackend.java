@@ -80,9 +80,13 @@ public class IMAPBackend implements HasLogger {
 
     private void connectStore(Properties props, Authenticator authenticator) throws MessagingException {
         getLogger().info("Trying to connect ...");
+        // TODO Integrate me one day ...
+        // props.setProperty("mail.imap.ssl.enable", "true");
+
         this.session = Session.getInstance(props, authenticator);
         this.store = this.session.getStore(
                 new URLName("imap://" + account.getHostname())
+//                + ":587"
         );
         this.store.connect();
     }

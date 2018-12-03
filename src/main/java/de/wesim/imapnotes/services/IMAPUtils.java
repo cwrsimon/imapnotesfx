@@ -34,7 +34,6 @@ public class IMAPUtils implements HasLogger {
 			ImageIO.write(tiff, "png", pngOS);
 			return pngOS.toByteArray();
 		}
-		
 	}
 	
 	// TODO needs more testing with Apple's original Notes application

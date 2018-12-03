@@ -20,7 +20,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
-
+// TODO Format für Spezifikation des Folder-Pfads definieren
+// TODO Konfiguration des Ports
+// TODO Konfiguration von SSL
 // TODO check connection
 // TODO add support for more specific connection settings (ports, etc.)
 public class IMAPTab extends Tab implements HasLogger {

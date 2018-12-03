@@ -190,13 +190,13 @@ public class MainViewController implements HasLogger {
             et.goToNextItem();
         });
         
-        // TODO Find Previous
+        // Find Previous
         findNext.setOnAction( e-> {
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.goToNextItem();
         });
         
-        // TODO Find Previous
+        // Find Previous
         findPrev.setOnAction( e-> {
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.goToPrevItem();
@@ -259,6 +259,7 @@ public class MainViewController implements HasLogger {
             this.backend.init(first);
         } catch (Exception e) {
             getLogger().error("Initializing note backend for account {} failed.", e);
+            status.textProperty().unbind();
             status.setText(e.getLocalizedMessage());
             return;
         }
