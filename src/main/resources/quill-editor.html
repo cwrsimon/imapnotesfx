@@ -6,14 +6,19 @@
 <!-- https://stackoverflow.com/questions/4069734/fixed-header-footer-with-scrollable-content -->
 <style>
 html, body {
-	height: 100%; /*    body takes whole viewport's height */
+	height: 100%;
 	margin:0;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
 }
 
 /* main editor component */
 #editor {
-	border: 0px;
-	height: calc(100% - 43px);
+	flex: 1;
+ 	overflow: auto;
 }
 
 /* Toolbar */
@@ -21,8 +26,7 @@ html, body {
 	border: 0px;
 	border-bottom-width: 1px;
 	border-bottom-style: solid;
-	border-bottom-color: #ccc;
-	height:43px;	
+	border-bottom-color: #ccc;	
 }
 
 </style>
