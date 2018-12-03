@@ -1,45 +1,46 @@
 <!doctype html>
 <html>
 <head>
-    <link href="quill.snow.css" rel="stylesheet">
-    <script src="quill.js"></script>
-    <style>
-    
-    html {
+<link href="quill.snow.css" rel="stylesheet">
+<script src="quill.js"></script>
+<style>
+html {
+	
 }
 
 body {
-overflow:auto;
-	margin: 0;	
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 43px);   /*    body takes whole viewport's height */
+	overflow: auto;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 43px); /*    body takes whole viewport's height */
 }
 
 #editor {
-  flex: 1;                 /* this will make the container take the free space */
+	flex: 1; /* this will make the container take the free space */
 }
+
 #editor .ql-editor {
 	overflow-y: auto;
 }
 
-.ql-toolbar.ql-snow  {
-	border:0px;
-	border-bottom-width:1px;
-	border-bottom-style:solid;
-	border-bottom-color:#ccc;
+.ql-toolbar.ql-snow {
+	border: 0px;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #ccc;
 }
+
 .ql-container.ql-snow {
 	border: 0px;
 }
-
-    </style>
+</style>
 </head>
 <body>
 
-<div id="editor" ></div>
+	<div id="editor"></div>
 
-<script>
+	<script>
 
 	var toolbarOptions = [
 	  [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
