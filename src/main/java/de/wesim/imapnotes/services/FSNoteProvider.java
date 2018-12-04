@@ -14,6 +14,9 @@ import java.util.UUID;
 import java.lang.String;
 import java.util.stream.Stream;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -22,6 +25,8 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
+@Component
+@Scope("prototype")
 public class FSNoteProvider implements INoteProvider, HasLogger {
 
 	private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");

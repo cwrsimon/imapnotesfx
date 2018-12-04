@@ -28,7 +28,7 @@ public final class Consts {
     		.resolve("imapnotes.json");
 
     public static final Path KEYSTORE_PATH = APP_DIRECTORY.resolve(
-            ".imapnotesfx.keystore");
+            "keystore.bin");
 
     public static final String KEYSTORE_SERVICE_NAME = "imapnotesfx";
 

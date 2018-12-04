@@ -21,12 +21,15 @@ import com.sun.mail.util.BASE64DecoderStream;
 
 import de.wesim.imapnotes.HasLogger;
 
+/* Some compatibility utils for handling Apple's 
+ * special cases, e.g. notes with embedded TIFF images ...
+ */
 public class IMAPUtils implements HasLogger {
 
 	private static Pattern p = Pattern.compile( "<object type=\\\".*?\\\" data=\\\"(.*?)\\\"></object>" );
 
 	
-	public byte[] convertTIFF2Jpeg(byte[] tiffImage) throws IOException {
+	protected byte[] convertTIFF2Jpeg(byte[] tiffImage) throws IOException {
 		try (InputStream tiffIS = new ByteArrayInputStream(tiffImage);
 				ByteArrayOutputStream pngOS = new ByteArrayOutputStream()	
 				) {
@@ -36,26 +39,27 @@ public class IMAPUtils implements HasLogger {
 		}
 	}
 	
-	// TODO needs more testing with Apple's original Notes application
+	// needs more testing with Apple's original Notes application
 	// necessary for handling mails with embedded images 
 	public String decodeMultipartMails(Message message) throws MessagingException, IOException {
 		
 		getLogger().debug("Message class: {}", message.getClass().getName());
 		getLogger().debug("Content type: {}", message.getContentType());
 		String mainContent = "";
-		// TODO Später mal die Bilder auflösen ...
+		
 		final Map<String, String> cidContentMap = new HashMap<>();
 		final MimeMultipart multiPart = (MimeMultipart) message.getContent();
 		for (int i=0; i<multiPart.getCount();i++) {
-			BodyPart bp = multiPart.getBodyPart(i);
-			String[] cids = bp.getHeader("Content-Id");
+			final BodyPart bp = multiPart.getBodyPart(i);
+			final String[] cids = bp.getHeader("Content-Id");
 			getLogger().debug("Index: {}, Content-Type: {}, Filename: {}, Content-Id: {}", i, 
 				bp.getContentType() , bp.getFileName(), cids);
-			Object partContent = bp.getContent();
+			
+			final Object partContent = bp.getContent();
 			if (partContent instanceof String) {
 				mainContent = (String) partContent;
 			} else if (partContent instanceof com.sun.mail.util.BASE64DecoderStream) {
-				// TODO ABsichern
+
 				final String cid = "cid:" + cids[0].replace("<", "").replace(">", "");
 				try (BASE64DecoderStream decoderStream = (com.sun.mail.util.BASE64DecoderStream) partContent;
 						ByteArrayOutputStream buffer = new ByteArrayOutputStream();)	{
@@ -67,8 +71,8 @@ public class IMAPUtils implements HasLogger {
 					}
 					buffer.flush();
 					byte[] originalContent = buffer.toByteArray();
-					byte[] convertedCrap = convertTIFF2Jpeg(originalContent);
-					final String pngBase64 = Base64.getEncoder().encodeToString(convertedCrap);
+					byte[] convertedContent = convertTIFF2Jpeg(originalContent);
+					final String pngBase64 = Base64.getEncoder().encodeToString(convertedContent);
 					final String base64Content = "<img src=\"data:image/png;base64," + pngBase64 + "\"/>";
 					cidContentMap.put(cid, base64Content);
 				}

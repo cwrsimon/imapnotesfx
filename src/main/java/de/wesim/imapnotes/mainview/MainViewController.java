@@ -251,9 +251,9 @@ public class MainViewController implements HasLogger {
         }
         // currently, still hard-coded ...
         if (first.getType() == Account_Type.FS) {
-            this.backend = new FSNoteProvider();
+            this.backend = context.getBean(FSNoteProvider.class);
         } else {
-            this.backend = new IMAPNoteProvider();
+            this.backend = context.getBean(IMAPNoteProvider.class);
         }
         try {
             this.backend.init(first);

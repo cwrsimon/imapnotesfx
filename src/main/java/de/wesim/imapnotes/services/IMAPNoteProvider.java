@@ -9,11 +9,21 @@ import java.util.Map;
 import javax.mail.Folder;
 import javax.mail.Message;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
+@Component
+@Scope("prototype")
 public class IMAPNoteProvider implements INoteProvider {
 
+    @Autowired
+    private ApplicationContext context;
+	
     private IMAPBackend backend;
     
     // map note UUIDs to IMAP message / IMAP folder
@@ -27,7 +37,7 @@ public class IMAPNoteProvider implements INoteProvider {
 
     @Override
     public void init(Account account) throws Exception {
-        this.backend = new IMAPBackend(account);
+        this.backend = context.getBean(IMAPBackend.class, account);
         this.backend.initNotesFolder();
     }
 

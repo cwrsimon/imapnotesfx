@@ -21,14 +21,25 @@ import javax.mail.Store;
 import javax.mail.URLName;
 import javax.mail.internet.MimeMessage;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
 import com.sun.mail.imap.IMAPFolder;
 
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
 
+@Component
+@Scope("prototype")
 public class IMAPBackend implements HasLogger {
 
+    @Autowired
+    private ApplicationContext context;
+
+	
     private Session session;
     private Store store;
     private IMAPFolder notesFolder;
@@ -93,7 +104,7 @@ public class IMAPBackend implements HasLogger {
 
     public void initNotesFolder() throws Exception {
         final Properties props = System.getProperties();
-        final MyAuthenticator myAuthenticator = new MyAuthenticator(account);
+        final MyAuthenticator myAuthenticator = context.getBean(MyAuthenticator.class, account);
 
         try {
             connectStore(props, myAuthenticator);
