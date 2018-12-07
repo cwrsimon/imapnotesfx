@@ -113,7 +113,12 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 				}
 				if (newNote != null) {
 					notes.add(newNote);		
+					if (!newNote.isFolder()) {
 					uuid2Path.put(newNote.getUuid(), filePath);
+					} else {
+						uuid2Path.put(newNote.getUuid(), 
+								filePath.getParent().resolve(newNote.getUuid()));
+					}
 				}
 			});
 		}

@@ -464,5 +464,13 @@ public class MainViewController implements HasLogger {
 		final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
 		openNote(previous.getValue());
     }
+
+	public void move(Note item) {
+		// TODO Auto-generated method stub
+		// TODO move with choice
+		// flache Liste besorgen
+		// ComboBox Menü
+		
+	}
     
 }

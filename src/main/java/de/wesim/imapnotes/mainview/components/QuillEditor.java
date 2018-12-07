@@ -1,8 +1,6 @@
 package de.wesim.imapnotes.mainview.components;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Element;
@@ -143,26 +141,20 @@ public class QuillEditor extends StackPane implements HasLogger {
 		webview.getEngine().executeScript("findQuillContent('" + content_js + "');");
 	}
 	
-	// TODO Überarbeiten -> in eine LinkedList konvertieren
-	public LinkedList<Integer> findOffset(String entered) {
-		final String content_js = StringEscapeUtils.escapeEcmaScript(entered);
-		JSObject foundIndizes = (JSObject) webview.getEngine().executeScript("findQuillContents('" + content_js + "');");
-		getLogger().info("Hits: {}", foundIndizes);
-		Object ten = foundIndizes.getSlot(10);
-		getLogger().info("Type: {}", ten.getClass().getName());
-		getLogger().info("Slot 10: {}", foundIndizes.getSlot(10));
-		final LinkedList<Integer> indizes = new LinkedList<>();
+	// return list of indexes
+	public LinkedList<Integer> findOffset(String searchText) {
+		final String content_js = StringEscapeUtils.escapeEcmaScript(searchText);
+		final JSObject jsIndexes = (JSObject) webview.getEngine().executeScript("findQuillContents('" + content_js + "');");
+		final LinkedList<Integer> indexes = new LinkedList<>();
 		// Is there a better way???
-		Object currentValue = (Object) foundIndizes.getSlot(0);
-		getLogger().info("{}", currentValue.getClass().getName());
+		Object currentValue = (Object) jsIndexes.getSlot(0);
 		int i=0;
 		while (!currentValue.equals("undefined")) {
-			indizes.add((Integer) currentValue);
+			indexes.add((Integer) currentValue);
 			i++;
-			currentValue = foundIndizes.getSlot(i);
-			getLogger().info("{}", currentValue.getClass().getName());
+			currentValue = jsIndexes.getSlot(i);
 		}
-		return indizes;
+		return indexes;
 	}
 	
 	public void goTo(int index, int length) {

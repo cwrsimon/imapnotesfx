@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.TextInputDialog;
-import javafx.stage.Window;
 
+// TODO Stimmen alle Textresourcen???
 @Component
 @Scope("prototype")
 public class PrefixedTextInputDialog extends TextInputDialog {

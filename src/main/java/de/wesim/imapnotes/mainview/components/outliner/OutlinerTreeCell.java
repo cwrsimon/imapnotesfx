@@ -13,17 +13,16 @@ import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
-import javafx.scene.input.DragEvent;
-import javafx.scene.input.Dragboard;
-import javafx.scene.input.TransferMode;
-import javafx.scene.paint.Color;
 
 @Component
 @Scope("prototype")
 public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 
+	// TODO Moving überarbeiten
+	// TODO Checken, dass wir wirklich den FOlder verlassen
+	// TODO Verschieben in die Root ermöglichen !
+	
 	@Autowired
 	private I18NService i18N;
 	
@@ -42,6 +41,17 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 	
 	@PostConstruct
 	public void init() {
+		final MenuItem moveItem = new MenuItem(i18N.getTranslation("move_note_context_menu_item"));
+		moveItem.setOnAction(e -> {
+			caller.move(getItem());
+			//caller.deleteNote(getTreeItem(), false);
+		});
+		final MenuItem moveFolder = new MenuItem(i18N.getTranslation("move_folder_context_menu_item"));
+		moveFolder.setOnAction(e -> {
+			caller.move(getItem());
+		});
+		
+		
 		final MenuItem deleteItem = new MenuItem(i18N.getTranslation("delete_context_menu_item"));
 		deleteItem.setOnAction(e -> {
 			caller.deleteNote(getTreeItem(), false);
@@ -56,6 +66,8 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 		final MenuItem renameNote = new MenuItem(i18N.getTranslation("rename_msg_context_menu_item"));
 		noteMenu.getItems().add(renameNote);
 		noteMenu.getItems().add(delete2);
+		noteMenu.getItems().add(moveItem);
+
 		delete2.setOnAction(e -> {
 			caller.deleteNote(getTreeItem(), false);
 		});
@@ -88,51 +100,57 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 		folderMenu.getItems().add(newFolderNote);
 		folderMenu.getItems().add(renameItem);
 		folderMenu.getItems().add(deleteItem);
+		folderMenu.getItems().add(moveItem);
 
 		// all necessary for moving notes ...
-		this.setOnDragDetected(e -> {
-			final Dragboard db = this.startDragAndDrop(TransferMode.MOVE);
-			final ClipboardContent content = new ClipboardContent();
-			content.put(NOTE_FORMAT, getItem());
-			db.setContent(content);
-			e.consume();
-			getLogger().debug("Drag Detected");
-		});
-		this.setOnDragOver((DragEvent event) -> {
-			getLogger().debug("Drag Over");
-
-			final Dragboard db = event.getDragboard();
-			if (db.hasContent(NOTE_FORMAT) && getItem().isFolder() && getTreeItem().getValue().isFolder()) {
-				getLogger().debug("onDragOver:" + getItem());
-				event.acceptTransferModes(TransferMode.MOVE);
-			}
-			event.consume();
-		});
-
-		this.setOnDragEntered((DragEvent event) -> {
-			getLogger().debug("Drag Entered");
-
-			if (event.getGestureSource() != getItem() && event.getDragboard().hasContent(NOTE_FORMAT)
-					&& getTreeItem().getValue().isFolder()) {
-				this.setTextFill(Color.RED);
-			}
-			event.consume();
-		});
-		this.setOnDragExited((DragEvent event) -> {
-			getLogger().debug("setOnDragExited");
-			this.setTextFill(Color.BLACK);
-			event.consume();
-		});
-		
-		this.setOnDragDropped((DragEvent event) -> {
-			getLogger().debug("setOnDragDropped");
-
-			final Dragboard db = event.getDragboard();
-			final Note source = (Note) db.getContent(NOTE_FORMAT);
-			caller.move(source, getTreeItem());
-			event.setDropCompleted(true);
-			event.consume();
-		});
+//		this.setOnDragDetected(e -> {
+//			final Dragboard db = this.startDragAndDrop(TransferMode.MOVE);
+//			final ClipboardContent content = new ClipboardContent();
+//			content.put(NOTE_FORMAT, getItem());
+//			db.setContent(content);
+//			e.consume();
+//			getLogger().debug("Drag Detected");
+//		});
+//		this.setOnDragOver((DragEvent event) -> {
+//			getLogger().info("Drag Over:" + String.valueOf(getItem()));
+//
+//			final Dragboard db = event.getDragboard();
+//			if (db.hasContent(NOTE_FORMAT)
+//					&& getItem() != null
+//					&& getItem().isFolder() 					
+//					) {
+//				getLogger().info("onDragOver:" + getItem());
+//				event.acceptTransferModes(TransferMode.MOVE);
+//			}
+//			event.consume();
+//		});
+//
+//		this.setOnDragEntered((DragEvent event) -> {
+//			getLogger().debug("Drag Entered");
+//
+//			if (event.getGestureSource() != getItem() 
+//					&& getItem() != null 
+//					&& event.getDragboard().hasContent(NOTE_FORMAT)
+//					&& getItem().isFolder()) {
+//				this.setTextFill(Color.RED);
+//			}
+//			event.consume();
+//		});
+//		this.setOnDragExited((DragEvent event) -> {
+//			getLogger().debug("setOnDragExited");
+//			this.setTextFill(Color.BLACK);
+//			event.consume();
+//		});
+//		
+//		this.setOnDragDropped((DragEvent event) -> {
+//			getLogger().debug("setOnDragDropped");
+//
+//			final Dragboard db = event.getDragboard();
+//			final Note source = (Note) db.getContent(NOTE_FORMAT);
+//			caller.move(source, getTreeItem());
+//			event.setDropCompleted(true);
+//			event.consume();
+//		});
 
 	}
 
