@@ -41,8 +41,8 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 	
 	@PostConstruct
 	public void init() {
-		final MenuItem moveItem = new MenuItem(i18N.getTranslation("move_note_context_menu_item"));
-		moveItem.setOnAction(e -> {
+		final MenuItem moveNoteItem = new MenuItem(i18N.getTranslation("move_note_context_menu_item"));
+		moveNoteItem.setOnAction(e -> {
 			caller.move(getItem());
 			//caller.deleteNote(getTreeItem(), false);
 		});
@@ -66,7 +66,7 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 		final MenuItem renameNote = new MenuItem(i18N.getTranslation("rename_msg_context_menu_item"));
 		noteMenu.getItems().add(renameNote);
 		noteMenu.getItems().add(delete2);
-		noteMenu.getItems().add(moveItem);
+		noteMenu.getItems().add(moveNoteItem);
 
 		delete2.setOnAction(e -> {
 			caller.deleteNote(getTreeItem(), false);
@@ -100,7 +100,7 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 		folderMenu.getItems().add(newFolderNote);
 		folderMenu.getItems().add(renameItem);
 		folderMenu.getItems().add(deleteItem);
-		folderMenu.getItems().add(moveItem);
+		folderMenu.getItems().add(moveFolder);
 
 		// all necessary for moving notes ...
 //		this.setOnDragDetected(e -> {

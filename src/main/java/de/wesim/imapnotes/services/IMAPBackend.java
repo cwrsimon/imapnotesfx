@@ -325,4 +325,8 @@ public class IMAPBackend implements HasLogger {
 
     }
 
+	public Store getStore() {
+		return store;
+	}
+
 }

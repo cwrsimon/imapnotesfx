@@ -8,6 +8,7 @@ import java.util.Map;
 
 import javax.mail.Folder;
 import javax.mail.Message;
+import javax.mail.Store;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -153,6 +154,10 @@ public class IMAPNoteProvider implements INoteProvider {
         // reload for updating references in UUID maps
         getNotesFromFolder(folder);
         return message;
+    }
+    
+    public Store getStore() {
+    	return this.backend.getStore();
     }
 
 }

@@ -5,16 +5,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.mail.BodyPart;
+import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Store;
 import javax.mail.internet.MimeMultipart;
 
 import com.sun.mail.util.BASE64DecoderStream;
@@ -88,5 +92,44 @@ public class IMAPUtils implements HasLogger {
 		return mainContent;
 	}
 	
+	private static void getChildren(Folder folder, String prefix, List<String> accu) throws MessagingException {
+//		if (node.getValue() == null) {
+//			return;
+//		}
+//		if (node.getChildren().isEmpty()) {
+//			accu.add(prefix);
+//			return;
+//		}
+		accu.add(prefix);
+		for (Folder child : folder.list()) {
+			System.out.println("child: " + child.getName());
+			String myprefix = prefix + child.getName() + "/";
+//			accu.add(child.getFullName());
+			//accu.add(myprefix);
+			getChildren(child, myprefix, accu);
+		}
+	}
 	
+	public static List<String> getFlatList(Store store) {
+		List<String> accu = new ArrayList<>();
+		try {
+			//accu.add("/");
+			getChildren(store.getDefaultFolder(), "/", accu);
+		} catch (MessagingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+//		getLogger().info("{}", accu
+//		);
+//		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
+//			return parent;
+//		}
+//		if (parent.getChildren().isEmpty()) return null;
+//		for (TreeItem<Note> child : parent.getChildren()) {
+//			TreeItem<Note> found = OutlinerWidget.searchTreeItem(searchItem, child);
+//			if (found != null) return found;
+//		}
+		return accu;
+	}
 }

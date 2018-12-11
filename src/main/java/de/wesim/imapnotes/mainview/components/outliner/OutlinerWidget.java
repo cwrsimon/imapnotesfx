@@ -1,12 +1,15 @@
 package de.wesim.imapnotes.mainview.components.outliner;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import javafx.beans.value.ChangeListener;
@@ -15,7 +18,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 
 @Component
-public class OutlinerWidget extends TreeView<Note> {
+public class OutlinerWidget extends TreeView<Note> implements HasLogger {
 
 	@Autowired
 	protected MainViewController mainViewController;
@@ -99,5 +102,41 @@ public class OutlinerWidget extends TreeView<Note> {
 		} else {
 			getRoot().getChildren().add(newTreeItem);
 		}
+	}
+	
+	private static void getChildren(TreeItem<Note> node, String prefix, List<String> accu) {
+//		if (node.getValue() == null) {
+//			return;
+//		}
+//		if (node.getChildren().isEmpty()) {
+//			accu.add(prefix);
+//			return;
+//		}
+		for (TreeItem<Note> child : node.getChildren()) {
+			final Note value = child.getValue();
+			if (value == null) continue;
+			if (!value.isFolder()) continue;
+			String myprefix = prefix + value.getSubject() + "/";
+			accu.add(myprefix);
+			getChildren(child, myprefix, accu);
+		}
+	}
+	
+	public Map<String, TreeItem<Note>> getFlatList() {
+		List<String> accu = new ArrayList<>();
+		accu.add("/");
+		getChildren(getRoot(), "/", accu);
+
+		getLogger().info("{}", accu
+		);
+//		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
+//			return parent;
+//		}
+//		if (parent.getChildren().isEmpty()) return null;
+//		for (TreeItem<Note> child : parent.getChildren()) {
+//			TreeItem<Note> found = OutlinerWidget.searchTreeItem(searchItem, child);
+//			if (found != null) return found;
+//		}
+		return null;
 	}
 }

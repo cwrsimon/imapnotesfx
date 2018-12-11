@@ -36,7 +36,9 @@ import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.preferenceview.PreferenceView;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
+import de.wesim.imapnotes.services.IMAPBackend;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
+import de.wesim.imapnotes.services.IMAPUtils;
 import de.wesim.imapnotes.services.INoteProvider;
 import javafx.application.HostServices;
 import javafx.scene.control.Alert;
@@ -470,7 +472,11 @@ public class MainViewController implements HasLogger {
 		// TODO move with choice
 		// flache Liste besorgen
 		// ComboBox Menü
-		
+		this.outlinerWidget.getFlatList();
+		if (this.backend instanceof IMAPNoteProvider) {
+			IMAPNoteProvider conv = (IMAPNoteProvider) this.backend;
+			getLogger().info("{}", IMAPUtils.getFlatList(conv.getStore()));
+		}
 	}
     
 }
