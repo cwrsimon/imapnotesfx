@@ -38,12 +38,10 @@ public class IMAPBackend implements HasLogger {
 
     @Autowired
     private ApplicationContext context;
-
 	
     private Session session;
     private Store store;
     private IMAPFolder notesFolder;
-    private String from_address;
     private final Account account;
 
     public IMAPBackend(Account account) {
@@ -81,14 +79,6 @@ public class IMAPBackend implements HasLogger {
         return newFolder;
     }
 
-    private void openNotesFolder(String name) throws MessagingException {
-        this.notesFolder = (IMAPFolder) this.store.getFolder(name);
-    }
-
-    private void openSubFolder(String name) throws MessagingException {
-        this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(name);
-    }
-
     private void connectStore(Properties props, Authenticator authenticator) throws MessagingException {
         getLogger().info("Trying to connect ...");
         // TODO Integrate me one day ...
@@ -102,7 +92,8 @@ public class IMAPBackend implements HasLogger {
         this.store.connect();
     }
 
-    public void initNotesFolder() throws Exception {
+    public boolean initNotesFolder() throws Exception  {
+    	getLogger().info("Account: {}", this.account.getRoot_folder());
         final Properties props = System.getProperties();
         final MyAuthenticator myAuthenticator = context.getBean(MyAuthenticator.class, account);
 
@@ -112,18 +103,22 @@ public class IMAPBackend implements HasLogger {
             myAuthenticator.setTryAgain(true);
             connectStore(props, myAuthenticator);
         }
-        this.from_address = account.getFrom_address();
-        final String[] splitItems = this.account.getRoot_folder().split("/");
-        if (splitItems.length == 0) {
+        final String rootFolder = this.account.getRoot_folder();
+        if (!rootFolder.startsWith("/")) {
             throw new Exception(String.format("Invalid root folder: %s", this.account.getRoot_folder()));
         }
-
-        openNotesFolder(splitItems[0]);
-
-        for (int i = 1; i < splitItems.length; i++) {
-            openSubFolder(splitItems[i]);
+        this.notesFolder = (IMAPFolder) this.store.getDefaultFolder();
+        final String[] splitItems = rootFolder.split("/");
+        for (String folderName : splitItems) {
+        	if (folderName.equals("")) {
+        		continue;
+        	}
+        	this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(folderName);
         }
+        return this.notesFolder.exists();
     }
+    
+    
 
     public IMAPFolder getNotesFolder() {
         return (IMAPFolder) this.notesFolder;
@@ -262,7 +257,7 @@ public class IMAPBackend implements HasLogger {
         final MimeMessage newMsg = new MimeMessage(this.session);
         newMsg.setContent(newContent, "text/html; charset=utf-8");
         newMsg.setSubject(subject);
-        newMsg.setFrom(this.from_address);
+        newMsg.setFrom(this.account.getFrom_address());
         final Date date = new Date();
         newMsg.setSentDate(date);
         // think of something here ...

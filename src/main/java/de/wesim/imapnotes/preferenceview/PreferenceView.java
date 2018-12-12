@@ -3,6 +3,7 @@ package de.wesim.imapnotes.preferenceview;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -32,10 +33,14 @@ import javafx.stage.WindowEvent;
 
 @Component
 @Scope("prototype")
+// TODO Fenstertitel setzen !!!
 public class PreferenceView extends Stage implements HasLogger {
 
 	@Autowired
 	private I18NService i18N;
+	
+	@Autowired
+	private ApplicationContext context;
 
 	@Autowired
 	private ConfigurationService configurationService;
@@ -64,7 +69,7 @@ public class PreferenceView extends Stage implements HasLogger {
 
 	private Scene initScene() {
 		this.generalTab = new GeneralTab(i18N);
-		this.imapTab = new  IMAPTab(i18N);
+		this.imapTab = new  IMAPTab(i18N, context);
 		this.fsTab = new FSTab(i18N);
 
 		final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);

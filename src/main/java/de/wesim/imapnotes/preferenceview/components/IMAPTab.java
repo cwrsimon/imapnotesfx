@@ -3,12 +3,19 @@ package de.wesim.imapnotes.preferenceview.components;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.context.ApplicationContext;
+
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Account_Type;
 import de.wesim.imapnotes.services.I18NService;
+import de.wesim.imapnotes.services.IMAPBackend;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
@@ -25,12 +32,14 @@ import javafx.scene.layout.VBox;
 // TODO Konfiguration von SSL
 // TODO check connection
 // TODO add support for more specific connection settings (ports, etc.)
+// TODO Zur Spring-Komponente machen...
 public class IMAPTab extends Tab implements HasLogger {
 
 
     private class IMAPForm extends GridPane {
 
         private Hyperlink removeMe = new Hyperlink(i18N.getTranslation("remove"));
+        private Button testMe = new Button(i18N.getTranslation("testIMAP"));
 
         final TextField nameField;
         final TextField pathField;
@@ -69,7 +78,9 @@ public class IMAPTab extends Tab implements HasLogger {
             pathField = new TextField();
             this.add(pathField, 1, 4);
 
-            this.add(removeMe, 0, 5);
+            this.add(testMe, 1, 5);
+            GridPane.setHalignment(testMe, HPos.RIGHT);
+            this.add(removeMe, 0, 6);
             
             ColumnConstraints column1 = new ColumnConstraints();
             ColumnConstraints column2 = new ColumnConstraints();
@@ -103,15 +114,39 @@ public class IMAPTab extends Tab implements HasLogger {
         newForm.removeMe.setOnAction(e -> {
             acco.getPanes().remove(tp);
         });
+        newForm.testMe.setOnAction(e-> {
+        	IMAPBackend backend = context.getBean(IMAPBackend.class, newForm.getAccount());
+        	boolean testOK = false;
+        	try {
+        		testOK = backend.initNotesFolder();
+        	} catch (Exception e1) {
+        		testOK = false;
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} finally {
+				// TODO Schöneres Wording finden!
+				// TODO Fehlermeldung durchreichen ...
+        		final Alert alert;
+        		if (testOK) {
+        			alert = new Alert(AlertType.INFORMATION);
+        		} else {
+        			alert = new Alert(AlertType.ERROR);
+        		}
+        		alert.showAndWait();
+        		//exception.printStackTrace();
+        	}
+        });
         return tp;
     }
 
     final Accordion acco;
 	private I18NService i18N;
+	private ApplicationContext context;
 
-    public IMAPTab(I18NService i18n) {
+    public IMAPTab(I18NService i18n, ApplicationContext context) {
         super("IMAP");
         this.i18N = i18n;
+        this.context = context;
 
         final VBox vbox = new VBox();
         setContent(vbox);
