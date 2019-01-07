@@ -110,6 +110,7 @@ public class IMAPUtils implements HasLogger {
 		}
 	}
 	
+	// TODO Cleanup
 	public static List<String> getFlatList(Store store) {
 		List<String> accu = new ArrayList<>();
 		try {
