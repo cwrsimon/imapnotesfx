@@ -10,6 +10,8 @@ public class Account {
     private String login;
     private String root_folder;
     private String from_address;
+    private String port;
+    private boolean ssl;
     
     public Account() {
 
@@ -67,6 +69,22 @@ public class Account {
 		this.root_folder = root_folder;
 	}
 	
+	public String getPort() {
+		return port;
+	}
+
+	public void setPort(String port) {
+		this.port = port;
+	}
+
+	public boolean isSsl() {
+		return ssl;
+	}
+
+	public void setSsl(boolean ssl) {
+		this.ssl = ssl;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

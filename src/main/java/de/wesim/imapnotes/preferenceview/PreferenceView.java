@@ -34,6 +34,7 @@ import javafx.stage.WindowEvent;
 @Component
 @Scope("prototype")
 // TODO Fenstertitel setzen !!!
+// TODO SCrollPane integrieren
 public class PreferenceView extends Stage implements HasLogger {
 
 	@Autowired
@@ -65,6 +66,7 @@ public class PreferenceView extends Stage implements HasLogger {
 		setHeight(500);
 		setWidth(600);
 		setScene(newScene);
+		setTitle(i18N.getTranslation("preference_view"));
 	}
 
 	private Scene initScene() {

@@ -31,6 +31,8 @@ import com.sun.mail.imap.IMAPFolder;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
+import java.util.Optional;
+import org.springframework.lang.Nullable;
 
 @Component
 @Scope("prototype")
@@ -38,7 +40,7 @@ public class IMAPBackend implements HasLogger {
 
     @Autowired
     private ApplicationContext context;
-	
+
     private Session session;
     private Store store;
     private IMAPFolder notesFolder;
@@ -48,7 +50,7 @@ public class IMAPBackend implements HasLogger {
         this.account = account;
     }
 
-    public Note createFolder(String name, Folder parentFolder, Map<String, Folder> folderMap) throws MessagingException {
+    public Note createFolder(String name, Folder parentFolder, @Nullable Map<String, Folder> folderMap) throws MessagingException {
         startTransaction((IMAPFolder) parentFolder);
         Folder newFolder = parentFolder.getFolder(name);
         newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
@@ -57,8 +59,9 @@ public class IMAPBackend implements HasLogger {
         newNote.setDate(new Date());
         newNote.setIsFolder(true);
 
-        folderMap.put(newNote.getUuid(), newFolder);
-
+        if (folderMap != null) {
+            folderMap.put(newNote.getUuid(), newFolder);
+        }
         endTransaction((IMAPFolder) parentFolder);
 
         return newNote;
@@ -71,29 +74,34 @@ public class IMAPBackend implements HasLogger {
     }
 
     public Folder renameFolder(Folder oldFolder, String newName) throws MessagingException {
-    	// make sure the folder is closed
+        // make sure the folder is closed
         this.endTransaction((IMAPFolder) oldFolder);
         final Folder parentFolder = oldFolder.getParent();
         Folder newFolder = parentFolder.getFolder(newName);
-        oldFolder.renameTo(newFolder);        
+        oldFolder.renameTo(newFolder);
         return newFolder;
     }
 
     private void connectStore(Properties props, Authenticator authenticator) throws MessagingException {
         getLogger().info("Trying to connect ...");
-        // TODO Integrate me one day ...
-        // props.setProperty("mail.imap.ssl.enable", "true");
-
+        final String protocol;
+        if (account.isSsl()) {
+            protocol = "imaps";
+            props.setProperty("mail.imap.ssl.enable", "true");
+        } else {
+            protocol = "imap";
+        }
+        String url = protocol + "://" + account.getHostname();
+        if (account.getPort() != null) {
+            url = url + ":" + account.getPort();
+        }
         this.session = Session.getInstance(props, authenticator);
-        this.store = this.session.getStore(
-                new URLName("imap://" + account.getHostname())
-//                + ":587"
-        );
+        this.store = this.session.getStore(new URLName(url));
         this.store.connect();
     }
 
-    public boolean initNotesFolder() throws Exception  {
-    	getLogger().info("Account: {}", this.account.getRoot_folder());
+    public boolean initNotesFolder() throws Exception {
+        getLogger().info("Account: {}", this.account.getRoot_folder());
         final Properties props = System.getProperties();
         final MyAuthenticator myAuthenticator = context.getBean(MyAuthenticator.class, account);
 
@@ -110,15 +118,26 @@ public class IMAPBackend implements HasLogger {
         this.notesFolder = (IMAPFolder) this.store.getDefaultFolder();
         final String[] splitItems = rootFolder.split("/");
         for (String folderName : splitItems) {
-        	if (folderName.equals("")) {
-        		continue;
-        	}
-        	this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(folderName);
+            if (folderName.equals("")) {
+                continue;
+            }
+            this.notesFolder = (IMAPFolder) this.notesFolder.getFolder(folderName);
         }
         return this.notesFolder.exists();
     }
-    
-    
+
+    public void createNotesFolder(String folderName) throws MessagingException {
+        Folder currentFolder = this.store.getDefaultFolder();
+        final String[] splitItems = folderName.split("/");
+        for (String pathItem : splitItems) {
+            if (pathItem.equals("")) {
+                continue;
+            }
+            var newFolder = currentFolder.getFolder(pathItem);
+            newFolder.create(Folder.HOLDS_MESSAGES | Folder.HOLDS_FOLDERS | Folder.READ_WRITE);
+            currentFolder = newFolder;
+        }
+    }
 
     public IMAPFolder getNotesFolder() {
         return (IMAPFolder) this.notesFolder;
@@ -160,7 +179,6 @@ public class IMAPBackend implements HasLogger {
         }
         Folder[] folders = folder.list();
         for (Folder f : folders) {
-
             getLogger().info("Folder full name: {}", f.getFullName());
             final String name = f.getName();
             final Note newNote = new Note(f.getFullName());
@@ -273,8 +291,12 @@ public class IMAPBackend implements HasLogger {
     public String getUUIDForMessage(Message msg) throws MessagingException {
         this.startTransaction((IMAPFolder) msg.getFolder());
         final String[] header = msg.getHeader("X-Universally-Unique-Identifier");
-        if (header == null) return null;
-        if (header.length == 0) return null;
+        if (header == null) {
+            return null;
+        }
+        if (header.length == 0) {
+            return null;
+        }
         final String uuid = header[0];
         this.endTransaction((IMAPFolder) msg.getFolder());
         return uuid;
@@ -320,8 +342,8 @@ public class IMAPBackend implements HasLogger {
 
     }
 
-	public Store getStore() {
-		return store;
-	}
+    public Store getStore() {
+        return store;
+    }
 
 }

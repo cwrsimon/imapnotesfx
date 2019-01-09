@@ -1,19 +1,14 @@
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
 
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
-import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+// TODO In Richtung Spring Boot umschwenken ...
 public class JFXMain extends Application {
 
 	private AnnotationConfigApplicationContext context = null;
