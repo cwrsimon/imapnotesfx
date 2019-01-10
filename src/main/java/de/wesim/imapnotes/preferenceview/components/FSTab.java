@@ -12,6 +12,7 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -99,15 +100,17 @@ public class FSTab extends Tab {
         vbox.setPadding(new Insets(5, 5, 5, 5));
 
         acco = new Accordion();
-
+        var scrollPane = new ScrollPane(acco);
+        scrollPane.setFitToWidth(true);
+        
         final Hyperlink button = new Hyperlink(this.i18N.getTranslation("new"));
         final ToolBar toolbar = new ToolBar(button);
 
         vbox.getChildren().add(toolbar);
-        vbox.getChildren().add(acco);
+        vbox.getChildren().add(scrollPane);
 
         button.setOnAction(e -> {
-            acco.getPanes().add(createTitledPane("", ""));
+            acco.getPanes().add(0,createTitledPane("", ""));
         });
     }
 

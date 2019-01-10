@@ -26,6 +26,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
@@ -220,12 +221,13 @@ public class IMAPTab extends Tab implements HasLogger {
         vbox.setSpacing(5);
 
         acco = new Accordion();
-
+        var scrollPane = new ScrollPane(acco);
+        scrollPane.setFitToWidth(true);
         final Hyperlink button = new Hyperlink(i18n.getTranslation("new"));
         final ToolBar toolbar = new ToolBar(button);
 
         vbox.getChildren().add(toolbar);
-        vbox.getChildren().add(acco);
+        vbox.getChildren().add(scrollPane);
 
         button.setOnAction(e -> {
             // a new account with some default values
@@ -235,7 +237,7 @@ public class IMAPTab extends Tab implements HasLogger {
             newAccount.setRoot_folder("/Notes");
             newAccount.setPort("993");
             newAccount.setSsl(true);
-            acco.getPanes().add(createTitledPane(newAccount));
+            acco.getPanes().add(0, createTitledPane(newAccount));
         });
     }
 
