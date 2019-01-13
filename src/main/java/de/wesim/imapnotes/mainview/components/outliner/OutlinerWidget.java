@@ -1,6 +1,6 @@
 package de.wesim.imapnotes.mainview.components.outliner;
 
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,39 +104,23 @@ public class OutlinerWidget extends TreeView<Note> implements HasLogger {
 		}
 	}
 	
-	private static void getChildren(TreeItem<Note> node, String prefix, List<String> accu) {
-//		if (node.getValue() == null) {
-//			return;
-//		}
-//		if (node.getChildren().isEmpty()) {
-//			accu.add(prefix);
-//			return;
-//		}
+	private static void getChildren(TreeItem<Note> node, String prefix, Map<String, TreeItem<Note>> accu) {
 		for (TreeItem<Note> child : node.getChildren()) {
 			final Note value = child.getValue();
 			if (value == null) continue;
 			if (!value.isFolder()) continue;
 			String myprefix = prefix + value.getSubject() + "/";
-			accu.add(myprefix);
+			accu.put(myprefix, child);
 			getChildren(child, myprefix, accu);
 		}
 	}
 	
 	public Map<String, TreeItem<Note>> getFlatList() {
-		List<String> accu = new ArrayList<>();
-		accu.add("/");
+		var accu = new LinkedHashMap<String, TreeItem<Note>>();
+		accu.put("/", getRoot());
 		getChildren(getRoot(), "/", accu);
 
-		getLogger().info("{}", accu
-		);
-//		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
-//			return parent;
-//		}
-//		if (parent.getChildren().isEmpty()) return null;
-//		for (TreeItem<Note> child : parent.getChildren()) {
-//			TreeItem<Note> found = OutlinerWidget.searchTreeItem(searchItem, child);
-//			if (found != null) return found;
-//		}
-		return null;
+		getLogger().info("{}", accu);
+		return accu;
 	}
 }

@@ -10,7 +10,7 @@ import net.east301.keyring.util.LockException;
 
 public class PasswordProvider implements HasLogger {
 
-    Keyring keyring;
+    private Keyring keyring;
 
     public PasswordProvider() {
 
@@ -46,11 +46,5 @@ public class PasswordProvider implements HasLogger {
         }
        
     }
-    
-//    public static void main(String [] args) {
-//    	PasswordProvider provider = new PasswordProvider();
-//    	provider.init();
-//    	System.out.println(provider.retrievePassword("Wesim"));
-//    }
 
 }

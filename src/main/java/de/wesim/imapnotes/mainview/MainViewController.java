@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.PostConstruct;
+import javax.mail.MessagingException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,7 +37,6 @@ import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.preferenceview.PreferenceView;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
-import de.wesim.imapnotes.services.IMAPBackend;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.IMAPUtils;
 import de.wesim.imapnotes.services.INoteProvider;
@@ -472,11 +472,11 @@ public class MainViewController implements HasLogger {
 		// TODO move with choice
 		// flache Liste besorgen
 		// ComboBox Menü
-		this.outlinerWidget.getFlatList();
-		if (this.backend instanceof IMAPNoteProvider) {
-			IMAPNoteProvider conv = (IMAPNoteProvider) this.backend;
-			getLogger().info("{}", IMAPUtils.getFlatList(conv.getStore()));
-		}
+		var nodes = this.outlinerWidget.getFlatList();
+		// TODO Als Komponente auslagern => Translation !!!
+		final ChoiceDialog<String> folderChooser 
+			= new ChoiceDialog<>("/", nodes.keySet());	
+		folderChooser.showAndWait();
 	}
     
 }

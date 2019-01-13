@@ -39,12 +39,6 @@ import javafx.scene.text.TextAlignment;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 
-// TODO Format für Spezifikation des Folder-Pfads definieren
-// TODO Konfiguration des Ports
-// TODO Konfiguration von SSL
-// TODO check connection
-// TODO add support for more specific connection settings (ports, etc.)
-// TODO Wenn der Folder nicht existiert, dann anlegen !!!
 // TODO Zur Spring-Komponente machen...
 // TODO Schauen, ob man die Mail-Adresse wegreduzieren kann ...
 public class IMAPTab extends Tab implements HasLogger {
@@ -119,12 +113,15 @@ public class IMAPTab extends Tab implements HasLogger {
 
             dirButton.setOnAction(e -> {
                 final IMAPBackend backend = context.getBean(IMAPBackend.class, getAccount());
+                final List<String> availableFolders;
                 try {
                     backend.initNotesFolder();
+                    availableFolders = IMAPUtils.getIMAPFoldersList(backend.getStore());
                 } catch (Exception ex) {
+                	// TODO MessageBox
                     Logger.getLogger(IMAPTab.class.getName()).log(Level.SEVERE, null, ex);
+                    return;
                 }
-                final List<String> availableFolders = IMAPUtils.getFlatList(backend.getStore());
                 final ChoiceDialog<String> folderChooser = new ChoiceDialog<>(availableFolders.get(0), availableFolders);
                 final Optional<String> choice = folderChooser.showAndWait();
                 if (!choice.isPresent()) {

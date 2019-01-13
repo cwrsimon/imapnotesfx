@@ -93,44 +93,20 @@ public class IMAPUtils implements HasLogger {
 	}
 	
 	private static void getChildren(Folder folder, String prefix, List<String> accu) throws MessagingException {
-//		if (node.getValue() == null) {
-//			return;
-//		}
-//		if (node.getChildren().isEmpty()) {
-//			accu.add(prefix);
-//			return;
-//		}
-		accu.add(prefix);
+		if (prefix.length() > 1) {
+			accu.add(prefix.substring(0, prefix.length() - 1));
+		} else {
+			accu.add(prefix);
+		}
 		for (Folder child : folder.list()) {
-			System.out.println("child: " + child.getName());
-			String myprefix = prefix + child.getName() + "/";
-//			accu.add(child.getFullName());
-			//accu.add(myprefix);
+			final String myprefix = prefix + child.getName() + "/";
 			getChildren(child, myprefix, accu);
 		}
 	}
 	
-	// TODO Cleanup
-	public static List<String> getFlatList(Store store) {
+	public static List<String> getIMAPFoldersList(Store store) throws MessagingException {
 		List<String> accu = new ArrayList<>();
-		try {
-			//accu.add("/");
-			getChildren(store.getDefaultFolder(), "/", accu);
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-//		getLogger().info("{}", accu
-//		);
-//		if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
-//			return parent;
-//		}
-//		if (parent.getChildren().isEmpty()) return null;
-//		for (TreeItem<Note> child : parent.getChildren()) {
-//			TreeItem<Note> found = OutlinerWidget.searchTreeItem(searchItem, child);
-//			if (found != null) return found;
-//		}
+		getChildren(store.getDefaultFolder(), "/", accu);
 		return accu;
 	}
 }
