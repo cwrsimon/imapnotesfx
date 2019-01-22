@@ -90,6 +90,7 @@ public class QuillEditor extends StackPane implements HasLogger {
 
 	public void setHTMLContent(String content) {
 		final String content_js = StringEscapeUtils.escapeEcmaScript(content);
+		getLogger().info("Setting content...: {}", content_js);
 		webview.getEngine().executeScript("setQuillContent('" + content_js + "');");
 		setContentUpdate(false);
 	}
@@ -128,7 +129,7 @@ public class QuillEditor extends StackPane implements HasLogger {
 			WebErrorEvent event = (WebErrorEvent) e;
 			getLogger().error("{}", event.getException());
 		});
-		final String editorSource = QuillEditor.class.getResource("/quill-editor.html").toExternalForm();
+		final String editorSource = QuillEditor.class.getResource("/sommernote.html").toExternalForm();
 		webview.getEngine().load(editorSource);
 		this.getChildren().add(webview);
 		// bootstrap quill editor

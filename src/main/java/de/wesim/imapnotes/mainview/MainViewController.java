@@ -476,7 +476,10 @@ public class MainViewController implements HasLogger {
 		// TODO Als Komponente auslagern => Translation !!!
 		final ChoiceDialog<String> folderChooser 
 			= new ChoiceDialog<>("/", nodes.keySet());	
-		folderChooser.showAndWait();
+		var choice = folderChooser.showAndWait();
+		if (!choice.isPresent()) return;
+		var chosenPath = choice.get();
+		move(item, nodes.get(chosenPath));
 	}
     
 }

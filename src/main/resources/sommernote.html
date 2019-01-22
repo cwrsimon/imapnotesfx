@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>bootstrap4</title>
+    <script src="jquery-3.2.1.slim.min.js"></script>
+    <link href="dist/summernote-lite.css" rel="stylesheet">
+    <script src="dist/summernote-lite.min.js"></script>
+    <style>
+html, body {
+	height: 100%;
+	margin:0;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+}
+
+/* main editor component */
+#editor {
+	flex: 1;
+ 	overflow: auto;
+}
+</style>
+  </head>
+  <body>
+    <div id="editor"></div>
+    <script>
+      $('#editor').summernote({
+        placeholder: 'Hello stand alone ui',
+        tabsize: 2,
+        callbacks: {
+            onInit: function() {        
+                $('#editor').summernote('fullscreen.toggle');    
+                },
+            onChange: function(contents, $editable) {
+                 //console.log('onChange:', contents, $editable);
+                 if (typeof app !== 'undefined') {
+                    app.setContentUpdate(true);
+                 }
+            }
+        }});
+        
+getQuillContent = function() {
+        return $('#editor').summernote('code');
+    };
+
+    setQuillContent = function(content) {
+$('#editor').summernote('reset');
+$('#editor').summernote('code', content);
+    }
+    </script>
+  </body>
+</html>

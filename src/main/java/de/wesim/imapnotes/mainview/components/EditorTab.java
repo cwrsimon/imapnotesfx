@@ -22,7 +22,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 
-
+// Auf summernote.org umschwenken ...
 @Component
 @Scope("prototype")
 public class EditorTab extends Tab {
