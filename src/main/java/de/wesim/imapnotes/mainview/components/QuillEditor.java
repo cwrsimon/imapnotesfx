@@ -22,6 +22,8 @@ import netscape.javascript.JSObject;
 
 // Check for updates:
 // https://bugs.java.com/view_bug.do?bug_id=8197790
+// TODO An Summernote anpassen
+// Vermutlich muss auf OpenJFX 12 geupgradet werden ...
 public class QuillEditor extends StackPane implements HasLogger {
 
 	private class QuillEditorWhenLoadedListener implements ChangeListener<State> {
