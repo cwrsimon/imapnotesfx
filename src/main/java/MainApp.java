@@ -8,6 +8,8 @@ import java.util.logging.SimpleFormatter;
 
 import de.wesim.imapnotes.Consts;
 
+// TODO Konsolidieren!
+// TODO LOgging umstellen
 public class MainApp {
 
 	public static void main(String[] args) throws IOException {

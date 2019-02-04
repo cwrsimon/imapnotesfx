@@ -7,8 +7,9 @@ import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-// TODO In Richtung Spring Boot umschwenken ...
+@SpringBootApplication
 public class JFXMain extends Application {
 
 	private AnnotationConfigApplicationContext context = null;
