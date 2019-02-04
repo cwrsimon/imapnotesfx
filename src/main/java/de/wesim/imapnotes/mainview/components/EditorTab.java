@@ -27,100 +27,75 @@ import javafx.scene.control.Tab;
 @Scope("prototype")
 public class EditorTab extends Tab {
 
-	@Autowired
-	protected MainViewController mainViewController;
-	
-	@Autowired
+    @Autowired
+    protected MainViewController mainViewController;
+
+    @Autowired
     private ApplicationContext context;
-	
-	@Autowired
-	private ConfigurationService configurationService;
 
-	private QuillEditor qe;
+    @Autowired
+    private ConfigurationService configurationService;
 
-	private final Note note;
+    private QuillEditor qe;
 
-	private LinkedList<Integer> currentItems;
+    private final Note note;
 
+    private LinkedList<Integer> currentItems;
 
-	private Integer currentFoundItemLength;
+    private Integer currentFoundItemLength;
 
-	private ListIterator<Integer> foundItemsIterator;
+    private ListIterator<Integer> foundItemsIterator;
 
-	private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
+    private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
 
-	private Optional<ButtonType> demandConfirmation() {
-		Alert alert = context.getBean(PrefixedAlertBox.class, "close_tab");
-		alert.setAlertType(AlertType.CONFIRMATION);
-		return alert.showAndWait();
-	}
+    private Optional<ButtonType> demandConfirmation() {
+        Alert alert = context.getBean(PrefixedAlertBox.class, "close_tab");
+        alert.setAlertType(AlertType.CONFIRMATION);
+        return alert.showAndWait();
+    }
 
-	public EditorTab(Note note) {
-		super(note.getSubject());
-		this.note = note;
-	}
-	
-	@PostConstruct
-	public void init() {
-		this.qe = new QuillEditor(mainViewController.getHostServices(),  note.getContent(), configurationService.getConfig());
-		setContent(this.qe);
-		setOnCloseRequest(e-> {
-			logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
-			if (!this.qe.getContentUpdate()) {
-				return;
-			}
-			final Optional<ButtonType> result = demandConfirmation();
-			if (result.isPresent() && result.get() == ButtonType.CANCEL) {
-				e.consume();
-			}
-		});
-		this.textProperty().bind(
-				Bindings.createStringBinding( () -> 
-				{
-					if (this.qe.contentUpdateProperty().get()) {
-						return "* " + note.getSubject();
-					} else {
-						return note.getSubject();
-					}
-				}
-				, this.qe.contentUpdateProperty()
-						)
-				);
-	}
+    public EditorTab(Note note) {
+        super(note.getSubject());
+        this.note = note;
+    }
 
-	public QuillEditor getQe() {
-		return qe;
-	}
+    @PostConstruct
+    public void init() {
+        this.qe = new QuillEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
+        setContent(this.qe);
+        setOnCloseRequest(e -> {
+            logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
+            if (!this.qe.getContentUpdate()) {
+                return;
+            }
+            final Optional<ButtonType> result = demandConfirmation();
+            if (result.isPresent() && result.get() == ButtonType.CANCEL) {
+                e.consume();
+            }
+        });
+        this.textProperty().bind(
+                Bindings.createStringBinding(()
+                        -> {
+                    if (this.qe.contentUpdateProperty().get()) {
+                        return "* " + note.getSubject();
+                    } else {
+                        return note.getSubject();
+                    }
+                },
+                         this.qe.contentUpdateProperty()
+                )
+        );
+    }
 
-	public Note getNote() {
-		return note;
-	}
+    public QuillEditor getQe() {
+        return qe;
+    }
 
-	public void updateFoundItems(String entered) {
-        this.currentItems = getQe().findOffset(entered);
-        this.foundItemsIterator = this.currentItems.listIterator();
-        this.currentFoundItemLength = entered.length();
-	}
+    public Note getNote() {
+        return note;
+    }
 
-	public void goToNextItem() {
-		if (this.foundItemsIterator == null 
-				|| this.currentFoundItemLength == null) return;
-		if (!this.foundItemsIterator.hasNext()) {
-			this.foundItemsIterator = this.currentItems.listIterator();
-		}
-		qe.goTo(this.foundItemsIterator.next(), this.currentFoundItemLength);	
-	}
-
-	public void goToPrevItem() {
-		if (this.foundItemsIterator == null 
-				|| this.currentFoundItemLength == null) return;
-		if (!this.foundItemsIterator.hasPrevious()) {
-			this.foundItemsIterator = 
-					this.currentItems.listIterator((this.currentItems.size() - 1));
-			qe.goTo(this.foundItemsIterator.next(), this.currentFoundItemLength);
-			return;
-		}
-		qe.goTo(this.foundItemsIterator.previous(), this.currentFoundItemLength);	
-	}
-
+    public void markSearchItems(String entered) {
+        getQe().findItems(entered);
+    }
 }

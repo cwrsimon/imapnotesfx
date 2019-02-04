@@ -97,11 +97,11 @@ public class MainViewController implements HasLogger {
     @Autowired
     private MenuItem find;
 
-    @Autowired
-    private MenuItem findNext;
-
-    @Autowired
-    private MenuItem findPrev;
+//    @Autowired
+//    private MenuItem findNext;
+//
+//    @Autowired
+//    private MenuItem findPrev;
     
     @Autowired
     private MenuItem about;
@@ -188,21 +188,22 @@ public class MainViewController implements HasLogger {
         	if (!result.isPresent()) return;
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            et.updateFoundItems(entered);
-            et.goToNextItem();
+            et.markSearchItems(entered);
+//            et.updateFoundItems(entered);
+//            et.goToNextItem();
         });
         
         // Find Previous
-        findNext.setOnAction( e-> {
-            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            et.goToNextItem();
-        });
+//        findNext.setOnAction( e-> {
+//            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+//            et.goToNextItem();
+//        });
         
         // Find Previous
-        findPrev.setOnAction( e-> {
-            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            et.goToPrevItem();
-        });
+//        findPrev.setOnAction( e-> {
+//            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+//            et.goToPrevItem();
+//        });
     }
 
     public void triggerReload() {

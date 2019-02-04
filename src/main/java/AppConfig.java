@@ -88,22 +88,22 @@ public class AppConfig {
         return findMenuItem;                        
 	}
     
-    @Bean
-	public MenuItem findNext() {
-		// content will be configured in MainView
-        final MenuItem findNextMenuItem = new MenuItem();
-        findNextMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND_NEXT));
-        return findNextMenuItem;                        
-	}
-    
-    @Bean
-	public MenuItem findPrev() {
-		// content will be configured in MainView
-        final MenuItem findNextMenuItem = new MenuItem();
-        findNextMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND_PREV));
-        return findNextMenuItem;                        
-	}
-    
+//    @Bean
+//	public MenuItem findNext() {
+//		// content will be configured in MainView
+//        final MenuItem findNextMenuItem = new MenuItem();
+//        findNextMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND_NEXT));
+//        return findNextMenuItem;                        
+//	}
+//    
+//    @Bean
+//	public MenuItem findPrev() {
+//		// content will be configured in MainView
+//        final MenuItem findNextMenuItem = new MenuItem();
+//        findNextMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND_PREV));
+//        return findNextMenuItem;                        
+//	}
+//    
 	
 	@Bean
 	public TabPane tp() {

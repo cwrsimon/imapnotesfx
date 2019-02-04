@@ -64,12 +64,12 @@ public class MainView extends BorderPane implements HasLogger {
     @Autowired
 	private MenuItem find;
 
-    @Autowired
-	private MenuItem findNext;
-
-    @Autowired
-	private MenuItem findPrev;
-    
+//    @Autowired
+//	private MenuItem findNext;
+//
+//    @Autowired
+//	private MenuItem findPrev;
+//    
     @Autowired
 	private MenuItem newNote;
 
@@ -95,8 +95,8 @@ public class MainView extends BorderPane implements HasLogger {
 		newFolder.setText(i18N.getTranslation("new_folder_menu_item"));
 		about.setText(i18N.getTranslation("about_menu"));
 		//
-		findNext.setText(i18N.getTranslation("find_next_menu_item"));
-		findPrev.setText(i18N.getTranslation("find_prev_menu_item"));
+//		findNext.setText(i18N.getTranslation("find_next_menu_item"));
+//		findPrev.setText(i18N.getTranslation("find_prev_menu_item"));
 
 		
 		// Redo, Undo
@@ -113,7 +113,7 @@ public class MainView extends BorderPane implements HasLogger {
 		
 		final Menu helpMenu = new Menu(i18N.getTranslation("help_menu"));
 
-        editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(), find, findNext, findPrev);
+        editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(), find);
                 
 		menuBar.getMenus().add(menu);
         menuBar.getMenus().add(editMenu);

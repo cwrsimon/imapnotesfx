@@ -2,11 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>bootstrap4</title>
+    <title>Summernote Editor</title>
     <script src="jquery-3.2.1.slim.min.js"></script>
     <link href="dist/summernote-lite.css" rel="stylesheet">
     <script src="dist/summernote-lite.min.js"></script>
-    <script src="jquery.highlight.js"></script>
+    <script src="jquery.mark.min.js"></script>
     <style>
 html, body {
 	height: 100%;
@@ -28,8 +28,9 @@ body {
   <body>
     <div id="editor"></div>
     <script>
+
       $('#editor').summernote({
-        placeholder: 'Hello stand alone ui',
+        placeholder: 'https://www.google.de',
         tabsize: 2,
         callbacks: {
             onInit: function() {        
@@ -43,14 +44,43 @@ body {
             }
         }});
         
-getQuillContent = function() {
+    getQuillContent = function() {
+        $('.note-editable').unmark();
         return $('#editor').summernote('code');
     };
 
     setQuillContent = function(content) {
 $('#editor').summernote('reset');
 $('#editor').summernote('code', content);
+                                            app.logMe("Click2");
     }
+    
+    findOccurrences = function(searchString) {
+        
+        $('.note-editable').mark(searchString);
+    }
+    
+    setInlineStyle = function(style_name, value) {
+        $('.note-editable').css(style_name, value);
+    }
+    
+//   .note-link-popover
+    //    $('.note-editable').on('click', function(e) { 
+    //        if (e.target.tagName === 'A' && e.target.target === '_blank') {
+   //             e.preventDefault(); 
+     //           app.logMe("Click");
+
+     //           const url = e.target.href;
+     //           console.log('hier irgendwo');                
+     //           if (typeof app !== 'undefined') {
+                    app.openURL(url);
+     //           }
+     //       }
+           // console.log(e);
+     //   });
+     $('div').click( function(e) {
+        app.logMe('Click'); 
+     });
     </script>
   </body>
 </html>
