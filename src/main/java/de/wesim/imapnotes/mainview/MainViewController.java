@@ -4,18 +4,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-
 import javax.annotation.PostConstruct;
-import javax.mail.MessagingException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.AccountChoiceDialog;
 import de.wesim.imapnotes.mainview.components.EditorTab;
@@ -38,7 +33,6 @@ import de.wesim.imapnotes.preferenceview.PreferenceView;
 import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
-import de.wesim.imapnotes.services.IMAPUtils;
 import de.wesim.imapnotes.services.INoteProvider;
 import javafx.application.HostServices;
 import javafx.scene.control.Alert;
@@ -59,13 +53,9 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private ApplicationContext context;
-    
-    @Autowired
-    private ConfigurationService configurationService;
 
     @Autowired
-    @Qualifier("p1")
-    private ProgressBar progressBar;
+    private ConfigurationService configurationService;
 
     @Autowired
     private Label account;
@@ -76,8 +66,8 @@ public class MainViewController implements HasLogger {
     @Autowired
     private TabPane tp;
 
-	@Autowired
-	private OutlinerWidget outlinerWidget;
+    @Autowired
+    private OutlinerWidget outlinerWidget;
 
     @Autowired
     private MenuItem reloadMenuTask;
@@ -102,23 +92,22 @@ public class MainViewController implements HasLogger {
 //
 //    @Autowired
 //    private MenuItem findPrev;
-    
     @Autowired
     private MenuItem about;
-    
-    @Autowired
-	private MenuItem newNote;
 
     @Autowired
-	private MenuItem newFolder;
-        
+    private MenuItem newNote;
+
+    @Autowired
+    private MenuItem newFolder;
+
     // these two fields must be injected
     // after the bean has been created
     private HostServices hostServices;
     private Stage stage;
 
     private INoteProvider backend;
-    
+
     public MainViewController() {
 
     }
@@ -126,33 +115,33 @@ public class MainViewController implements HasLogger {
     @PostConstruct
     public void init() {
         this.refreshConfig();
-        
+
         // Actions
-        newNote.setOnAction( e-> {
-			createNewMessage(false, null);                
+        newNote.setOnAction(e -> {
+            createNewMessage(false, null);
         });
-        
-        newFolder.setOnAction( e-> {
-			createNewMessage(true, null);                
+
+        newFolder.setOnAction(e -> {
+            createNewMessage(true, null);
         });
 
         switchAccountMenuItem.setOnAction(e -> {
             chooseAccount();
         });
-        
-		about.setOnAction( e-> {
-			final Gson gson = new Gson();
-			try {
-				final Note aboutNote;
-				aboutNote = gson.fromJson(new String(MainViewController.class.getResourceAsStream("/about.json").readAllBytes(),
-							"UTF-8"), Note.class);
-				openEditor(aboutNote);
 
-			} catch (JsonSyntaxException | IOException e1) {
-				getLogger().error("Opening about.json failed.", e1);
-			}
+        about.setOnAction(e -> {
+            final Gson gson = new Gson();
+            try {
+                final Note aboutNote;
+                aboutNote = gson.fromJson(new String(MainViewController.class.getResourceAsStream("/about.json").readAllBytes(),
+                        "UTF-8"), Note.class);
+                openEditor(aboutNote);
 
-		});
+            } catch (JsonSyntaxException | IOException e1) {
+                getLogger().error("Opening about.json failed.", e1);
+            }
+
+        });
 
         reloadMenuTask.setOnAction(e -> {
             triggerReload();
@@ -180,25 +169,26 @@ public class MainViewController implements HasLogger {
                 startup();
             }
         });
-        
-        find.setOnAction( e-> {
-        	final PrefixedTextInputDialog dialog = 
-        			this.context.getBean(PrefixedTextInputDialog.class, "find");
-        	final Optional<String> result = dialog.showAndWait();
-        	if (!result.isPresent()) return;
+
+        find.setOnAction(e -> {
+            final PrefixedTextInputDialog dialog
+                    = this.context.getBean(PrefixedTextInputDialog.class, "find");
+            final Optional<String> result = dialog.showAndWait();
+            if (!result.isPresent()) {
+                return;
+            }
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.markSearchItems(entered);
 //            et.updateFoundItems(entered);
 //            et.goToNextItem();
         });
-        
+
         // Find Previous
 //        findNext.setOnAction( e-> {
 //            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
 //            et.goToNextItem();
 //        });
-        
         // Find Previous
 //        findPrev.setOnAction( e-> {
 //            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
@@ -230,9 +220,11 @@ public class MainViewController implements HasLogger {
 
     public void chooseAccount() {
         final List<Account> availableAccounts = this.configurationService.getConfig().getAccountList();
-        if (availableAccounts.size() < 2) return;
-        final ChoiceDialog<Account> cd = 
-            this.context.getBean(AccountChoiceDialog.class, availableAccounts);
+        if (availableAccounts.size() < 2) {
+            return;
+        }
+        final ChoiceDialog<Account> cd
+                = this.context.getBean(AccountChoiceDialog.class, "account", availableAccounts, availableAccounts.get(0));
         final Optional<Account> result = cd.showAndWait();
         if (result.isPresent()) {
             openAccount(result.get());
@@ -247,7 +239,7 @@ public class MainViewController implements HasLogger {
         destroyBackend();
         return true;
     }
-    
+
     private void openAccount(Account first) {
         if (!closeAccount()) {
             return;
@@ -267,7 +259,7 @@ public class MainViewController implements HasLogger {
             return;
         }
         final String account_name = first.getAccount_name();
-		this.account.setText(account_name);
+        this.account.setText(account_name);
         this.configurationService.getConfig().setLastOpenendAccount(account_name);
         loadNotes();
     }
@@ -279,7 +271,7 @@ public class MainViewController implements HasLogger {
     }
 
     public void startup() {
-    	final Configuration config = configurationService.getConfig();
+        final Configuration config = configurationService.getConfig();
         final String lastOpenedAccount = config.getLastOpenendAccount();
 
         Account firstAccount = null;
@@ -302,18 +294,20 @@ public class MainViewController implements HasLogger {
         openAccount(firstAccount);
     }
 
+    // TODO Überarbeiten
     public void move(Note msg, TreeItem<Note> target) {
         // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
         getLogger().info("Moving source {} ", foundTreeItem);
         getLogger().info("Moving target {} ", target);
         if (foundTreeItem == null) {
-        	// this should never happen ...
-        	getLogger().error("Unable to find {} in outliner.", msg.toString());
-        	return;
+            // this should never happen ...
+            getLogger().error("Unable to find {} in outliner.", msg.toString());
+            return;
         }
-        final MoveNoteTask moveNoteTask = 
-        		context.getBean(MoveNoteTask.class, foundTreeItem, target);
+        // TODO Überprüfen!
+        final MoveNoteTask moveNoteTask
+                = context.getBean(MoveNoteTask.class, foundTreeItem, target);
         moveNoteTask.run();
     }
 
@@ -337,7 +331,7 @@ public class MainViewController implements HasLogger {
         if (!result.isPresent()) {
             return;
         }
-        
+
         final RenameNoteTask renameNoteService = context.getBean(RenameNoteTask.class, note, result.get());
         renameNoteService.run();
     }
@@ -349,8 +343,8 @@ public class MainViewController implements HasLogger {
     }
 
     private Optional<ButtonType> demandConfirmation() {
-    	final Alert alert = context.getBean(PrefixedAlertBox.class, "really_quit");
-    	alert.setAlertType(Alert.AlertType.CONFIRMATION);
+        final Alert alert = context.getBean(PrefixedAlertBox.class, "really_quit");
+        alert.setAlertType(Alert.AlertType.CONFIRMATION);
         return alert.showAndWait();
     }
 
@@ -364,7 +358,7 @@ public class MainViewController implements HasLogger {
             getLogger().warn("Opening folders like this not supported, yet.");
             return;
         }
-        
+
         // Böse, aber funktioniert ...
         for (Tab t : this.tp.getTabs()) {
             EditorTab et = (EditorTab) t;
@@ -378,7 +372,7 @@ public class MainViewController implements HasLogger {
 
         final OpenNoteTask newOpenMessageTask = context.getBean(OpenNoteTask.class, note);
         newOpenMessageTask.run();
-        
+
     }
 
     // Needed by OutlinerItemChangeListener
@@ -396,12 +390,14 @@ public class MainViewController implements HasLogger {
     public void createNewMessage(boolean createFolder, TreeItem<Note> parent) {
         final Dialog<String> dialog;
         if (createFolder) {
-            dialog = context.getBean(PrefixedTextInputDialog.class, "new_folder");        	
+            dialog = context.getBean(PrefixedTextInputDialog.class, "new_folder");
         } else {
-            dialog = context.getBean(PrefixedTextInputDialog.class, "new_note");        	
+            dialog = context.getBean(PrefixedTextInputDialog.class, "new_note");
         }
         final Optional<String> result = dialog.showAndWait();
-        if (!result.isPresent()) return;
+        if (!result.isPresent()) {
+            return;
+        }
         final NewNoteTask newNoteService = context.getBean(NewNoteTask.class, parent, result.get(), createFolder);
         newNoteService.run();
     }
@@ -432,7 +428,7 @@ public class MainViewController implements HasLogger {
 
     public void destroyBackend() {
         if (this.backend != null) {
-        	try {
+            try {
                 this.backend.destroy();
             } catch (Exception e) {
                 getLogger().error("Destroying the backend has failed ...", e);
@@ -453,34 +449,38 @@ public class MainViewController implements HasLogger {
             }
         }
     }
-    
+
     public void removeTreeItem(TreeItem<Note> treeItem) {
-    	final TreeItem<Note> parentNote = treeItem.getParent();
-		final Note deletedNote = treeItem.getValue();
-		closeTab(deletedNote);
-		final int index = parentNote.getChildren().indexOf(treeItem);
+        final TreeItem<Note> parentNote = treeItem.getParent();
+        final Note deletedNote = treeItem.getValue();
+        closeTab(deletedNote);
+        final int index = parentNote.getChildren().indexOf(treeItem);
 
-		parentNote.getChildren().remove(treeItem);
+        parentNote.getChildren().remove(treeItem);
 
-		final int previousItem = Math.max(0, index - 1);
-		if (parentNote.getChildren().isEmpty()) return;
-		final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-		openNote(previous.getValue());
+        final int previousItem = Math.max(0, index - 1);
+        if (parentNote.getChildren().isEmpty()) {
+            return;
+        }
+        final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
+        openNote(previous.getValue());
     }
 
-	public void move(Note item) {
-		// TODO Auto-generated method stub
-		// TODO move with choice
-		// flache Liste besorgen
-		// ComboBox Menü
-		var nodes = this.outlinerWidget.getFlatList();
-		// TODO Als Komponente auslagern => Translation !!!
-		final ChoiceDialog<String> folderChooser 
-			= new ChoiceDialog<>("/", nodes.keySet());	
-		var choice = folderChooser.showAndWait();
-		if (!choice.isPresent()) return;
-		var chosenPath = choice.get();
-		move(item, nodes.get(chosenPath));
-	}
-    
+    public void move(Note item) {
+        // TODO Auto-generated method stub
+        // TODO move with choice
+        // ComboBox Menü
+        var nodes = this.outlinerWidget.getFlatList();
+        
+        final ChoiceDialog<String> folderChooser
+                = this.context.getBean(AccountChoiceDialog.class, "move", nodes.keySet(), "/");
+        
+        var choice = folderChooser.showAndWait();
+        if (!choice.isPresent()) {
+            return;
+        }
+        var chosenPath = choice.get();
+        move(item, nodes.get(chosenPath));
+    }
+
 }

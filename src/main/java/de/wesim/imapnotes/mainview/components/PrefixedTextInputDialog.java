@@ -20,7 +20,7 @@ public class PrefixedTextInputDialog extends TextInputDialog {
 
     private final String translationIdPrefix;
 
-	private String messageArgument = null;
+    private String messageArgument = null;
 
     public PrefixedTextInputDialog(String prefix) {
         super("");

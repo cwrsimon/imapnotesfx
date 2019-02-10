@@ -10,7 +10,6 @@ import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.Alert;
 
-
 @Component
 @Scope("prototype")
 public class PrefixedAlertBox extends Alert {
@@ -20,33 +19,33 @@ public class PrefixedAlertBox extends Alert {
 
     private final String translationIdPrefix;
     private String messageArgument = null;
-    
+
     public PrefixedAlertBox(String prefix) {
-    	super(AlertType.INFORMATION);
+        super(AlertType.INFORMATION);
         this.translationIdPrefix = prefix;
         setHeight(500);
         setWidth(500);
         setResizable(true);
         MyScene.setFontSize(getDialogPane());
     }
-    
+
     public PrefixedAlertBox(String prefix, String messageArgument) {
-    	this(prefix);
+        this(prefix);
         this.messageArgument = messageArgument;
     }
 
     @PostConstruct
     public void init() {
-    	String titleText = i18N.getTranslation(this.translationIdPrefix + "_alert_title_text");
+        String titleText = i18N.getTranslation(this.translationIdPrefix + "_alert_title_text");
         String contentText = i18N.getTranslation(this.translationIdPrefix + "_alert_content_text");
         String headerText = i18N.getTranslation(this.translationIdPrefix + "_alert_header_text");
-    	if (this.messageArgument != null) {
-    		titleText = i18N.getFormattedMessage(titleText, this.messageArgument);
-    		contentText = i18N.getFormattedMessage(contentText, this.messageArgument);
-    		headerText = i18N.getFormattedMessage(headerText, this.messageArgument);
-    	}
-		setTitle(titleText);
-		setContentText(contentText);
-		setHeaderText(headerText);
+        if (this.messageArgument != null) {
+            titleText = i18N.getFormattedMessage(titleText, this.messageArgument);
+            contentText = i18N.getFormattedMessage(contentText, this.messageArgument);
+            headerText = i18N.getFormattedMessage(headerText, this.messageArgument);
+        }
+        setTitle(titleText);
+        setContentText(contentText);
+        setHeaderText(headerText);
     }
 }

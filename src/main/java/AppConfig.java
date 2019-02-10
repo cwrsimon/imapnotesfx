@@ -1,3 +1,4 @@
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -12,82 +13,82 @@ import javafx.scene.input.KeyCombination;
 @Configuration
 @ComponentScan(basePackages = "de.wesim")
 public class AppConfig {
-	
-	@Bean
-	public ProgressBar p1() {
-		return new ProgressBar();
-	}
 
-	@Bean
-	public Label status() {
-		return new Label();
-	}
-	
-	@Bean
-	public Label account() {
-		return new Label();
-	}
-	
-	@Bean
-	public MenuItem reloadMenuTask() {
-		return new MenuItem();
-		
-	}
-
-	@Bean
-	public MenuItem exit() {
-		final MenuItem exitItem = new MenuItem();
-		exitItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_QUIT));
-		return exitItem;
-	}
-
-	@Bean
-	public MenuItem update() {
-		// content will be configured in MainView
-		final MenuItem updateItem = new MenuItem();
-		updateItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_SAVE));
-		return updateItem;
-	}
-
-	@Bean
-	public MenuItem newNote() {
-		// content will be configured in MainView
-		return new MenuItem();
-	}
-	
-	@Bean
-	public MenuItem newFolder() {
-		// content will be configured in MainView
-		return new MenuItem();
-	}
-	
-	@Bean
-	public MenuItem switchAccountMenuItem() {
-		// content will be configured in MainView
-		return new MenuItem();
-
-	}
-
-	@Bean
-	public MenuItem preferences() {
-		// content will be configured in MainView
-		return new MenuItem();
-	}
-	
-	@Bean
-	public MenuItem about() {
-		// content will be configured in MainView
-		return new MenuItem();
-	}
-        
     @Bean
-	public MenuItem find() {
-		// content will be configured in MainView
+    public ProgressBar p1() {
+        return new ProgressBar();
+    }
+
+    @Bean
+    public Label status() {
+        return new Label();
+    }
+
+    @Bean
+    public Label account() {
+        return new Label();
+    }
+
+    @Bean
+    public MenuItem reloadMenuTask() {
+        return new MenuItem();
+
+    }
+
+    @Bean
+    public MenuItem exit() {
+        final MenuItem exitItem = new MenuItem();
+        exitItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_QUIT));
+        return exitItem;
+    }
+
+    @Bean
+    public MenuItem update() {
+        // content will be configured in MainView
+        final MenuItem updateItem = new MenuItem();
+        updateItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_SAVE));
+        return updateItem;
+    }
+
+    @Bean
+    public MenuItem newNote() {
+        // content will be configured in MainView
+        return new MenuItem();
+    }
+
+    @Bean
+    public MenuItem newFolder() {
+        // content will be configured in MainView
+        return new MenuItem();
+    }
+
+    @Bean
+    public MenuItem switchAccountMenuItem() {
+        // content will be configured in MainView
+        return new MenuItem();
+
+    }
+
+    @Bean
+    public MenuItem preferences() {
+        // content will be configured in MainView
+        return new MenuItem();
+    }
+
+    @Bean
+    public MenuItem about() {
+        // content will be configured in MainView
+        return new MenuItem();
+    }
+
+    @Bean
+    public MenuItem find() {
+        // content will be configured in MainView
         final MenuItem findMenuItem = new MenuItem();
         findMenuItem.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_FIND));
-        return findMenuItem;                        
-	}
-    
+        return findMenuItem;
+    }
+
 //    @Bean
 //	public MenuItem findNext() {
 //		// content will be configured in MainView
@@ -104,13 +105,11 @@ public class AppConfig {
 //        return findNextMenuItem;                        
 //	}
 //    
-	
-	@Bean
-	public TabPane tp() {
-		final TabPane newObj = new TabPane();
-		newObj.setMinWidth(500);
-		return newObj; 
-	}
-	
-	
+    @Bean
+    public TabPane tp() {
+        final TabPane newObj = new TabPane();
+        newObj.setMinWidth(500);
+        return newObj;
+    }
+
 }

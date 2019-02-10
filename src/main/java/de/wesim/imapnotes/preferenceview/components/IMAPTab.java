@@ -36,7 +36,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
-import javax.mail.Folder;
 import javax.mail.MessagingException;
 
 // TODO Zur Spring-Komponente machen...
@@ -118,7 +117,7 @@ public class IMAPTab extends Tab implements HasLogger {
                     backend.initNotesFolder();
                     availableFolders = IMAPUtils.getIMAPFoldersList(backend.getStore());
                 } catch (Exception ex) {
-                	// TODO MessageBox
+                    // TODO MessageBox
                     Logger.getLogger(IMAPTab.class.getName()).log(Level.SEVERE, null, ex);
                     return;
                 }
@@ -169,7 +168,6 @@ public class IMAPTab extends Tab implements HasLogger {
                 testOK = backend.initNotesFolder();
             } catch (Exception e1) {
                 testOK = false;
-                e1.printStackTrace();
                 final Alert alert = context.getBean(PrefixedAlertBox.class, "imap_conn_failed");
                 alert.setAlertType(AlertType.ERROR);
                 alert.showAndWait();

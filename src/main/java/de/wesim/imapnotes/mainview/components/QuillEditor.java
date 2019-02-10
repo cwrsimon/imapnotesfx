@@ -8,7 +8,6 @@ import org.w3c.dom.html.HTMLAnchorElement;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Configuration;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.HostServices;
@@ -18,7 +17,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.scene.layout.StackPane;
-import javafx.scene.text.Font;
 import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -26,6 +24,7 @@ import netscape.javascript.JSObject;
 // Check for updates:
 // https://bugs.java.com/view_bug.do?bug_id=8197790
 // TODO An Summernote anpassen
+// TODO Konsolidieren
 // Vermutlich muss auf OpenJFX 12 geupgradet werden ...
 public class QuillEditor extends StackPane implements HasLogger {
 

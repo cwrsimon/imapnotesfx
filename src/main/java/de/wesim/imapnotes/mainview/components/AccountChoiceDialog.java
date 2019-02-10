@@ -1,9 +1,8 @@
 package de.wesim.imapnotes.mainview.components;
 
 import de.wesim.imapnotes.MyScene;
-import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.services.I18NService;
-import java.util.List;
+import java.util.Collection;
 import javafx.scene.control.ChoiceDialog;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,24 +11,30 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Scope("prototype")
-public class AccountChoiceDialog extends ChoiceDialog<Account> {
+public class AccountChoiceDialog<T> extends ChoiceDialog<T> {
 
     @Autowired
     private I18NService i18N;
+    
+    private final String translationIdPrefix;
 
-    public AccountChoiceDialog(List<Account> availableAccounts) {
-        super(availableAccounts.get(0), availableAccounts);
+
+    public AccountChoiceDialog(String prefix, Collection<T> availableAccounts, T firstChoice) {
+        super(firstChoice, availableAccounts);
+        this.translationIdPrefix = prefix;
         setHeight(500);
         setWidth(500);
         setResizable(true);
         MyScene.setFontSize(getDialogPane());
     }
-
+    
     @PostConstruct
     public void init() {
-        setTitle(i18N.getTranslation("account_choice_title_text"));
-        setContentText(i18N.getTranslation("account_choice_content_text"));
-        setHeaderText(i18N.getTranslation("account_choice_header_text"));
+    	String titleText = i18N.getTranslation(this.translationIdPrefix + "_choice_title_text");
+    	String contentText = i18N.getTranslation(this.translationIdPrefix + "_choice_content_text");
+    	String headerText = i18N.getTranslation(this.translationIdPrefix + "_choice_header_text");
+    	setTitle(titleText);
+    	setContentText(contentText);
+    	setHeaderText(headerText);
     }
-
 }

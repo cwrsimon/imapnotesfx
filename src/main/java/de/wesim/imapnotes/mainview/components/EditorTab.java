@@ -1,18 +1,11 @@
 package de.wesim.imapnotes.mainview.components;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
 import java.util.Optional;
-
 import javax.annotation.PostConstruct;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
@@ -22,7 +15,6 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Tab;
 
-// Auf summernote.org umschwenken ...
 @Component
 @Scope("prototype")
 public class EditorTab extends Tab {
@@ -40,14 +32,6 @@ public class EditorTab extends Tab {
 
     private final Note note;
 
-    private LinkedList<Integer> currentItems;
-
-    private Integer currentFoundItemLength;
-
-    private ListIterator<Integer> foundItemsIterator;
-
-    private static final Logger logger = LoggerFactory.getLogger(EditorTab.class);
-
     private Optional<ButtonType> demandConfirmation() {
         Alert alert = context.getBean(PrefixedAlertBox.class, "close_tab");
         alert.setAlertType(AlertType.CONFIRMATION);
@@ -64,7 +48,6 @@ public class EditorTab extends Tab {
         this.qe = new QuillEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
         setContent(this.qe);
         setOnCloseRequest(e -> {
-            logger.info("About to close this tab {} with status {}", this.note.getSubject(), this.qe.getContentUpdate());
             if (!this.qe.getContentUpdate()) {
                 return;
             }
@@ -82,7 +65,7 @@ public class EditorTab extends Tab {
                         return note.getSubject();
                     }
                 },
-                         this.qe.contentUpdateProperty()
+                        this.qe.contentUpdateProperty()
                 )
         );
     }
