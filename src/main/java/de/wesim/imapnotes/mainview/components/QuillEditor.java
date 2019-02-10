@@ -1,11 +1,16 @@
 package de.wesim.imapnotes.mainview.components;
 
+import com.sun.javafx.webkit.WebConsoleListener;
 import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.html.HTMLAnchorElement;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Configuration;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.HostServices;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -13,6 +18,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker.State;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Font;
 import javafx.scene.web.WebErrorEvent;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
@@ -62,16 +68,18 @@ public class QuillEditor extends StackPane implements HasLogger {
             //final String = "note-editable"
             var nodeList = webview.getEngine().getDocument().getElementsByTagName("div");
             Element foundElement = null;
-            for (int i=0; i < nodeList.getLength(); i++) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
                 Element curElem = (Element) nodeList.item(i);
                 String classValue = curElem.getAttribute("class");
-                if (classValue == null) continue;
+                if (classValue == null) {
+                    continue;
+                }
                 if (classValue.contains("note-editable")) { // note-link-popover
                     foundElement = curElem;
                     break;
                 }
             }
-            
+
             final EventTarget eventTarget = (EventTarget) foundElement;
             eventTarget.addEventListener("click", evt -> {
 
@@ -87,19 +95,21 @@ public class QuillEditor extends StackPane implements HasLogger {
                     evt.preventDefault();
                 }
             }, false);
-            
+
             nodeList = webview.getEngine().getDocument().getElementsByTagName("div");
             foundElement = null;
-            for (int i=0; i < nodeList.getLength(); i++) {
+            for (int i = 0; i < nodeList.getLength(); i++) {
                 Element curElem = (Element) nodeList.item(i);
                 String classValue = curElem.getAttribute("class");
-                if (classValue == null) continue;
+                if (classValue == null) {
+                    continue;
+                }
                 if (classValue.contains("note-link-popover")) { // note-link-popover
                     foundElement = curElem;
                     break;
                 }
             }
-            
+
             var eventTarget2 = (EventTarget) foundElement;
             eventTarget2.addEventListener("click", evt -> {
 
@@ -107,12 +117,12 @@ public class QuillEditor extends StackPane implements HasLogger {
                 if (!(target instanceof HTMLAnchorElement)) {
                     return;
                 }
- 
+
                 final HTMLAnchorElement anchorElement = (HTMLAnchorElement) target;
                 final String url = anchorElement.getHref();
                 final String targetAttr = anchorElement.getTarget();
                 if (targetAttr.equals("_blank")) {
-                   evt.preventDefault();
+                    evt.preventDefault();
                 }
                 // open url with host system's default
                 if (url.length() > 0) {
@@ -154,7 +164,7 @@ public class QuillEditor extends StackPane implements HasLogger {
     public void openURL(String url) {
         hostServices.showDocument(url);
     }
-    
+
     public void logMe(String message) {
         getLogger().error("{}", message);
     }
@@ -168,24 +178,66 @@ public class QuillEditor extends StackPane implements HasLogger {
     }
 
     public void setCssStyle(String styleName, String value) {
-        webview.getEngine().executeScript("setInlineStyle('" + 
-                styleName + "','" + value + "');");
+        webview.getEngine().executeScript("setInlineStyle('"
+                + styleName + "','" + value + "');");
     }
 
     public QuillEditor(HostServices hostServices, String editorContent, Configuration configuration) {
-        final QuillEditor backReference = this;
-        webview.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-        webview.getEngine().setOnError(e -> {
-            WebErrorEvent event = (WebErrorEvent) e;
-            getLogger().error("{}", event.getException());
-        });
-        final String editorSource = QuillEditor.class.getResource("/summernote.html").toExternalForm();
-        webview.getEngine().load(editorSource);
-        this.getChildren().add(webview);
-        // bootstrap quill editor
-        webview.getEngine().getLoadWorker().stateProperty().addListener(
-                new QuillEditorWhenLoadedListener(backReference, hostServices, configuration, editorContent));
-        this.hostServices = hostServices;
+            WebConsoleListener.setDefaultListener(new WebConsoleListener() {
+                @Override
+                public void messageAdded(WebView wv, String msg, int i, String source) {
+                    getLogger().info("Console [{}, {}]: {}", source, i, msg);
+                }
+            });
+            final QuillEditor backReference = this;
+            getLogger().info("Font URL bla: {}", QuillEditor.class.getResource("/summernote.ttf").toExternalForm());
+//        try {
+//            Font.loadFont(.openStream(), 10);
+//        } catch (IOException ex) {
+//            Logger.getLogger(QuillEditor.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//webview.getEngine().setUserStyleSheetLocation(QuillEditor.class.getResource("/summernote-lite.css").toExternalForm());
+            webview.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+            webview.getEngine().setOnError(e -> {
+                WebErrorEvent event = (WebErrorEvent) e;
+                getLogger().error("{}", event.getException());
+            });
+            final String jqueryURL = QuillEditor.class.getResource("/jquery-3.2.1.slim.min.js").toExternalForm();
+            final String summernoteLiteJSURL = QuillEditor.class.getResource("/summernote-lite.js").toExternalForm();
+            final String summernoteCSSURL = QuillEditor.class.getResource("/summernote-lite.css").toExternalForm();
+            final String markJSURL = QuillEditor.class.getResource("/jquery.mark.min.js").toExternalForm();
+            String htmlSource = null;
+            try {
+                htmlSource = new String(QuillEditor.class.getResource("/summernote.html").openStream().readAllBytes(), "UTF-8");
+                htmlSource = htmlSource.replace("%SUMMERNOTE_FONT%", QuillEditor.class.getResource("/summernote.ttf").toExternalForm());
+                htmlSource = htmlSource.replace("%JQUERY_URL%", jqueryURL);
+                htmlSource = htmlSource.replace("%SUMMERNOTE_LITE_JS_URL%", summernoteLiteJSURL);
+                htmlSource = htmlSource.replace("%SUMMERNOTE_LITE_CSS_URL%", summernoteCSSURL);
+                htmlSource = htmlSource.replace("%MARK_JS_URL%", markJSURL);
+
+                getLogger().info(htmlSource);
+            } catch (IOException ex) {
+                Logger.getLogger(QuillEditor.class.getName()).log(Level.SEVERE, null, ex);
+            }
+//  webview.getEngine().load(editorSource);
+            webview.getEngine().loadContent(htmlSource);
+            this.getChildren().add(webview);
+// bootstrap quill editor
+
+            webview.getEngine().getLoadWorker().stateProperty().addListener(
+                    new QuillEditorWhenLoadedListener(backReference, hostServices, configuration, editorContent));
+            webview.getEngine().getLoadWorker().exceptionProperty().addListener(new ChangeListener<Throwable>() {
+                @Override
+                public void changed(ObservableValue<? extends Throwable> ov, Throwable t, Throwable t1) {
+
+                    getLogger().error("{}", t.getMessage(), t);
+                    getLogger().error("{}", t1.getMessage(), t1);
+
+                }
+
+            });
+            this.hostServices = hostServices;
+
     }
 
 //	public void findString(String entered) {
