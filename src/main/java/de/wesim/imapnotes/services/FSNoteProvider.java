@@ -53,6 +53,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 		final Note newNote = new Note(uuid.toString());
 		uuid2Path.put(uuid.toString(), newFile);
 		newNote.setSubject(subject);
+                // TODO Brauchen wir das wirklich noch?
 		newNote.setContent(Consts.EMPTY_NOTE);
 		update(newNote);
 		return newNote;

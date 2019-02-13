@@ -1,4 +1,5 @@
 
+import de.wesim.imapnotes.JFXMain;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.logging.FileHandler;
@@ -25,11 +26,11 @@ public class MainApp {
 
 		// suppress the logging output to the console
 		// and log to file instead
-		final Logger rootLogger = Logger.getLogger("");
-		final FileHandler fileHandler = new FileHandler(Consts.LOG_FILE.toAbsolutePath().toString());
-		fileHandler.setFormatter(new SimpleFormatter());
-		fileHandler.setLevel(Level.SEVERE);
-		rootLogger.addHandler(fileHandler);
+		//final Logger rootLogger = Logger.getLogger("");
+		//final FileHandler fileHandler = new FileHandler(Consts.LOG_FILE.toAbsolutePath().toString());
+		//fileHandler.setFormatter(new SimpleFormatter());
+		//fileHandler.setLevel(Level.SEVERE);
+		//rootLogger.addHandler(fileHandler);
 		// call actual JavaFX main app
 		// thanks to https://stackoverflow.com/questions/52653836/maven-shade-javafx-runtime-components-are-missing
 		JFXMain.main(args);

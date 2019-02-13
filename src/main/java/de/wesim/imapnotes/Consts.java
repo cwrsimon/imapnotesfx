@@ -19,10 +19,10 @@ public final class Consts {
 	public static final Path APP_DIRECTORY = Paths.get(System.getProperty("user.home"))
 			.resolve(".imapnotesfx");
 	
-    public static final Path LOG_FILE =  APP_DIRECTORY.resolve("app.log");
+    //public static final Path LOG_FILE =  APP_DIRECTORY.resolve("app.log");
 
-    public static final Path USER_CONFIGURATION_FILE = APP_DIRECTORY
-    		.resolve("config.properties");
+//    public static final Path USER_CONFIGURATION_FILE = APP_DIRECTORY
+//    		.resolve("config.properties");
 
     public static final Path JSON_CONFIGURATION_FILE = APP_DIRECTORY
     		.resolve("imapnotes.json");

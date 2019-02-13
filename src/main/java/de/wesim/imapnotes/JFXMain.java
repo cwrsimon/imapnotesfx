@@ -1,20 +1,54 @@
+package de.wesim.imapnotes;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 
 import de.wesim.imapnotes.Consts;
+import java.io.IOException;
+import de.wesim.imapnotes.mainview.MainViewController;
+import de.wesim.imapnotes.mainview.MainViewLoaderService;
+import javafx.application.Application;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TabPane;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Stage;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 
-@Configuration
-@ComponentScan(basePackages = "de.wesim")
-public class AppConfig {
+@SpringBootApplication
+public class JFXMain extends Application {
 
-    @Bean
+    private ConfigurableApplicationContext context = null;
+
+    @Override
+    public void start(Stage primaryStage) {
+        
+        final int parameterCount = getParameters().getRaw().size();
+		final String[] args = getParameters().getRaw().toArray(new String[parameterCount]);
+		context = SpringApplication.run(JFXMain.class, args);
+                
+        final MainViewController mainViewController = this.context.getBean(MainViewController.class);
+        // not nice, but the best we can do at the moment ...
+        mainViewController.setHostServices(getHostServices());
+        mainViewController.setStage(primaryStage);
+        final MainViewLoaderService myService = this.context.getBean(MainViewLoaderService.class);
+        myService.init(primaryStage);
+    }
+
+    @Override
+    public void stop() throws Exception {
+        if (this.context != null) {
+            this.context.close();
+        }
+    }
+
+    public static void main(String[] args) throws IOException {
+        launch(args);
+    }
+    
+        @Bean
     public ProgressBar p1() {
         return new ProgressBar();
     }
