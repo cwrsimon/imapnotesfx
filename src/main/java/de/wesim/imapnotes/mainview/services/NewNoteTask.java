@@ -62,7 +62,7 @@ public class NewNoteTask extends AbstractNoteTask<Note> {
 
         final Note newNote;
         if (createFolder) {
-                newNote = mainViewController.getBackend().createNewFolder(subject, parentFolderParam);
+            newNote = mainViewController.getBackend().createNewFolder(subject, parentFolderParam);
         } else {
             newNote = mainViewController.getBackend().createNewNote(subject, parentFolderParam);
         }

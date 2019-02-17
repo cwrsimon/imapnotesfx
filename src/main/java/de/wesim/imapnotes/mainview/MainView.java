@@ -1,11 +1,8 @@
 package de.wesim.imapnotes.mainview;
 
 import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.services.I18NService;
@@ -19,7 +16,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.TabPane;
-import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -31,8 +27,6 @@ public class MainView extends BorderPane implements HasLogger {
     @Autowired
     private I18NService i18N;
 
-//	@Autowired
-//	private ProgressBar p1;
     @Autowired
     private Label status;
 
@@ -63,12 +57,6 @@ public class MainView extends BorderPane implements HasLogger {
     @Autowired
     private MenuItem find;
 
-//    @Autowired
-//	private MenuItem findNext;
-//
-//    @Autowired
-//	private MenuItem findPrev;
-//    
     @Autowired
     private MenuItem newNote;
 
@@ -94,23 +82,15 @@ public class MainView extends BorderPane implements HasLogger {
         newFolder.setText(i18N.getTranslation("new_folder_menu_item"));
         about.setText(i18N.getTranslation("about_menu"));
         //
-//		findNext.setText(i18N.getTranslation("find_next_menu_item"));
-//		findPrev.setText(i18N.getTranslation("find_prev_menu_item"));
 
         // Redo, Undo
-        // no actions necessary, see quill-editor.html
-        final MenuItem undo = new MenuItem(i18N.getTranslation("undo_menu_item"));
-        final MenuItem redo = new MenuItem(i18N.getTranslation("redo_menu_item"));
-
+        // no actions necessary, see summernote.html
         final MenuBar menuBar = new MenuBar();
         final Menu menu = new Menu(i18N.getTranslation("file_menu"));
         final Menu editMenu = new Menu(i18N.getTranslation("edit_menu"));
-        undo.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_UNDO));
-        redo.setAccelerator(KeyCombination.keyCombination(Consts.SHORTCUT_REDO));
-
         final Menu helpMenu = new Menu(i18N.getTranslation("help_menu"));
 
-        editMenu.getItems().addAll(undo, redo, new SeparatorMenuItem(), find);
+        editMenu.getItems().addAll(find);
 
         menuBar.getMenus().add(menu);
         menuBar.getMenus().add(editMenu);
@@ -140,6 +120,5 @@ public class MainView extends BorderPane implements HasLogger {
         setCenter(sp);
         setBottom(statusPane);
         setTop(menuBar);
-
     }
 }

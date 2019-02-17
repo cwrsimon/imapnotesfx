@@ -29,8 +29,7 @@ public class MyAuthenticator extends Authenticator implements HasLogger {
 
     public MyAuthenticator(Account account) {
         this.account = account;
-        this.passwordProvider = new PasswordProvider();
-        this.passwordProvider.init();
+        this.passwordProvider = context.getBean(PasswordProvider.class);
     }
 
     @Override

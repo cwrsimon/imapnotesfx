@@ -12,10 +12,15 @@ import com.google.gson.JsonSyntaxException;
 import de.wesim.imapnotes.Consts;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Configuration;
+import java.nio.file.Path;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class ConfigurationService implements HasLogger {
 
+        @Autowired
+        private Path jsonConfigFile; 
+    
 	private Configuration config = new Configuration();
 	
 	public void writeConfig() {
@@ -24,9 +29,9 @@ public class ConfigurationService implements HasLogger {
 		final String json = gson.toJson(this.config);
 
 		try {
-			Files.write(Consts.JSON_CONFIGURATION_FILE, json.getBytes("UTF-8"));
+			Files.write(jsonConfigFile, json.getBytes("UTF-8"));
 		} catch (IOException e) {
-			getLogger().error("Writing configuration file to '{}' failed.", Consts.JSON_CONFIGURATION_FILE, e );
+			getLogger().error("Writing configuration file to '{}' failed.", jsonConfigFile, e );
 		}
 	}
 
@@ -36,10 +41,10 @@ public class ConfigurationService implements HasLogger {
 		final Gson gson = new Gson();
 		final Configuration newConfig;
 		try {
-			newConfig = gson.fromJson(Files.newBufferedReader(Consts.JSON_CONFIGURATION_FILE), Configuration.class);
+			newConfig = gson.fromJson(Files.newBufferedReader(jsonConfigFile), Configuration.class);
 			this.config = newConfig;
 		} catch (JsonSyntaxException | JsonIOException | IOException e) {
-			getLogger().error("Reading configuration file from '{}' failed.", Consts.JSON_CONFIGURATION_FILE, e );
+			getLogger().error("Reading configuration file from '{}' failed.", jsonConfigFile, e );
 		}
     }
 
