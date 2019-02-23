@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import com.google.gson.Gson;
@@ -41,7 +40,6 @@ import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TreeItem;
@@ -87,11 +85,6 @@ public class MainViewController implements HasLogger {
     @Autowired
     private MenuItem find;
 
-//    @Autowired
-//    private MenuItem findNext;
-//
-//    @Autowired
-//    private MenuItem findPrev;
     @Autowired
     private MenuItem about;
 
@@ -100,7 +93,7 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private MenuItem newFolder;
-
+    
     // these two fields must be injected
     // after the bean has been created
     private HostServices hostServices;

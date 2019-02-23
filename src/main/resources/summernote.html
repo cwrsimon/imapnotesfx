@@ -1,95 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>Summernote Editor</title>
-    <script src="%JQUERY_URL%"></script>
-    <link href="%SUMMERNOTE_LITE_CSS_URL%" rel="stylesheet">
-    <script src="%SUMMERNOTE_LITE_JS_URL%"></script>
-    <script src="%MARK_JS_URL%"></script>
-    <style>
-        @font-face {
-    font-family: "summernote";
-    font-style: normal;
-    font-weight: normal;
-   src: url("%SUMMERNOTE_FONT%") format("truetype");
-    
-    }
-        
-html, body {
-	height: 100%;
-	margin:0;
-}
+    <head>
+        <meta charset="UTF-8">
+        <title>Summernote Editor</title>
+        <script src="%JQUERY_URL%"></script>
+        <link href="%SUMMERNOTE_LITE_CSS_URL%" rel="stylesheet">
+        <script src="%SUMMERNOTE_LITE_JS_URL%"></script>
+        <script src="%MARK_JS_URL%"></script>
+        <style>
+            @font-face {
+                font-family: "summernote";
+                font-style: normal;
+                font-weight: normal;
+                src: url("%SUMMERNOTE_FONT%") format("truetype");
 
-body {
-	display: flex;
-	flex-direction: column;
-}
-
-/* main editor component */
-#editor {
-	flex: 1;
- 	overflow: auto;
-}
-
-</style>
-  </head>
-  <body>
-    <div id="editor"></div>
-    <script>
-
-      $('#editor').summernote({
-        placeholder: 'https://www.google.de',
-        tabsize: 2,
-        callbacks: {
-            onInit: function() {        
-                $('#editor').summernote('fullscreen.toggle');    
-                },
-            onChange: function(contents, $editable) {
-                 //console.log('onChange:', contents, $editable);
-                 if (typeof app !== 'undefined') {
-                    app.setContentUpdate(true);
-                 }
             }
-        }});
-        
-    getQuillContent = function() {
-        $('.note-editable').unmark();
-        return $('#editor').summernote('code');
-    };
 
-    setQuillContent = function(content) {
-$('#editor').summernote('reset');
-$('#editor').summernote('code', content);
-                                            app.logMe("Click2");
-    }
-    
-    findOccurrences = function(searchString) {
-        
-        $('.note-editable').mark(searchString);
-    }
-    
-    setInlineStyle = function(style_name, value) {
-        $('.note-editable').css(style_name, value);
-    }
-    
-//   .note-link-popover
-    //    $('.note-editable').on('click', function(e) { 
-    //        if (e.target.tagName === 'A' && e.target.target === '_blank') {
-   //             e.preventDefault(); 
-     //           app.logMe("Click");
+            html, body {
+                height: 100%;
+                margin:0;
+            }
 
-     //           const url = e.target.href;
-     //           console.log('hier irgendwo');                
-     //           if (typeof app !== 'undefined') {
-     //               app.openURL(url);
-     //           }
-     //       }
-           // console.log(e);
-     //   });
-     $('div').click( function(e) {
-        app.logMe('Click'); 
-     });
-    </script>
-  </body>
+            body {
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* main editor component */
+            #editor {
+                flex: 1;
+                overflow: auto;
+            }
+
+        </style>
+    </head>
+    <body>
+        <div id="editor"></div>
+        <script>
+
+            $('#editor').summernote({
+                placeholder: 'https://www.google.de',
+                tabsize: 2,
+                callbacks: {
+                    onInit: function () {
+                        $('#editor').summernote('fullscreen.toggle');
+                    },
+                    onChange: function (contents, $editable) {
+                        //console.log('onChange:', contents, $editable);
+                        if (typeof app !== 'undefined') {
+                            app.setContentUpdate(true);
+                        }
+                    }
+                }});
+
+            getQuillContent = function () {
+                $('.note-editable').unmark();
+                return $('#editor').summernote('code');
+            };
+
+            setQuillContent = function (content) {
+                $('#editor').summernote('reset');
+                $('#editor').summernote('code', content);
+            }
+
+            findOccurrences = function (searchString) {
+                $('.note-editable').mark(searchString);
+            }
+
+            setInlineStyle = function (style_name, value) {
+                $('.note-editable').css(style_name, value);
+            }
+        </script>
+    </body>
 </html>

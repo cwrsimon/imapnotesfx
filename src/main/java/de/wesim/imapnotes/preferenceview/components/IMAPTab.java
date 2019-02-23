@@ -228,6 +228,7 @@ public class IMAPTab extends Tab implements HasLogger {
             // a new account with some default values
             final Account newAccount = new Account();
             new_counter++;
+            // TODO Auslagern als TR
             newAccount.setAccount_name("New_" + String.valueOf(new_counter));
             newAccount.setRoot_folder("/Notes");
             newAccount.setPort("993");

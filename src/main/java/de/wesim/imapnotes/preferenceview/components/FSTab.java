@@ -23,6 +23,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 
+// TODO Spring-Komponente machen!!!
 public class FSTab extends Tab {
 
     private class FSForm extends GridPane {
@@ -48,7 +49,6 @@ public class FSTab extends Tab {
 
             pathField = new TextField();
             Button dirButton = new Button("...");
-            //HBox hbox = new HBox(pathField, dirButton);
             this.add(pathField, 1, 1, 1, 1);
             this.add(dirButton, 2, 1, 1, 1);
             this.add(removeMe, 0, 2);

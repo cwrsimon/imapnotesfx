@@ -9,6 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.GridPane;
 
+// TODO Zur Komponente machen
 public class GeneralTab extends Tab {
 
 	final ChoiceBox<String> fontSizeField;

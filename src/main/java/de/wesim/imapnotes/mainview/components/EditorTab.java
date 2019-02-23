@@ -28,7 +28,7 @@ public class EditorTab extends Tab {
     @Autowired
     private ConfigurationService configurationService;
 
-    private QuillEditor qe;
+    private SummerNoteEditor qe;
 
     private final Note note;
 
@@ -45,7 +45,7 @@ public class EditorTab extends Tab {
 
     @PostConstruct
     public void init() {
-        this.qe = new QuillEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
+        this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
         setContent(this.qe);
         setOnCloseRequest(e -> {
             if (!this.qe.getContentUpdate()) {
@@ -70,7 +70,7 @@ public class EditorTab extends Tab {
         );
     }
 
-    public QuillEditor getQe() {
+    public SummerNoteEditor getQe() {
         return qe;
     }
 

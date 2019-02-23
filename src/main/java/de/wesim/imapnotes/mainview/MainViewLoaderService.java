@@ -5,20 +5,13 @@ import org.springframework.stereotype.Service;
 
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.MyScene;
-import java.nio.file.Paths;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.PropertySource;
 
 @Service
-//@PropertySource("classpath:/application.properties")
 public class MainViewLoaderService implements HasLogger {
-
-    // TODO Woanders hin
-    @Value("${imapnotes_home}")
-    private String homeDirectory;
     
     @Autowired
     private MainView mainView;
