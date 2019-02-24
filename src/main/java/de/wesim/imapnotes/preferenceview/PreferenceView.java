@@ -35,104 +35,103 @@ import javafx.stage.WindowEvent;
 @Scope("prototype")
 public class PreferenceView extends Stage implements HasLogger {
 
-	@Autowired
-	private I18NService i18N;
-	
-	@Autowired
-	private ApplicationContext context;
+    @Autowired
+    private I18NService i18N;
 
-	@Autowired
-	private ConfigurationService configurationService;
-	
-	private FSTab fsTab;
-	private GeneralTab generalTab;
-	private IMAPTab imapTab;
-	private Configuration configuration;
+    @Autowired
+    private ApplicationContext context;
 
-	private boolean preferencesSaved = false;
+    @Autowired
+    private ConfigurationService configurationService;
 
-	private final Stage parentStage;
+    private FSTab fsTab;
+    private GeneralTab generalTab;
+    private IMAPTab imapTab;
+    private Configuration configuration;
 
-	public PreferenceView(Stage parent) {
-		this.parentStage = parent;
-	}
+    private boolean preferencesSaved = false;
 
-	@PostConstruct
-	public void init() {
-		final Scene newScene = initScene();
-		initModality(Modality.APPLICATION_MODAL);
-		setHeight(500);
-		setWidth(600);
-		setScene(newScene);
-		setTitle(i18N.getTranslation("preference_view"));
-	}
+    private final Stage parentStage;
 
-	private Scene initScene() {
-		this.generalTab = new GeneralTab(i18N);
-		this.imapTab = new  IMAPTab(i18N, context);
-		this.fsTab = new FSTab(i18N);
+    public PreferenceView(Stage parent) {
+        this.parentStage = parent;
+    }
 
-		final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
-		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+    @PostConstruct
+    public void init() {
+        final Scene newScene = initScene();
+        initModality(Modality.APPLICATION_MODAL);
+        setHeight(500);
+        setWidth(600);
+        setScene(newScene);
+        setTitle(i18N.getTranslation("preference_view"));
+    }
 
-		final Button cancel = new Button(i18N.getTranslation("cancel_button"));
-		final Button save2 = new Button(i18N.getTranslation("apply_button"));
+    private Scene initScene() {
+        this.generalTab = new GeneralTab(i18N);
+        this.imapTab = context.getBean(IMAPTab.class);
+        this.fsTab = new FSTab(i18N);
 
-		cancel.setOnAction(e2 -> {
-			// discard changes
-			configurationService.refresh();
-			fireEvent(new WindowEvent(this.parentStage, WindowEvent.WINDOW_CLOSE_REQUEST));
-		});
-		save2.setOnAction(e2 -> {
-			savePreferences();
-			fireEvent(new WindowEvent(this.parentStage, WindowEvent.WINDOW_CLOSE_REQUEST));
-		});
+        final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
+        tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 
-		final HBox buttonBar = new HBox(save2, cancel);
+        final Button cancel = new Button(i18N.getTranslation("cancel_button"));
+        final Button save2 = new Button(i18N.getTranslation("apply_button"));
 
-		final BorderPane myPane = new BorderPane();
+        cancel.setOnAction(e2 -> {
+            // discard changes
+            configurationService.refresh();
+            fireEvent(new WindowEvent(this.parentStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
+        save2.setOnAction(e2 -> {
+            savePreferences();
+            fireEvent(new WindowEvent(this.parentStage, WindowEvent.WINDOW_CLOSE_REQUEST));
+        });
 
-		myPane.setCenter(tabPane);
-		myPane.setBottom(buttonBar);
-		myPane.setPadding(new Insets(5, 5, 5, 5));
+        final HBox buttonBar = new HBox(save2, cancel);
 
-		buttonBar.setAlignment(Pos.CENTER_RIGHT);
-		VBox.setVgrow(tabPane, Priority.SOMETIMES);
+        final BorderPane myPane = new BorderPane();
 
-		return new MyScene(myPane);
-	}
+        myPane.setCenter(tabPane);
+        myPane.setBottom(buttonBar);
+        myPane.setPadding(new Insets(5, 5, 5, 5));
 
-	private void savePreferences() {
-		configuration.getFSAccounts().clear();
-		configuration.getFSAccounts().addAll(fsTab.getAccounts());
-		configuration.getIMAPAccounts().clear();
-		configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
-		configuration.setFontSize(generalTab.getFontSize());
-		configuration.setFontFamily(generalTab.getFontFamily());
-		this.configurationService.writeConfig();
-		this.preferencesSaved = true;
-	}
+        buttonBar.setAlignment(Pos.CENTER_RIGHT);
+        VBox.setVgrow(tabPane, Priority.SOMETIMES);
 
-	public boolean isPreferencesSaved() {
-		return preferencesSaved;
-	}
+        return new MyScene(myPane);
+    }
 
-	@Override
-	public void showAndWait() {
-		this.configurationService.refresh();
-		this.configuration = configurationService.getConfig();
-		for (Account account : configuration.getAccountList()) {
-			if (account.getType() == Account_Type.FS) {
-				fsTab.addAccount(account);
-			} else {
-				imapTab.addAccount(account);
-			}
-		}
-		generalTab.setFontSize(configuration.getFontSize());
-		generalTab.setFontFamily(configuration.getFontFamily());
-		imapTab.openAccordion();
-		fsTab.openAccordion();
-		super.showAndWait();
-	}
+    private void savePreferences() {
+        configuration.getFSAccounts().clear();
+        configuration.getFSAccounts().addAll(fsTab.getAccounts());
+        configuration.getIMAPAccounts().clear();
+        configuration.getIMAPAccounts().addAll(imapTab.getAccounts());
+        configuration.setFontSize(generalTab.getFontSize());
+        configuration.setFontFamily(generalTab.getFontFamily());
+        this.configurationService.writeConfig();
+        this.preferencesSaved = true;
+    }
 
+    public boolean isPreferencesSaved() {
+        return preferencesSaved;
+    }
+
+    @Override
+    public void showAndWait() {
+        this.configurationService.refresh();
+        this.configuration = configurationService.getConfig();
+        for (Account account : configuration.getAccountList()) {
+            if (account.getType() == Account_Type.FS) {
+                fsTab.addAccount(account);
+            } else {
+                imapTab.addAccount(account);
+            }
+        }
+        generalTab.setFontSize(configuration.getFontSize());
+        generalTab.setFontFamily(configuration.getFontFamily());
+        imapTab.openAccordion();
+        fsTab.openAccordion();
+        super.showAndWait();
+    }
 }

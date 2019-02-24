@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.PasswordInputDialog;
 import de.wesim.imapnotes.models.Account;
+import javax.annotation.PostConstruct;
 import net.east301.keyring.PasswordSaveException;
 
 
@@ -24,11 +25,15 @@ public class MyAuthenticator extends Authenticator implements HasLogger {
     private ApplicationContext context;
 
     private final Account account;
-    private final PasswordProvider passwordProvider;
+    private PasswordProvider passwordProvider;
     private boolean retry = false;
 
     public MyAuthenticator(Account account) {
         this.account = account;
+    }
+    
+    @PostConstruct
+    void init() {
         this.passwordProvider = context.getBean(PasswordProvider.class);
     }
 
