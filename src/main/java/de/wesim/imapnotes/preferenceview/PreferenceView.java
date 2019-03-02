@@ -68,9 +68,9 @@ public class PreferenceView extends Stage implements HasLogger {
     }
 
     private Scene initScene() {
-        this.generalTab = new GeneralTab(i18N);
+        this.generalTab = context.getBean(GeneralTab.class);
         this.imapTab = context.getBean(IMAPTab.class);
-        this.fsTab = new FSTab(i18N);
+        this.fsTab = context.getBean(FSTab.class);
 
         final TabPane tabPane = new TabPane(generalTab, imapTab, fsTab);
         tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);

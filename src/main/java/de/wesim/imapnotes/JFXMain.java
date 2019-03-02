@@ -1,11 +1,13 @@
 package de.wesim.imapnotes;
 
-import de.wesim.imapnotes.Consts;
 import java.io.IOException;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.mainview.MainViewLoaderService;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import javafx.application.Application;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
@@ -36,6 +38,9 @@ public class JFXMain extends Application {
 
     @Value("${keystore.file}")
     private String keyStoreFile;
+
+    @Value("${font_families}")
+    private String fontFamilies;
 
     @Override
     public void start(Stage primaryStage) {
@@ -153,6 +158,23 @@ public class JFXMain extends Application {
     @Bean
     public Path keyStorePath() {
         return Paths.get(keyStoreFile);
+    }
+
+    @Bean
+    public List<String> availableFontFamilies() {
+        final String[] splitItems = fontFamilies.split(",");
+        final List<String> returnList = new ArrayList<>();
+        returnList.addAll(Arrays.asList(splitItems));
+        return returnList;
+    }
+
+    @Bean
+    public List<String> availableFontSizes() {
+        final List<String> returnList = new ArrayList<>();
+        for (int i = 8; i < 50; i++) {
+            returnList.add(String.format("%dpx", i));
+        }
+        return returnList;
     }
 
 }

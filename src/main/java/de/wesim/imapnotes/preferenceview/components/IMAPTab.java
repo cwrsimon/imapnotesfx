@@ -3,14 +3,13 @@ package de.wesim.imapnotes.preferenceview.components;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.context.ApplicationContext;
-
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.PrefixedAlertBox;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.services.I18NService;
 import de.wesim.imapnotes.services.IMAPBackend;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-// TODO Zur Spring-Komponente machen...
 @Component
 @Scope("prototype")
 public class IMAPTab extends Tab implements HasLogger {
@@ -45,8 +43,6 @@ public class IMAPTab extends Tab implements HasLogger {
 
     public IMAPTab() {
         super("IMAP");
-//        this.i18N = i18n;
-//        this.context = context;
 
         final VBox vbox = new VBox();
         setContent(vbox);
@@ -66,7 +62,6 @@ public class IMAPTab extends Tab implements HasLogger {
             // a new account with some default values
             final Account newAccount = new Account();
             new_counter++;
-            // TODO Auslagern als TR
             newAccount.setAccount_name("New_" + String.valueOf(new_counter));
             newAccount.setRoot_folder("/Notes");
             newAccount.setPort("993");
@@ -111,10 +106,10 @@ public class IMAPTab extends Tab implements HasLogger {
         newForm.removeMe.setOnAction(e -> {
             acco.getPanes().remove(tp);
         });
-        newForm.testMe.setOnAction(e -> {
+        newForm.testMe.setOnAction((ActionEvent e) -> {
             final Account newAccount = newForm.getAccount();
             IMAPBackend backend = context.getBean(IMAPBackend.class, newAccount);
-            boolean testOK = false;
+            boolean testOK;
             try {
                 testOK = backend.initNotesFolder();
             } catch (Exception e1) {
