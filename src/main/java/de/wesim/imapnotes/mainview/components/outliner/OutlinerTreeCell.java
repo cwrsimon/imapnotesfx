@@ -19,90 +19,85 @@ import javafx.scene.input.DataFormat;
 @Scope("prototype")
 public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 
-	// TODO Moving überarbeiten
-	// TODO Checken, dass wir wirklich den FOlder verlassen
-	// TODO Verschieben in die Root ermöglichen !
-	
-	@Autowired
-	private I18NService i18N;
-	
-	private static final DataFormat NOTE_FORMAT = new DataFormat("de.wesim.imapnotes.models.Note");
+    // TODO Reactivate moving notes using drag-and-drop
+    @Autowired
+    private I18NService i18N;
 
-	private final ContextMenu noteMenu = new ContextMenu();
-	private final ContextMenu genericMenu = new ContextMenu();
-	private final ContextMenu folderMenu = new ContextMenu();
+    // private static final DataFormat NOTE_FORMAT = new DataFormat("de.wesim.imapnotes.models.Note");
 
-	private MainViewController caller;
+    private final ContextMenu noteMenu = new ContextMenu();
+    private final ContextMenu genericMenu = new ContextMenu();
+    private final ContextMenu folderMenu = new ContextMenu();
 
-	@Autowired
-	public OutlinerTreeCell(MainViewController caller) {
-		this.caller = caller;
-	}
-	
-	@PostConstruct
-	public void init() {
-		final MenuItem moveNoteItem = new MenuItem(i18N.getTranslation("move_note_context_menu_item"));
-		moveNoteItem.setOnAction(e -> {
-			caller.move(getItem());
-			//caller.deleteNote(getTreeItem(), false);
-		});
-		final MenuItem moveFolder = new MenuItem(i18N.getTranslation("move_folder_context_menu_item"));
-		moveFolder.setOnAction(e -> {
-			caller.move(getItem());
-		});
-		
-		
-		final MenuItem deleteItem = new MenuItem(i18N.getTranslation("delete_context_menu_item"));
-		deleteItem.setOnAction(e -> {
-			caller.deleteNote(getTreeItem(), false);
-		});
+    private final MainViewController caller;
 
-		final MenuItem renameItem = new MenuItem(i18N.getTranslation("rename_context_menu_item"));
-		renameItem.setOnAction(e -> {
-			caller.renameCurrentMessage(getItem());
-		});
+    @Autowired
+    public OutlinerTreeCell(MainViewController caller) {
+        this.caller = caller;
+    }
 
-		final MenuItem delete2 = new MenuItem(i18N.getTranslation("delete_msg_context_menu_item"));
-		final MenuItem renameNote = new MenuItem(i18N.getTranslation("rename_msg_context_menu_item"));
-		noteMenu.getItems().add(renameNote);
-		noteMenu.getItems().add(delete2);
-		noteMenu.getItems().add(moveNoteItem);
+    @PostConstruct
+    public void init() {
+        final MenuItem moveNoteItem = new MenuItem(i18N.getTranslation("move_note_context_menu_item"));
+        moveNoteItem.setOnAction(e -> {
+            caller.move(getItem());
+        });
+        final MenuItem moveFolder = new MenuItem(i18N.getTranslation("move_folder_context_menu_item"));
+        moveFolder.setOnAction(e -> {
+            caller.move(getItem());
+        });
 
-		delete2.setOnAction(e -> {
-			caller.deleteNote(getTreeItem(), false);
-		});
-		renameNote.setOnAction(e -> {
-			caller.renameCurrentMessage(getItem());
-		});
+        final MenuItem deleteItem = new MenuItem(i18N.getTranslation("delete_context_menu_item"));
+        deleteItem.setOnAction(e -> {
+            caller.deleteNote(getTreeItem(), false);
+        });
 
-		final MenuItem newItem = new MenuItem(i18N.getTranslation("new_note_context_menu_item"));
-		newItem.setOnAction(e -> {
-			caller.createNewMessage(false, null);
-		});
+        final MenuItem renameItem = new MenuItem(i18N.getTranslation("rename_context_menu_item"));
+        renameItem.setOnAction(e -> {
+            caller.renameCurrentMessage(getItem());
+        });
 
-		final MenuItem newFolder = new MenuItem(i18N.getTranslation("new_folder_context_menu_item"));
-		newFolder.setOnAction(e -> {
-			caller.createNewMessage(true, null);
-		});
+        final MenuItem delete2 = new MenuItem(i18N.getTranslation("delete_msg_context_menu_item"));
+        final MenuItem renameNote = new MenuItem(i18N.getTranslation("rename_msg_context_menu_item"));
+        noteMenu.getItems().add(renameNote);
+        noteMenu.getItems().add(delete2);
+        noteMenu.getItems().add(moveNoteItem);
 
-		genericMenu.getItems().add(newItem);
-		genericMenu.getItems().add(newFolder);
+        delete2.setOnAction(e -> {
+            caller.deleteNote(getTreeItem(), false);
+        });
+        renameNote.setOnAction(e -> {
+            caller.renameCurrentMessage(getItem());
+        });
 
-		final MenuItem newSubfolder = new MenuItem(i18N.getTranslation("add_note_context_menu_item"));
-		final MenuItem newFolderNote = new MenuItem(i18N.getTranslation("add_folder_context_menu_item"));
-		newFolderNote.setOnAction(e -> {
-			caller.createNewMessage(true, getTreeItem());
-		});
-		newSubfolder.setOnAction(e -> {
-			caller.createNewMessage(false, getTreeItem());
-		});
-		folderMenu.getItems().add(newSubfolder);
-		folderMenu.getItems().add(newFolderNote);
-		folderMenu.getItems().add(renameItem);
-		folderMenu.getItems().add(deleteItem);
-		folderMenu.getItems().add(moveFolder);
+        final MenuItem newItem = new MenuItem(i18N.getTranslation("new_note_context_menu_item"));
+        newItem.setOnAction(e -> {
+            caller.createNewMessage(false, null);
+        });
 
-		// all necessary for moving notes ...
+        final MenuItem newFolder = new MenuItem(i18N.getTranslation("new_folder_context_menu_item"));
+        newFolder.setOnAction(e -> {
+            caller.createNewMessage(true, null);
+        });
+
+        genericMenu.getItems().add(newItem);
+        genericMenu.getItems().add(newFolder);
+
+        final MenuItem newSubfolder = new MenuItem(i18N.getTranslation("add_note_context_menu_item"));
+        final MenuItem newFolderNote = new MenuItem(i18N.getTranslation("add_folder_context_menu_item"));
+        newFolderNote.setOnAction(e -> {
+            caller.createNewMessage(true, getTreeItem());
+        });
+        newSubfolder.setOnAction(e -> {
+            caller.createNewMessage(false, getTreeItem());
+        });
+        folderMenu.getItems().add(newSubfolder);
+        folderMenu.getItems().add(newFolderNote);
+        folderMenu.getItems().add(renameItem);
+        folderMenu.getItems().add(deleteItem);
+        folderMenu.getItems().add(moveFolder);
+
+        // all necessary for moving notes ...
 //		this.setOnDragDetected(e -> {
 //			final Dragboard db = this.startDragAndDrop(TransferMode.MOVE);
 //			final ClipboardContent content = new ClipboardContent();
@@ -151,28 +146,27 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
 //			event.setDropCompleted(true);
 //			event.consume();
 //		});
+    }
 
-	}
-
-	@Override
-	public void updateItem(Note item, boolean empty) {
-		super.updateItem(item, empty);
-		setUnderline(false);
-		if (empty || item == null) {
-			setText(null);
-			setGraphic(null);
-			setContextMenu(genericMenu);
-			setBorder(null);
-		} else {
-			if (item.isFolder()) {
-				setContextMenu(folderMenu);
-				setUnderline(true);
-			} else {
-				setContextMenu(noteMenu);
-				setGraphic(null);
-				setBorder(null);
-			}
-			setText(item.getSubject());
-		}
-	}
+    @Override
+    public void updateItem(Note item, boolean empty) {
+        super.updateItem(item, empty);
+        setUnderline(false);
+        if (empty || item == null) {
+            setText(null);
+            setGraphic(null);
+            setContextMenu(genericMenu);
+            setBorder(null);
+        } else {
+            if (item.isFolder()) {
+                setContextMenu(folderMenu);
+                setUnderline(true);
+            } else {
+                setContextMenu(noteMenu);
+                setGraphic(null);
+                setBorder(null);
+            }
+            setText(item.getSubject());
+        }
+    }
 }

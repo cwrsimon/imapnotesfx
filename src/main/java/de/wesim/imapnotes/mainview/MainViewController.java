@@ -173,20 +173,7 @@ public class MainViewController implements HasLogger {
             final String entered = result.get();
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.markSearchItems(entered);
-//            et.updateFoundItems(entered);
-//            et.goToNextItem();
         });
-
-        // Find Previous
-//        findNext.setOnAction( e-> {
-//            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-//            et.goToNextItem();
-//        });
-        // Find Previous
-//        findPrev.setOnAction( e-> {
-//            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-//            et.goToPrevItem();
-//        });
     }
 
     public void triggerReload() {
@@ -287,18 +274,17 @@ public class MainViewController implements HasLogger {
         openAccount(firstAccount);
     }
 
-    // TODO Überarbeiten
     public void move(Note msg, TreeItem<Note> target) {
         // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
-        getLogger().info("Moving source {} ", foundTreeItem);
-        getLogger().info("Moving target {} ", target);
+        getLogger().debug("Moving source {} ", foundTreeItem);
+        getLogger().debug("Moving target {} ", target);
         if (foundTreeItem == null) {
             // this should never happen ...
             getLogger().error("Unable to find {} in outliner.", msg.toString());
             return;
         }
-        // TODO Überprüfen!
+        // TODO Check for correctness!
         final MoveNoteTask moveNoteTask
                 = context.getBean(MoveNoteTask.class, foundTreeItem, target);
         moveNoteTask.run();
@@ -360,12 +346,10 @@ public class MainViewController implements HasLogger {
                 return;
             }
         }
-
-        getLogger().info("Opening {}", note.getSubject());
+        getLogger().debug("Opening {}", note.getSubject());
 
         final OpenNoteTask newOpenMessageTask = context.getBean(OpenNoteTask.class, note);
         newOpenMessageTask.run();
-
     }
 
     // Needed by OutlinerItemChangeListener
@@ -373,7 +357,7 @@ public class MainViewController implements HasLogger {
         if (m == null) {
             return;
         }
-        getLogger().info("Opening Folder {}", m.getValue().getSubject());
+        getLogger().debug("Opening Folder {}", m.getValue().getSubject());
 
         final OpenFolderTask openFolderTask = context.getBean(OpenFolderTask.class, m);
         openFolderTask.run();
@@ -398,7 +382,7 @@ public class MainViewController implements HasLogger {
     public void saveCurrentMessage() {
         final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
         final String newContent = et.getQe().getHtmlText();
-        getLogger().info("Saving new content: {}", newContent);
+        getLogger().debug("Saving new content: {}", newContent);
 
         et.getNote().setContent(newContent);
         final SaveNoteTask saveTask = context.getBean(SaveNoteTask.class, et);
@@ -460,9 +444,7 @@ public class MainViewController implements HasLogger {
     }
 
     public void move(Note item) {
-        // TODO Auto-generated method stub
-        // TODO move with choice
-        // ComboBox Menü
+        // available target folders for moving action
         var nodes = this.outlinerWidget.getFlatList();
         
         final ChoiceDialog<String> folderChooser

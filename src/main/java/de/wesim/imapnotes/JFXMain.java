@@ -21,9 +21,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-// TODO Lesen:
-// https://www.baeldung.com/spring-inject-prototype-bean-into-singleton
-// https://www.baeldung.com/spring-bean-scopes
 @SpringBootApplication
 public class JFXMain extends Application {
 

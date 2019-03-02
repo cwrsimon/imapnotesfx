@@ -10,7 +10,6 @@ import de.wesim.imapnotes.MyScene;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.TextInputDialog;
 
-// TODO Stimmen alle Textresourcen???
 @Component
 @Scope("prototype")
 public class PrefixedTextInputDialog extends TextInputDialog {
@@ -50,5 +49,4 @@ public class PrefixedTextInputDialog extends TextInputDialog {
     	setContentText(contentText);
     	setHeaderText(headerText);
     }
-
 }
