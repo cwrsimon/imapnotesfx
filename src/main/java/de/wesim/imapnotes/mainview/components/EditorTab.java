@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
+import de.wesim.summernotefx.SummerNoteEditor;
+import java.util.HashMap;
+import java.util.Map;
 import javafx.beans.binding.Bindings;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -45,7 +48,12 @@ public class EditorTab extends Tab {
 
     @PostConstruct
     public void init() {
-        this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
+        final Map<String, String> cssProps = new HashMap<>();
+       cssProps.put("font-family", configurationService.getConfig().getFontFamily());
+       cssProps.put("font-size", configurationService.getConfig().getFontSize());
+
+       // this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
+       this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), cssProps);
         setContent(this.qe);
         setOnCloseRequest(e -> {
             if (!this.qe.getContentUpdate()) {
