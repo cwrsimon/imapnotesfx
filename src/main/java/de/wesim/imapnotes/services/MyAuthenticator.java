@@ -14,7 +14,7 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.PasswordInputDialog;
 import de.wesim.imapnotes.models.Account;
 import javax.annotation.PostConstruct;
-import net.east301.keyring.PasswordSaveException;
+import org.keyring.PasswordSaveException;
 
 
 @Component
