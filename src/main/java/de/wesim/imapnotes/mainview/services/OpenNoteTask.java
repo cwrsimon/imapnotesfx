@@ -14,46 +14,46 @@ import javafx.application.Platform;
 public class OpenNoteTask extends AbstractNoteTask<Note> {
 
 	
-	@Autowired
-	protected MainViewController mainViewController;
-	
+    @Autowired
+    protected MainViewController mainViewController;
+
     @Autowired
     protected I18NService i18N;
-    
-	private final Note note;
 
-	public OpenNoteTask(Note note) {
-		this.note = note;
-	}
-	
-	@Override
-	protected Note call() throws Exception {
-      mainViewController.getBackend().load(this.note);
-      return note;
-	}
+    private final Note note;
+
+    public OpenNoteTask(Note note) {
+        this.note = note;
+    }
+
+    @Override
+    protected Note call() throws Exception {
+        mainViewController.getBackend().load(this.note);
+        return note;
+    }
 
 
-	@Override
-	protected void succeeded() {
-	      super.succeeded();
-	      Platform.runLater( () -> mainViewController.openEditor(getValue()) );
-	}
-	
-	@Override
-	public String getActionName() {
-		return "Open Message";
-	}
+    @Override
+    protected void succeeded() {
+        super.succeeded();
+        Platform.runLater(() -> mainViewController.openEditor(getValue()));
+    }
 
-	@Override
-	public String getRunningMessage() {
-		return i18N.getMessageAndTranslation("user_message_start_opening",
-				note.getSubject()); 
-	}
+    @Override
+    public String getActionName() {
+        return "Open Message";
+    }
 
-	@Override
-	public String getSuccessMessage() {
-		return i18N.getMessageAndTranslation("user_message_finished_opening",
-				this.note.getSubject());
-	}
-   
+    @Override
+    public String getRunningMessage() {
+        return i18N.getMessageAndTranslation("user_message_start_opening",
+                note.getSubject());
+    }
+
+    @Override
+    public String getSuccessMessage() {
+        return i18N.getMessageAndTranslation("user_message_finished_opening",
+                this.note.getSubject());
+    }
+
 }

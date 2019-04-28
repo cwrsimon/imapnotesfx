@@ -8,7 +8,6 @@ import de.wesim.imapnotes.MyScene;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.springframework.beans.factory.annotation.Value;
 
 @Service
 public class MainViewLoaderService implements HasLogger {

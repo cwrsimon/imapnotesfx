@@ -56,6 +56,9 @@ public class MainView extends BorderPane implements HasLogger {
 
     @Autowired
     private MenuItem find;
+    
+    @Autowired
+    private MenuItem findGlobal;
 
     @Autowired
     private MenuItem newNote;
@@ -73,6 +76,7 @@ public class MainView extends BorderPane implements HasLogger {
     @PostConstruct
     public void init() {
         find.setText(i18N.getTranslation("find_menu_item"));
+        findGlobal.setText(i18N.getTranslation("find_global_menu_item"));
         update.setText(i18N.getTranslation("save_menu_item"));
         switchAccountMenuItem.setText(i18N.getTranslation("switch_menu_item"));
         exit.setText(i18N.getTranslation("exit_menu_item"));
@@ -91,6 +95,7 @@ public class MainView extends BorderPane implements HasLogger {
         final Menu helpMenu = new Menu(i18N.getTranslation("help_menu"));
 
         editMenu.getItems().addAll(find);
+        editMenu.getItems().addAll(findGlobal);
 
         menuBar.getMenus().add(menu);
         menuBar.getMenus().add(editMenu);

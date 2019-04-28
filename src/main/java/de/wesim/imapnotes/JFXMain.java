@@ -27,6 +27,7 @@ public class JFXMain extends Application {
     private static final String SHORTCUT_QUIT = "Shortcut+Q";
     private static final String SHORTCUT_SAVE = "Shortcut+S";
     private static final String SHORTCUT_FIND = "Shortcut+F";
+    private static final String SHORTCUT_FIND_GLOBAL = "Shortcut+Shift+F";
 
     private ConfigurableApplicationContext context = null;
 
@@ -38,6 +39,9 @@ public class JFXMain extends Application {
 
     @Value("${font_families}")
     private String fontFamilies;
+    
+    @Value("${indexes.dir}")
+    private String indexesDir;
 
     @Override
     public void start(Stage primaryStage) {
@@ -139,6 +143,14 @@ public class JFXMain extends Application {
         findMenuItem.setAccelerator(KeyCombination.keyCombination(SHORTCUT_FIND));
         return findMenuItem;
     }
+    
+    @Bean
+    public MenuItem findGlobal() {
+        // content will be configured in MainView
+        final MenuItem findGlobalMenuItem = new MenuItem();
+        findGlobalMenuItem.setAccelerator(KeyCombination.keyCombination(SHORTCUT_FIND_GLOBAL));
+        return findGlobalMenuItem;
+    }
 
     @Bean
     public TabPane tp() {
@@ -155,6 +167,11 @@ public class JFXMain extends Application {
     @Bean
     public Path keyStorePath() {
         return Paths.get(keyStoreFile);
+    }
+    
+    @Bean
+    public Path indexesDir() {
+        return Paths.get(indexesDir);
     }
 
     @Bean

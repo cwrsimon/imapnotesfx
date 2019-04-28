@@ -56,7 +56,7 @@ public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
 
 	@Override
 	protected ObservableList<Note> call() throws Exception {
-		final Note folderToOpen = folderTreeItem.getValue();
+	final Note folderToOpen = folderTreeItem.getValue();
         final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
         
         return FXCollections.observableArrayList(messages);
