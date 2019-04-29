@@ -34,12 +34,8 @@ import de.wesim.imapnotes.services.ConfigurationService;
 import de.wesim.imapnotes.services.FSNoteProvider;
 import de.wesim.imapnotes.services.IMAPNoteProvider;
 import de.wesim.imapnotes.services.INoteProvider;
+import de.wesim.imapnotes.services.LuceneResult;
 import de.wesim.imapnotes.services.LuceneService;
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Stack;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.HostServices;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -61,7 +57,7 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private ConfigurationService configurationService;
-    
+
     @Autowired
     private LuceneService luceneService;
 
@@ -94,7 +90,7 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private MenuItem find;
-    
+
     @Autowired
     private MenuItem findGlobal;
 
@@ -106,7 +102,7 @@ public class MainViewController implements HasLogger {
 
     @Autowired
     private MenuItem newFolder;
-    
+
     // these two fields must be injected
     // after the bean has been created
     private HostServices hostServices;
@@ -187,39 +183,38 @@ public class MainViewController implements HasLogger {
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.markSearchItems(entered);
         });
-        
+
         findGlobal.setOnAction(e -> {
-            var myPath = "/e6baf6ad-725f-488f-adfc-e7f07b714df1/67f7038c-bb92-47ab-ae85-3cfe507fcdf8";
-            var pathItems = myPath.split("/");
-            var paths = new ArrayDeque<String>();
-            for (String p : pathItems) {
-                if (p.isEmpty()) continue;
-                paths.add(p);
+            // TODO Anderes Wording!
+            final PrefixedTextInputDialog dialog
+                    = this.context.getBean(PrefixedTextInputDialog.class, "find");
+            final Optional<String> result = dialog.showAndWait();
+            if (!result.isPresent()) {
+                return;
             }
-            
-            OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(), paths);
+            final String entered = result.get();
+            var lastOpenedAccount = configurationService.getConfig().getLastOpenendAccount();
+            final List<LuceneResult> luceneHits = luceneService.search(lastOpenedAccount, entered);
+            getLogger().info("{}", luceneHits);
+            // TRs anlegen!
+            final ChoiceDialog<LuceneResult> folderChooser
+                = this.context.getBean(AccountChoiceDialog.class, "move", luceneHits, "/");
+
+        var choice = folderChooser.showAndWait();
+        if (!choice.isPresent()) {
+            return;
+        }
+            // TODO Selektor entfernen
+            var firstUUID = choice.get();
+            //;/e6baf6ad-725f-488f-adfc-e7f07b714df1/67f7038c-bb92-47ab-ae85-3cfe507fcdf8/;null
+//            var firstUUID = new LuceneResult();
+//            firstUUID.setPath("/e6baf6ad-725f-488f-adfc-e7f07b714df1/67f7038c-bb92-47ab-ae85-3cfe507fcdf8/");
+//            firstUUID.setUuid("e5383f06-2613-48f6-af1b-13f1c480645d");
+
+            // TODO Generischer gestalten!
+            OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(), 
+                    firstUUID.getPath(), new Note(firstUUID.getUuid()));
             opt.run();
-//            final PrefixedTextInputDialog dialog
-//                    = this.context.getBean(PrefixedTextInputDialog.class, "find");
-//            final Optional<String> result = dialog.showAndWait();
-//            if (!result.isPresent()) {
-//                return;
-//            }
-//            final String entered = result.get();
-//            var lastOpenedAccount = configurationService.getConfig().getLastOpenendAccount();
-//            try {
-//                final List<String> luceneHits = luceneService.search(lastOpenedAccount, entered);
-//                // TODO
-//                getLogger().info("{}", luceneHits);
-//                var firstUUID = luceneHits.get(0);
-//                TreeItem<Note> resolvedNote = OutlinerWidget.searchTreeItem(new Note(firstUUID), this.outlinerWidget.getRoot());
-//                getLogger().info("{}", resolvedNote.getValue());
-//                this.outlinerWidget.getSelectionModel().select(resolvedNote);
-////            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-////            et.markSearchItems(entered);
-//            } catch (IOException ex) {
-//                Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
-//            }
         });
     }
 
@@ -493,10 +488,10 @@ public class MainViewController implements HasLogger {
     public void move(Note item) {
         // available target folders for moving action
         var nodes = this.outlinerWidget.getFlatList();
-        
+
         final ChoiceDialog<String> folderChooser
                 = this.context.getBean(AccountChoiceDialog.class, "move", nodes.keySet(), "/");
-        
+
         var choice = folderChooser.showAndWait();
         if (!choice.isPresent()) {
             return;

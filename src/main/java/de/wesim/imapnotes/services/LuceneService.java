@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.springframework.stereotype.Service;
 import de.wesim.imapnotes.HasLogger;
-import de.wesim.imapnotes.models.Account;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +30,10 @@ public class LuceneService implements HasLogger {
     private Path indexesDir;
 
 
-    public List<String> search(String account, String queryTerm) throws IOException {
+    public List<LuceneResult> search(String account, String queryTerm) {
         var indexDir = indexesDir.resolve(account);
       
-        var result = new ArrayList<String>();
+        var result = new ArrayList<LuceneResult>();
         
         try (IndexReader reader = DirectoryReader.open(FSDirectory.open(indexDir))) {
             
@@ -42,27 +41,30 @@ public class LuceneService implements HasLogger {
             Analyzer analyzer = new StandardAnalyzer();
 
             QueryParser parser = new QueryParser("contents", analyzer);
-            
             Query query = parser.parse("contents:" + queryTerm + " OR subject:" + queryTerm );
-            System.out.println("Searching for: " + query.toString());
-
+            
             // Collect enough docs to show 5 pages
             TopDocs results = searcher.search(query, 5 * 10);
             ScoreDoc[] hits = results.scoreDocs;
     
             int numTotalHits = Math.toIntExact(results.totalHits.value);
-            System.out.println(numTotalHits + " total matching documents");
+            //System.out.println(numTotalHits + " total matching documents");
 
             int start = 0;
             int end = Math.min(numTotalHits, 10);
         
             for (int i = start; i < end; i++) {
                 Document doc = searcher.doc(hits[i].doc);
-                String uuid = doc.get("uuid");
-                result.add(uuid);
-                System.out.println(uuid);  
+                //String uuid = doc.get("uuid");
+                var resultItem = new LuceneResult();
+                resultItem.setPath(doc.get("path"));
+                resultItem.setUuid(doc.get("uuid"));
+                resultItem.setSubject(doc.get("subject_stored"));
+                result.add(resultItem);
+                getLogger().info("{}", resultItem);  
             }
-        } catch (ParseException ex) {
+        } catch (ParseException | IOException ex) {
+            // TODO
             Logger.getLogger(LuceneService.class.getName()).log(Level.SEVERE, null, ex);
         }
 

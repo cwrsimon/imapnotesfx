@@ -154,6 +154,7 @@ public class CreateLuceneIndex {
       // If that's not the case searching for special characters will fail.
       doc.add(new TextField("contents", new StringReader(file.getContent())));
       doc.add(new TextField("subject", new StringReader(file.getSubject())));
+      doc.add(new StringField("subject_stored", file.getSubject(), Field.Store.YES));
 
       
       if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
