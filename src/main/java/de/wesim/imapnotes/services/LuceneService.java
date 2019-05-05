@@ -29,19 +29,20 @@ public class LuceneService implements HasLogger {
     @Autowired
     private Path indexesDir;
 
-
+    // TODO Komplett überarbeiten!
     public List<LuceneResult> search(String account, String queryTerm) {
-        var indexDir = indexesDir.resolve(account);
+       // var indexDir = indexesDir.resolve(account);
       
         var result = new ArrayList<LuceneResult>();
         
-        try (IndexReader reader = DirectoryReader.open(FSDirectory.open(indexDir))) {
+        try (IndexReader reader = DirectoryReader.open(FSDirectory.open(indexesDir))) {
             
             IndexSearcher searcher = new IndexSearcher(reader);
             Analyzer analyzer = new StandardAnalyzer();
 
             QueryParser parser = new QueryParser("contents", analyzer);
-            Query query = parser.parse("contents:" + queryTerm + " OR subject:" + queryTerm );
+            Query query = parser.parse("account:" + account
+                    + " AND (contents:" + queryTerm + " OR subject:" + queryTerm + " )");
             
             // Collect enough docs to show 5 pages
             TopDocs results = searcher.search(query, 5 * 10);

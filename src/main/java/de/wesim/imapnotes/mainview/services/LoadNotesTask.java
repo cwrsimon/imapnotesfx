@@ -12,6 +12,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+// TODO Wegreduzieren zugunsten von OpenPathTask
 @Component
 @Scope("prototype")
 public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {

@@ -29,13 +29,11 @@ public class SearchFiles {
   public static void main(String[] args) throws Exception {
     
 
-    String index = "/home/papa/.imapnotesfx/indexes/Blub";
+    String index = "/home/papa/.imapnotesfx/indexes/";
     String field = "contents";
     int repeat = 0;
     String queryString = null;
     int hitsPerPage = 10;
-    
-    
     
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
@@ -46,7 +44,8 @@ public class SearchFiles {
 
       String line = "hidden";
 
-      Query query = parser.parse("contents:" + line + " OR subject:" + line );
+      //
+      Query query = parser.parse("account:Blub AND (contents:" + line + " OR subject:" + line + ")"  );
       System.out.println("Searching for: " + query.toString());
 
       // Collect enough docs to show 5 pages
@@ -64,7 +63,8 @@ public class SearchFiles {
         Document doc = searcher.doc(hits[i].doc);
         String path = doc.get("uuid");
         System.out.println(path + ";" + doc.get("path") +";" + doc.get("subject"));
-                  
+        System.out.println(doc.get("account"));
+
       }
     
 

@@ -34,13 +34,9 @@ public class CreateLuceneIndex {
 
   /** Index all text files under a directory. */
   public static void main(String[] args) throws Exception {
-    String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
-                 + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                 + "in INDEX_PATH that can be searched with SearchFiles";
-   
-    String indexPath = "/home/papa/.imapnotesfx/indexes/Blub";
-    boolean create = true;
+  
+    String indexPath = "/home/papa/.imapnotesfx/indexes/";
+    boolean create = false;
 
     final Path docDir = Paths.get("/home/papa/Projects/dummy-notes");
     
@@ -70,12 +66,13 @@ public class CreateLuceneIndex {
        FSNoteProvider fsNotes = new FSNoteProvider();
       Account a = new Account();
       a.setRoot_folder(docDir.toAbsolutePath().toString());
+      a.setAccount_name("Blub");
       fsNotes.init(a);
       var notes = fsNotes.getNotes();
 
       
       IndexWriter writer = new IndexWriter(dir, iwc);
-      indexDocs(notes, writer, fsNotes, "/");
+      indexDocs(notes, writer, fsNotes, "/", a);
 
       // NOTE: if you want to maximize search performance,
       // you can optionally call forceMerge here.  This can be
@@ -112,20 +109,20 @@ public class CreateLuceneIndex {
    * @param path The file to index, or the directory to recurse into to find files to index
    * @throws IOException If there is a low-level I/O error
    */
-  static void indexDocs(List<Note> notes, final IndexWriter writer, FSNoteProvider fsNotes, String curPath) throws IOException, Exception {
+  static void indexDocs(List<Note> notes, final IndexWriter writer, FSNoteProvider fsNotes, String curPath, Account account) throws IOException, Exception {
       for (var n : notes) {
           if (n.isFolder()) {
               var newNotes = fsNotes.getNotesFromFolder(n);
-              indexDocs(newNotes, writer, fsNotes, (curPath + n.getUuid() + "/" ));
+              indexDocs(newNotes, writer, fsNotes, (curPath + n.getUuid() + "/" ), account);
           } else {
-            indexDoc(writer, n, n.getDate().getTime(), curPath);
+            indexDoc(writer, n, n.getDate().getTime(), curPath, account);
           }
       }
 
   }
 
   /** Indexes a single document */
-  static void indexDoc(IndexWriter writer, Note file, long lastModified, String curPath) throws IOException {
+  static void indexDoc(IndexWriter writer, Note file, long lastModified, String curPath, Account a) throws IOException {
       // make a new, empty document
       Document doc = new Document();
       
@@ -135,6 +132,11 @@ public class CreateLuceneIndex {
       // or positional information:
       Field idField = new StringField("uuid", file.getUuid(), Field.Store.YES);
       doc.add(idField);
+      
+      
+      //https://stackoverflow.com/questions/14074613/how-to-search-an-int-field-in-lucene-4
+      Field accountField = new StringField("account", a.getAccount_name().toLowerCase(), Field.Store.YES);
+      doc.add(accountField);
       
       Field pathField = new StringField("path", curPath, Field.Store.YES);
       doc.add(pathField);
@@ -167,6 +169,7 @@ public class CreateLuceneIndex {
         // path, if present:
         System.out.println("updating " + file);
         writer.updateDocument(new Term("uuid", file.getUuid()), doc);
+        
       }
     
   }

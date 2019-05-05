@@ -13,6 +13,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 
+// TODO Wegreduzieren zugunsten von OpenPathTask
 @Component
 @Scope("prototype")
 public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
