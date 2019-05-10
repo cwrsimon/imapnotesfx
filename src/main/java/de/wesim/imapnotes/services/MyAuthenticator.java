@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.services;
 
+import com.github.javakeyring.PasswordSaveException;
 import java.util.Optional;
 
 import javax.mail.Authenticator;
@@ -14,7 +15,6 @@ import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.mainview.components.PasswordInputDialog;
 import de.wesim.imapnotes.models.Account;
 import javax.annotation.PostConstruct;
-import org.keyring.PasswordSaveException;
 
 
 @Component

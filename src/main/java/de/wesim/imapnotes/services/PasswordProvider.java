@@ -1,13 +1,13 @@
 package de.wesim.imapnotes.services;
 
+import com.github.javakeyring.BackendNotSupportedException;
+import com.github.javakeyring.Keyring;
+import com.github.javakeyring.PasswordRetrievalException;
+import com.github.javakeyring.PasswordSaveException;
+import com.github.javakeyring.util.LockException;
 import de.wesim.imapnotes.HasLogger;
 import java.nio.file.Path;
 import javax.annotation.PostConstruct;
-import org.keyring.BackendNotSupportedException;
-import org.keyring.Keyring;
-import org.keyring.PasswordRetrievalException;
-import org.keyring.PasswordSaveException;
-import org.keyring.util.LockException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
