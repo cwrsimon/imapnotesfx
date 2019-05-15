@@ -4,7 +4,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.mainview.components.EditorTab;
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
+import de.wesim.imapnotes.models.Note;
 import javafx.application.Platform;
+import javafx.scene.control.TreeItem;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 
@@ -18,11 +22,12 @@ public class SaveNoteTask extends AbstractNoteTask<Void> {
     private ApplicationContext context;
 
     
+    
     public SaveNoteTask(EditorTab editorInstance) {
         super();
         this.editorInstance = editorInstance;
     }
-
+    
     @Override
     protected void succeeded() {
         super.succeeded();

@@ -96,6 +96,27 @@ public class OutlinerWidget extends TreeView<Note> implements HasLogger {
         }
         return null;
     }
+    
+    public static String determinePath(Note searchItem, TreeItem<Note> parent, String curPath) {
+        if (parent.getValue() != null && searchItem.equals(parent.getValue())) {
+            return curPath;
+        }
+        if (parent.getChildren().isEmpty()) {
+            return null;
+        }
+        for (TreeItem<Note> child : parent.getChildren()) {
+            var note = parent.getValue();
+            var uuid = "";
+            if (note != null) {
+                uuid = note.getUuid();
+            }
+            var found = OutlinerWidget.determinePath(searchItem, child, curPath + uuid + "/");
+            if (found != null) {
+                return found;
+            }
+        }
+        return null;
+    }
 
     public void addNoteToTree(TreeItem<Note> treeItem, Note newNote) {
         final TreeItem<Note> newTreeItem = new TreeItem<Note>(newNote);

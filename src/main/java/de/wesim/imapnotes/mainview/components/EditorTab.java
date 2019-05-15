@@ -49,11 +49,11 @@ public class EditorTab extends Tab {
     @PostConstruct
     public void init() {
         final Map<String, String> cssProps = new HashMap<>();
-       cssProps.put("font-family", configurationService.getConfig().getFontFamily());
-       cssProps.put("font-size", configurationService.getConfig().getFontSize());
+        cssProps.put("font-family", configurationService.getConfig().getFontFamily());
+        cssProps.put("font-size", configurationService.getConfig().getFontSize());
 
-       // this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
-       this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), cssProps);
+        // this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
+        this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), cssProps);
         setContent(this.qe);
         setOnCloseRequest(e -> {
             if (!this.qe.getContentUpdate()) {

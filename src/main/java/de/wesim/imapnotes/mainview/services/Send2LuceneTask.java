@@ -1,8 +1,8 @@
 package de.wesim.imapnotes.mainview.services;
 
+import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.LuceneService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,10 @@ public class Send2LuceneTask extends AbstractNoteTask<Void> {
 
     @Autowired
     private LuceneService luceneService;
+    
+    @Autowired
+    private OutlinerWidget outlinerWidget;
+
     
     private final Note note;
 
@@ -47,8 +51,10 @@ public class Send2LuceneTask extends AbstractNoteTask<Void> {
 
     @Override
     protected Void call() throws Exception {
-        //
-        String path = mainViewController.getBackend().getPathForNote(this.note);
+                     // TODO Lieber woanders hin
+        var path = OutlinerWidget.determinePath(this.note, this.outlinerWidget.getRoot(), "");
+        getLogger().info("path: {}", path);
+//        String path = mainViewController.getBackend().getPathForNote(this.note);
         String account = mainViewController.getCurrentAccount();
         this.luceneService.indexNote(this.note, account, path);
         
