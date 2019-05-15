@@ -499,5 +499,9 @@ public class MainViewController implements HasLogger {
         var chosenPath = choice.get();
         move(item, nodes.get(chosenPath));
     }
+    
+    public String getCurrentAccount() {
+        return this.configurationService.getConfig().getLastOpenendAccount();
+    }
 
 }

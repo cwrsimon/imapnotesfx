@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.services;
 
+import de.wesim.imapnotes.HasLogger;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,7 +21,7 @@ import de.wesim.imapnotes.models.Note;
 
 @Component
 @Scope("prototype")
-public class IMAPNoteProvider implements INoteProvider {
+public class IMAPNoteProvider implements INoteProvider, HasLogger {
 
     @Autowired
     private ApplicationContext context;
@@ -30,6 +31,7 @@ public class IMAPNoteProvider implements INoteProvider {
     // map note UUIDs to IMAP message / IMAP folder
     private final Map<String, Message> msgMap;
     private final Map<String, Folder> folderMap;
+    private Account account;
 
     public IMAPNoteProvider() {
         this.msgMap = new HashMap<>();
@@ -39,6 +41,7 @@ public class IMAPNoteProvider implements INoteProvider {
     @Override
     public void init(Account account) throws Exception {
         this.backend = context.getBean(IMAPBackend.class, account);
+        this.account = account;
         this.backend.initNotesFolder();
     }
 

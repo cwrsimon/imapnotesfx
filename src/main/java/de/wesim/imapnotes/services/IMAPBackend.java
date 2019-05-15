@@ -20,18 +20,14 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.URLName;
 import javax.mail.internet.MimeMessage;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-
 import com.sun.mail.imap.IMAPFolder;
-
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
-import java.util.Optional;
 import org.springframework.lang.Nullable;
 
 @Component
@@ -177,7 +173,7 @@ public class IMAPBackend implements HasLogger {
             newNote.setDate(m.getReceivedDate());
             messages.add(newNote);
         }
-        Folder[] folders = folder.list();
+        final Folder[] folders = folder.list();
         for (Folder f : folders) {
             getLogger().info("Folder full name: {}", f.getFullName());
             final String name = f.getName();

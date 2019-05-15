@@ -105,7 +105,7 @@ public class IMAPUtils implements HasLogger {
 	}
 	
 	public static List<String> getIMAPFoldersList(Store store) throws MessagingException {
-		List<String> accu = new ArrayList<>();
+		final List<String> accu = new ArrayList<>();
 		getChildren(store.getDefaultFolder(), "/", accu);
 		return accu;
 	}
