@@ -15,10 +15,10 @@ import javafx.scene.control.ProgressBar;
 @Component
 @Scope("prototype")
 public abstract class AbstractNoteTask<T> extends Task<T> implements HasLogger {
-	
-	@Autowired
-	protected MainViewController mainViewController;
-	
+
+    @Autowired
+    protected MainViewController mainViewController;
+
     @Autowired
     protected I18NService i18N;
 
@@ -29,39 +29,38 @@ public abstract class AbstractNoteTask<T> extends Task<T> implements HasLogger {
     @Autowired
     private Label status;
 
-	
-	@Override
-	protected void scheduled() {
+    @Override
+    protected void scheduled() {
         //progress.progressProperty().unbind();
         progress.progressProperty().bind(this.progressProperty());
         //status.textProperty().unbind();
         status.textProperty().bind(this.messageProperty());
-	}
+    }
 
-	@Override
-	protected void running() {
-		updateProgress(0, 1);
-	    updateMessage(getRunningMessage()); 
-	}
+    @Override
+    protected void running() {
+        updateProgress(0, 1);
+        updateMessage(getRunningMessage());
+    }
 
-	@Override
-	protected void succeeded() {
-	      updateProgress(1, 1);
-	      updateMessage(getSuccessMessage());  
-	      
-	}
+    @Override
+    protected void succeeded() {
+        updateProgress(1, 1);
+        updateMessage(getSuccessMessage());
 
-	@Override
-	protected void failed() {
+    }
+
+    @Override
+    protected void failed() {
         //status.textProperty().unbind();
         updateMessage(getException().getLocalizedMessage());
         getLogger().error("Action has failed: {}", getActionName(), getException());
-	}
-	
+    }
+
     public abstract String getActionName();
 
     public abstract String getSuccessMessage();
-    
+
     public abstract String getRunningMessage();
-   
+
 }

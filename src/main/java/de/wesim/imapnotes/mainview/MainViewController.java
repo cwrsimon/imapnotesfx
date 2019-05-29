@@ -196,24 +196,23 @@ public class MainViewController implements HasLogger {
             var lastOpenedAccount = configurationService.getConfig().getLastOpenendAccount();
             final List<LuceneResult> luceneHits = luceneService.search(lastOpenedAccount, entered);
             getLogger().info("{}", luceneHits);
-            // TRs anlegen!
-            final ChoiceDialog<LuceneResult> folderChooser
-                = this.context.getBean(AccountChoiceDialog.class, "move", luceneHits, "/");
+            if (luceneHits.isEmpty()) {
+                return;
+            }
+            var matchingNote = luceneHits.get(0);
+            if (luceneHits.size() > 1) {
 
-        var choice = folderChooser.showAndWait();
-        if (!choice.isPresent()) {
-            return;
-        }
-            // TODO Selektor entfernen
-            var firstUUID = choice.get();
-            //;/e6baf6ad-725f-488f-adfc-e7f07b714df1/67f7038c-bb92-47ab-ae85-3cfe507fcdf8/;null
-//            var firstUUID = new LuceneResult();
-//            firstUUID.setPath("/e6baf6ad-725f-488f-adfc-e7f07b714df1/67f7038c-bb92-47ab-ae85-3cfe507fcdf8/");
-//            firstUUID.setUuid("e5383f06-2613-48f6-af1b-13f1c480645d");
+                final ChoiceDialog<LuceneResult> folderChooser
+                        = this.context.getBean(AccountChoiceDialog.class, "findglobal", luceneHits, luceneHits.get(0));
 
-            // TODO Generischer gestalten!
-            OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(), 
-                    firstUUID.getPath(), new Note(firstUUID.getUuid()));
+                var choice = folderChooser.showAndWait();
+                if (!choice.isPresent()) {
+                    return;
+                }
+                matchingNote = choice.get();
+            }
+            OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
+                    matchingNote.getPath(), new Note(matchingNote.getUuid()));
             opt.run();
         });
     }
@@ -335,7 +334,7 @@ public class MainViewController implements HasLogger {
     public void deleteNote(TreeItem<Note> treeItem, boolean dontTask) {
         final Note deleteItem = treeItem.getValue();
         if (!dontTask) {
-            final PrefixedAlertBox alert = context.getBean(PrefixedAlertBox.class, "really_delete", deleteItem.toString());
+            final PrefixedAlertBox alert = context.getBean(PrefixedAlertBox.class, "really_delete", deleteItem.getSubject());
             alert.setAlertType(Alert.AlertType.CONFIRMATION);
             final Optional<ButtonType> result = alert.showAndWait();
             if (result.isPresent() && result.get() == ButtonType.CANCEL) {
@@ -499,7 +498,7 @@ public class MainViewController implements HasLogger {
         var chosenPath = choice.get();
         move(item, nodes.get(chosenPath));
     }
-    
+
     public String getCurrentAccount() {
         return this.configurationService.getConfig().getLastOpenendAccount();
     }

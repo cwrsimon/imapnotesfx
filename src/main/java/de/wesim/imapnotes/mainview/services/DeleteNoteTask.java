@@ -11,7 +11,7 @@ import javafx.scene.control.TreeItem;
 @Scope("prototype")
 public class DeleteNoteTask extends AbstractNoteTask<Void> {
 
-	private TreeItem<Note> treeItem;
+	private final TreeItem<Note> treeItem;
 
 	public DeleteNoteTask(TreeItem<Note> treeItem) {
 		super();

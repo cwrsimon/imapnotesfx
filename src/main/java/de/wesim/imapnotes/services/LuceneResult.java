@@ -67,7 +67,7 @@ public class LuceneResult {
 
     @Override
     public String toString() {
-        return "LuceneResult{" + "subject=" + subject + '}';
+        return subject;
     }
 
     
