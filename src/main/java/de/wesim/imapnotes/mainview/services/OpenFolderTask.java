@@ -17,50 +17,50 @@ import javafx.scene.control.TreeItem;
 @Component
 @Scope("prototype")
 public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
-    
-    @Autowired
-	private OutlinerWidget outlinerWidget;
-    
-	private TreeItem<Note> folderTreeItem;
 
-    public OpenFolderTask( TreeItem<Note> folderTreeItem ) {
+    @Autowired
+    private OutlinerWidget outlinerWidget;
+
+    private final TreeItem<Note> folderTreeItem;
+
+    public OpenFolderTask(TreeItem<Note> folderTreeItem) {
         super();
         this.folderTreeItem = folderTreeItem;
     }
 
     @Override
-	protected void succeeded() {
-    	super.succeeded();
+    protected void succeeded() {
+        super.succeeded();
         final ObservableList<Note> loadedItems = getValue();
-        Platform.runLater( () -> 
-        	this.outlinerWidget.addChildrenToNode(loadedItems, folderTreeItem)
-        		);
+        Platform.runLater(()
+                -> this.outlinerWidget.addChildrenToNode(loadedItems, folderTreeItem)
+        );
     }
 
-	@Override
-	public String getActionName() {
-		return "Open Folder";
-	}
+    @Override
+    public String getActionName() {
+        return "Open Folder";
+    }
 
-	@Override
-	public String getSuccessMessage() {
+    @Override
+    public String getSuccessMessage() {
         return i18N.getMessageAndTranslation("user_folder_finished_opening",
-        		this.folderTreeItem.getValue().getSubject());                
+                this.folderTreeItem.getValue().getSubject());
 
-	}
+    }
 
-	@Override
-	public String getRunningMessage() {
-		return i18N.getMessageAndTranslation("user_folder_start_opening",
-        		this.folderTreeItem.getValue().getSubject());
-	}
+    @Override
+    public String getRunningMessage() {
+        return i18N.getMessageAndTranslation("user_folder_start_opening",
+                this.folderTreeItem.getValue().getSubject());
+    }
 
-	@Override
-	protected ObservableList<Note> call() throws Exception {
-	final Note folderToOpen = folderTreeItem.getValue();
-        final List<Note> messages  = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
-        
+    @Override
+    protected ObservableList<Note> call() throws Exception {
+        final Note folderToOpen = folderTreeItem.getValue();
+        final List<Note> messages = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
+
         return FXCollections.observableArrayList(messages);
-	}
+    }
 
 }

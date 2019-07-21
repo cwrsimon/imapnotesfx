@@ -214,7 +214,7 @@ public class MainViewController implements HasLogger {
                 getLogger().info("Rufe OpenPathTask auf mit {} als path", matchingNote.getPath());
 
             OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
-                    matchingNote.getPath(), new Note(matchingNote.getUuid()));
+                    matchingNote.getPath(), new Note(matchingNote.getUuid()), null);
             opt.run();
         });
     }
@@ -327,7 +327,6 @@ public class MainViewController implements HasLogger {
             getLogger().error("Unable to find {} in outliner.", msg.toString());
             return;
         }
-        // TODO Erstmal den Pfad öffnen!
         
         // TODO Check for correctness!
         final MoveNoteTask moveNoteTask
@@ -473,19 +472,21 @@ public class MainViewController implements HasLogger {
     }
 
     public void removeTreeItem(TreeItem<Note> treeItem) {
+        // Does this make sense?
+        this.outlinerWidget.getSelectionModel().clearSelection();
         final TreeItem<Note> parentNote = treeItem.getParent();
         final Note deletedNote = treeItem.getValue();
         closeTab(deletedNote);
         final int index = parentNote.getChildren().indexOf(treeItem);
 
         parentNote.getChildren().remove(treeItem);
-
-        final int previousItem = Math.max(0, index - 1);
-        if (parentNote.getChildren().isEmpty()) {
-            return;
-        }
-        final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
         // TODO Check, whether this makes sense
+
+//        final int previousItem = Math.max(0, index - 1);
+//        if (parentNote.getChildren().isEmpty()) {
+//            return;
+//        }
+        //final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
         // openNote(previous.getValue());
     }
 
@@ -506,16 +507,22 @@ public class MainViewController implements HasLogger {
         var chosenPath = choice.get();
         getLogger().info("Chosen path: {}", chosenPath);
         getLogger().info("Chosen path in der Map: {}", nodes.get(chosenPath));
-        var assignedNote = nodes.get(chosenPath).getValue() ;
-        final String pathOfTarget = OutlinerWidget.determinePath(assignedNote, this.outlinerWidget.getRoot(), "")
+        final String pathOfTarget;
+        if (chosenPath.equals("/")) {
+            pathOfTarget = "/";
+        } else {
+            var assignedNote = nodes.get(chosenPath).getValue() ;
+            pathOfTarget = OutlinerWidget.determinePath(assignedNote, this.outlinerWidget.getRoot(), "")
                 + assignedNote.getUuid() + "/";
-        getLogger().info("DEtermined path: {}", pathOfTarget);
-        
+            getLogger().info("DEtermined path: {}", pathOfTarget);
+        }
+
+        Runnable callback = () -> move(item, nodes.get(chosenPath));        
         OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
-                    pathOfTarget, null);
+                    pathOfTarget, null, callback);
         // TODO Reintegrieren
-        //opt.run();
-        move(item, nodes.get(chosenPath));
+        opt.run();
+        
     }
 
     public String getCurrentAccount() {

@@ -32,13 +32,14 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     @Autowired
     private OutlinerWidget outlinerWidget;
 
+    private Runnable callbackFunction;
     private TreeItem<Note> subPathItem;
     private final Deque<String> subPaths;
 
     // TODO Besser dokumentieren
     // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
-    public OpenPathTask(TreeItem<Note> baseNode, String path, Note searchItem) {
-        this(baseNode, getPathElements(path), searchItem);
+    public OpenPathTask(TreeItem<Note> baseNode, String path, Note searchItem, Runnable callback) {
+        this(baseNode, getPathElements(path), searchItem, callback);
     }
 
     private static Deque<String> getPathElements(String path) {
@@ -53,11 +54,12 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         return paths;
     }
 
-    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> subPaths, Note searchItem) {
+    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> subPaths, Note searchItem, Runnable callback) {
         super();
         this.searchItem = searchItem;
         this.subPaths = subPaths;
         this.subPathItem = baseNode;
+        this.callbackFunction = callback;
         if (!subPaths.isEmpty()) {
             var first = subPaths.removeFirst();
             var next = new Note(first);
@@ -88,13 +90,14 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
             subPathItem.setExpanded(true);
             // TODO Rekursive Aufrufe mit dem restlichen Subpath
             if (!this.subPaths.isEmpty()) {
-                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.subPathItem, this.subPaths, this.searchItem);
+                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.subPathItem, this.subPaths, this.searchItem, this.callbackFunction);
                 newPathTask.run();
             } else {
                 var foundItem = findSubpathItem(subPathItem, searchItem);
                 if (foundItem != null) {
                     this.outlinerWidget.getSelectionModel().select(foundItem);
                 }
+                this.callbackFunction.run();
             }
         }
         );

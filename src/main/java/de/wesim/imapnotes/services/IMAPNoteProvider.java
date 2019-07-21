@@ -152,10 +152,16 @@ public class IMAPNoteProvider implements INoteProvider, HasLogger {
     @Override
     public Note move(Note message, Note folder) throws Exception {
         final Message msg = this.msgMap.get(message.getUuid());
-        final Folder imapFolder = this.folderMap.get(folder.getUuid());
+        final Folder imapFolder;
+        if (folder != null) {
+            imapFolder = this.folderMap.get(folder.getUuid());
+        } else {
+            // move to root instead
+            imapFolder = this.backend.getNotesFolder();
+        }
         this.backend.moveMessage(msg, imapFolder);
-        // reload for updating references in UUID maps
-        //getNotesFromFolder(folder);
+        // updating references
+        this.backend.getMessages(imapFolder, msgMap, folderMap);
         return message;
     }
     

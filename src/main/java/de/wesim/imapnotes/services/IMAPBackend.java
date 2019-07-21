@@ -323,7 +323,7 @@ public class IMAPBackend implements HasLogger {
     public void moveMessage(Message msg, Folder folder) throws MessagingException {
         final IMAPFolder sourceFolder = (IMAPFolder) msg.getFolder();
         this.startTransaction(sourceFolder);
-        sourceFolder.moveMessages(new Message[]{msg}, folder);
+        sourceFolder.moveMessages(new Message[]{msg}, folder);        
         this.endTransaction(sourceFolder);
     }
 
