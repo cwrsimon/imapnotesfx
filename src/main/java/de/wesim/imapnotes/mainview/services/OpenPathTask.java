@@ -35,6 +35,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     private TreeItem<Note> subPathItem;
     private final Deque<String> subPaths;
 
+    // TODO Besser dokumentieren
+    // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
     public OpenPathTask(TreeItem<Note> baseNode, String path, Note searchItem) {
         this(baseNode, getPathElements(path), searchItem);
     }
@@ -64,6 +66,7 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     }
 
     private TreeItem<Note> findSubpathItem(TreeItem<Note> baseNode, Note searchNote) {
+        if (searchNote == null) return null;
         // suchen ...
         for (TreeItem<Note> child : baseNode.getChildren()) {
             Note childNote = child.getValue();

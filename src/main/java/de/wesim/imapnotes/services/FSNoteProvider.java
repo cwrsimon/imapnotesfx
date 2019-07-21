@@ -168,6 +168,7 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
         this.rootDirectory = Paths.get(account.getRoot_folder());
     }
 
+    // TODO Auf korrekte Funktionalität prüfen!
     // TODO Überarbeiten!
     @Override
     public Note move(Note msg, Note folder) throws Exception {

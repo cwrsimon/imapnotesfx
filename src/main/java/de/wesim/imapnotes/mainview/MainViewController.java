@@ -211,6 +211,8 @@ public class MainViewController implements HasLogger {
                 }
                 matchingNote = choice.get();
             }
+                getLogger().info("Rufe OpenPathTask auf mit {} als path", matchingNote.getPath());
+
             OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
                     matchingNote.getPath(), new Note(matchingNote.getUuid()));
             opt.run();
@@ -318,13 +320,15 @@ public class MainViewController implements HasLogger {
     public void move(Note msg, TreeItem<Note> target) {
         // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
-        getLogger().debug("Moving source {} ", foundTreeItem);
-        getLogger().debug("Moving target {} ", target);
+        getLogger().info("Moving source {} ", foundTreeItem);
+        getLogger().info("Moving target {} ", target);
         if (foundTreeItem == null) {
             // this should never happen ...
             getLogger().error("Unable to find {} in outliner.", msg.toString());
             return;
         }
+        // TODO Erstmal den Pfad öffnen!
+        
         // TODO Check for correctness!
         final MoveNoteTask moveNoteTask
                 = context.getBean(MoveNoteTask.class, foundTreeItem, target);
@@ -481,9 +485,13 @@ public class MainViewController implements HasLogger {
             return;
         }
         final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-        openNote(previous.getValue());
+        // TODO Check, whether this makes sense
+        // openNote(previous.getValue());
     }
 
+    // TODO Moven in die Root fixen
+    // TODO Drag- und Drop-Moven reintegrieren
+    // TODO Erst öffnen und dann per Callback Moven
     public void move(Note item) {
         // available target folders for moving action
         var nodes = this.outlinerWidget.getFlatList();
@@ -496,6 +504,17 @@ public class MainViewController implements HasLogger {
             return;
         }
         var chosenPath = choice.get();
+        getLogger().info("Chosen path: {}", chosenPath);
+        getLogger().info("Chosen path in der Map: {}", nodes.get(chosenPath));
+        var assignedNote = nodes.get(chosenPath).getValue() ;
+        final String pathOfTarget = OutlinerWidget.determinePath(assignedNote, this.outlinerWidget.getRoot(), "")
+                + assignedNote.getUuid() + "/";
+        getLogger().info("DEtermined path: {}", pathOfTarget);
+        
+        OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
+                    pathOfTarget, null);
+        // TODO Reintegrieren
+        //opt.run();
         move(item, nodes.get(chosenPath));
     }
 

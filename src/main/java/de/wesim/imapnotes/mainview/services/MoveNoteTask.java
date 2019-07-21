@@ -31,7 +31,7 @@ public class MoveNoteTask extends AbstractNoteTask<Void> {
     	super.succeeded();
     	Platform.runLater( () -> {	
     		mainViewController.removeTreeItem(this.moveItem);
-    		target.getChildren().add(new TreeItem<Note>(this.moveItem.getValue()));    		
+    		target.getChildren().add(new TreeItem<>(this.moveItem.getValue()));    		
     		outlinerWidget.refresh();    		
     	});
 	}
@@ -49,14 +49,14 @@ public class MoveNoteTask extends AbstractNoteTask<Void> {
 
 	@Override
 	public String getRunningMessage() {
-		 return i18N.getMessageAndTranslation("user_message_start_moving",
+            return i18N.getMessageAndTranslation("user_message_start_moving",
 	        		this.moveItem.getValue().getSubject());                
 	}
 
 	@Override
 	protected Void call() throws Exception {
-        mainViewController.getBackend().move(this.moveItem.getValue(), this.target.getValue());
-        return null;
+            mainViewController.getBackend().move(this.moveItem.getValue(), this.target.getValue());
+            return null;
 	}
     
     

@@ -155,7 +155,7 @@ public class IMAPNoteProvider implements INoteProvider, HasLogger {
         final Folder imapFolder = this.folderMap.get(folder.getUuid());
         this.backend.moveMessage(msg, imapFolder);
         // reload for updating references in UUID maps
-        getNotesFromFolder(folder);
+        //getNotesFromFolder(folder);
         return message;
     }
     
