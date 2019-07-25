@@ -129,7 +129,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
     @Override
     public void destroy() throws Exception {
-        ;
     }
 
     @Override
@@ -168,13 +167,20 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
         this.rootDirectory = Paths.get(account.getRoot_folder());
     }
 
-    // TODO Auf korrekte Funktionalität prüfen!
-    // TODO Überarbeiten!
     @Override
     public Note move(Note msg, Note folder) throws Exception {
+        // not supported, yet
+        if (msg.isFolder()) return null;
         final Path itemPath = uuid2Path.get(msg.getUuid());
-        final Path targetFolder = uuid2Path.get(folder.getUuid());
+        final Path targetFolder;
+        if (folder != null) {
+            targetFolder = uuid2Path.get(folder.getUuid());
+        } else {
+            targetFolder = rootDirectory;
+        }
         final Path target = targetFolder.resolve(itemPath.getFileName());
+        // update reference
+        uuid2Path.put(msg.getUuid(), target);
         Files.move(itemPath, target);
         return msg;
     }
