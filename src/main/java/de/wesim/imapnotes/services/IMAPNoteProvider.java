@@ -1,5 +1,6 @@
 package de.wesim.imapnotes.services;
 
+import com.sun.mail.imap.IMAPFolder;
 import de.wesim.imapnotes.HasLogger;
 import java.util.Collections;
 import java.util.Date;
@@ -152,16 +153,18 @@ public class IMAPNoteProvider implements INoteProvider, HasLogger {
     @Override
     public Note move(Note message, Note folder) throws Exception {
         final Message msg = this.msgMap.get(message.getUuid());
-        final Folder imapFolder;
+        final Folder sourceFolder = msg.getFolder();
+        final Folder targetFolder;
         if (folder != null) {
-            imapFolder = this.folderMap.get(folder.getUuid());
+            targetFolder = this.folderMap.get(folder.getUuid());
         } else {
             // move to root instead
-            imapFolder = this.backend.getNotesFolder();
+            targetFolder = this.backend.getNotesFolder();
         }
-        this.backend.moveMessage(msg, imapFolder);
+        this.backend.moveMessage(msg, targetFolder);
         // updating references
-        this.backend.getMessages(imapFolder, msgMap, folderMap);
+        this.backend.getMessages(targetFolder, msgMap, folderMap);
+        this.backend.getMessages(sourceFolder, msgMap, folderMap);
         return message;
     }
     

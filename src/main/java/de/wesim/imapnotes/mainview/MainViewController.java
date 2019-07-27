@@ -490,9 +490,6 @@ public class MainViewController implements HasLogger {
         // openNote(previous.getValue());
     }
 
-    // TODO Moven in die Root fixen
-    // TODO Drag- und Drop-Moven reintegrieren
-    // TODO Erst öffnen und dann per Callback Moven
     public void move(Note item) {
         // available target folders for moving action
         var nodes = this.outlinerWidget.getFlatList();
