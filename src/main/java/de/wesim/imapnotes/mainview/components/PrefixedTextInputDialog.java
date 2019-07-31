@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.wesim.imapnotes.MyScene;
+import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.TextInputDialog;
 
@@ -28,6 +29,11 @@ public class PrefixedTextInputDialog extends TextInputDialog {
         setWidth(500);
         setResizable(true);
         MyScene.setFontSize(getDialogPane());
+    }
+    
+    public PrefixedTextInputDialog(String prefix, Note messageArgument) {
+        this(prefix);
+        this.messageArgument = messageArgument.getSubject();
     }
     
     public PrefixedTextInputDialog(String prefix, String messageArgument) {

@@ -212,9 +212,20 @@ public class MainViewController implements HasLogger {
                 matchingNote = choice.get();
             }
                 getLogger().info("Rufe OpenPathTask auf mit {} als path", matchingNote.getPath());
-
+            
+            final Note itemToFind = new Note(matchingNote.getUuid());
+                
+            Runnable callback = () -> {
+                var foundItem = OutlinerWidget.searchTreeItem(itemToFind, 
+                        this.outlinerWidget.getRoot());
+                if (foundItem != null) {
+                    this.outlinerWidget.getSelectionModel().select(foundItem);
+                }
+                
+            };        
+                
             OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
-                    matchingNote.getPath(), new Note(matchingNote.getUuid()), null);
+                    matchingNote.getPath(), callback);
             opt.run();
         });
     }
@@ -349,7 +360,7 @@ public class MainViewController implements HasLogger {
     }
 
     public void renameCurrentMessage(Note note) {
-        final Dialog<String> dialog = context.getBean(PrefixedTextInputDialog.class, "rename", note.toString());
+        final Dialog<String> dialog = context.getBean(PrefixedTextInputDialog.class, "rename", note);
         Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) {
             return;
@@ -516,10 +527,8 @@ public class MainViewController implements HasLogger {
 
         Runnable callback = () -> move(item, nodes.get(chosenPath));        
         OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
-                    pathOfTarget, null, callback);
-        // TODO Reintegrieren
-        opt.run();
-        
+                    pathOfTarget, callback);
+        opt.run();        
     }
 
     public String getCurrentAccount() {

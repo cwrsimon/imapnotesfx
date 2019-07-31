@@ -16,11 +16,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.springframework.context.ApplicationContext;
 
+// TODO Überarbeiten!!!
 @Component
 @Scope("prototype")
 public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
-
-    private Note searchItem;
 
     private class UnknownNoteException extends Exception {
 
@@ -38,8 +37,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
 
     // TODO Besser dokumentieren
     // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
-    public OpenPathTask(TreeItem<Note> baseNode, String path, Note searchItem, Runnable callback) {
-        this(baseNode, getPathElements(path), searchItem, callback);
+    public OpenPathTask(TreeItem<Note> baseNode, String path, Runnable callback) {
+        this(baseNode, getPathElements(path), callback);
     }
 
     private static Deque<String> getPathElements(String path) {
@@ -54,9 +53,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         return paths;
     }
 
-    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> subPaths, Note searchItem, Runnable callback) {
+    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> subPaths, Runnable callback) {
         super();
-        this.searchItem = searchItem;
         this.subPaths = subPaths;
         this.subPathItem = baseNode;
         this.callbackFunction = callback;
@@ -90,14 +88,12 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
             subPathItem.setExpanded(true);
             // TODO Rekursive Aufrufe mit dem restlichen Subpath
             if (!this.subPaths.isEmpty()) {
-                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.subPathItem, this.subPaths, this.searchItem, this.callbackFunction);
+                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.subPathItem, this.subPaths, this.callbackFunction);
                 newPathTask.run();
             } else {
-                var foundItem = findSubpathItem(subPathItem, searchItem);
-                if (foundItem != null) {
-                    this.outlinerWidget.getSelectionModel().select(foundItem);
+                if (this.callbackFunction != null) {
+                    this.callbackFunction.run();
                 }
-                this.callbackFunction.run();
             }
         }
         );

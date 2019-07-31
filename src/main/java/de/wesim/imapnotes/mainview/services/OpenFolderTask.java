@@ -46,7 +46,6 @@ public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     public String getSuccessMessage() {
         return i18N.getMessageAndTranslation("user_folder_finished_opening",
                 this.folderTreeItem.getValue().getSubject());
-
     }
 
     @Override
@@ -59,8 +58,6 @@ public class OpenFolderTask extends AbstractNoteTask<ObservableList<Note>> {
     protected ObservableList<Note> call() throws Exception {
         final Note folderToOpen = folderTreeItem.getValue();
         final List<Note> messages = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
-
         return FXCollections.observableArrayList(messages);
     }
-
 }

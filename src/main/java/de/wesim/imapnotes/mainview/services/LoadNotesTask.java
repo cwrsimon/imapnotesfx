@@ -22,42 +22,43 @@ public class LoadNotesTask extends AbstractNoteTask<ObservableList<Note>> {
     }
 
     @Autowired
-	private OutlinerWidget outlinerWidget;
-
+    private OutlinerWidget outlinerWidget;
 
     @Override
-	protected void succeeded() {
-    	super.succeeded();
+    protected void succeeded() {
+        super.succeeded();
         final ObservableList<Note> loadedItems = getValue();
-        Platform.runLater( () -> {
-        	this.outlinerWidget.addChildrenToNode(loadedItems, outlinerWidget.getRoot());
-        	// open the first element
-        	if (loadedItems.isEmpty()) return;
-        	final Note firstELement = loadedItems.get(0);
-        	if (!firstELement.isFolder()) {
-        		mainViewController.openNote(firstELement);
-        	}
+        Platform.runLater(() -> {
+            this.outlinerWidget.addChildrenToNode(loadedItems, outlinerWidget.getRoot());
+            // open the first element
+            if (loadedItems.isEmpty()) {
+                return;
+            }
+            final Note firstELement = loadedItems.get(0);
+            if (!firstELement.isFolder()) {
+                mainViewController.openNote(firstELement);
+            }
         });
     }
 
-	@Override
-	public String getActionName() {
-		return "Load Messages";
-	}
+    @Override
+    public String getActionName() {
+        return "Load Messages";
+    }
 
-	@Override
-	public String getSuccessMessage() {
-		return i18N.getTranslation("user_message_finished_loading");
-	}
+    @Override
+    public String getSuccessMessage() {
+        return i18N.getTranslation("user_message_finished_loading");
+    }
 
-	@Override
-	public String getRunningMessage() {
-		return i18N.getTranslation("user_message_start_loading");
-	}
+    @Override
+    public String getRunningMessage() {
+        return i18N.getTranslation("user_message_start_loading");
+    }
 
-	@Override
-	protected ObservableList<Note> call() throws Exception {
-        final List<Note> messages = mainViewController.getBackend().getNotes();	
+    @Override
+    protected ObservableList<Note> call() throws Exception {
+        final List<Note> messages = mainViewController.getBackend().getNotes();
         return FXCollections.observableArrayList(messages);
-	}
+    }
 }
