@@ -183,9 +183,7 @@ public class MainViewController implements HasLogger {
             final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
             et.markSearchItems(entered);
         });
-
         findGlobal.setOnAction(e -> {
-            // TODO Anderes Wording!
             final PrefixedTextInputDialog dialog
                     = this.context.getBean(PrefixedTextInputDialog.class, "find");
             final Optional<String> result = dialog.showAndWait();
@@ -201,7 +199,6 @@ public class MainViewController implements HasLogger {
             }
             var matchingNote = luceneHits.get(0);
             if (luceneHits.size() > 1) {
-
                 final ChoiceDialog<LuceneResult> folderChooser
                         = this.context.getBean(AccountChoiceDialog.class, "findglobal", luceneHits, luceneHits.get(0));
 
@@ -210,9 +207,7 @@ public class MainViewController implements HasLogger {
                     return;
                 }
                 matchingNote = choice.get();
-            }
-                getLogger().info("Rufe OpenPathTask auf mit {} als path", matchingNote.getPath());
-            
+            }            
             final Note itemToFind = new Note(matchingNote.getUuid());
                 
             Runnable callback = () -> {
@@ -331,15 +326,11 @@ public class MainViewController implements HasLogger {
     public void move(Note msg, TreeItem<Note> target) {
         // find the tree item with the note to be removed
         final TreeItem<Note> foundTreeItem = OutlinerWidget.searchTreeItem(msg, this.outlinerWidget.getRoot());
-        getLogger().info("Moving source {} ", foundTreeItem);
-        getLogger().info("Moving target {} ", target);
         if (foundTreeItem == null) {
             // this should never happen ...
             getLogger().error("Unable to find {} in outliner.", msg.toString());
             return;
         }
-        
-        // TODO Check for correctness!
         final MoveNoteTask moveNoteTask
                 = context.getBean(MoveNoteTask.class, foundTreeItem, target);
         moveNoteTask.run();

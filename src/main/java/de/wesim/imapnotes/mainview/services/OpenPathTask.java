@@ -32,8 +32,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     private OutlinerWidget outlinerWidget;
 
     private Runnable callbackFunction;
-    private TreeItem<Note> subPathItem;
-    private final Deque<String> subPaths;
+    private TreeItem<Note> baseNode;
+    private final Deque<String> pathElements;
 
     // TODO Besser dokumentieren
     // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
@@ -53,15 +53,15 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         return paths;
     }
 
-    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> subPaths, Runnable callback) {
+    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> pathElements, Runnable callback) {
         super();
-        this.subPaths = subPaths;
-        this.subPathItem = baseNode;
+        this.pathElements = pathElements;
+        this.baseNode = baseNode;
         this.callbackFunction = callback;
-        if (!subPaths.isEmpty()) {
-            var first = subPaths.removeFirst();
+        if (!pathElements.isEmpty()) {
+            var first = pathElements.removeFirst();
             var next = new Note(first);
-            this.subPathItem = findSubpathItem(baseNode, next);            
+            this.baseNode = findSubpathItem(baseNode, next);            
         }
     }
 
@@ -83,12 +83,12 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         final ObservableList<Note> loadedItems = getValue();
         Platform.runLater(() -> {
             if (loadedItems != null) {
-                this.outlinerWidget.addChildrenToNode(loadedItems, subPathItem);
+                this.outlinerWidget.addChildrenToNode(loadedItems, baseNode);
             }
-            subPathItem.setExpanded(true);
+            baseNode.setExpanded(true);
             // TODO Rekursive Aufrufe mit dem restlichen Subpath
-            if (!this.subPaths.isEmpty()) {
-                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.subPathItem, this.subPaths, this.callbackFunction);
+            if (!this.pathElements.isEmpty()) {
+                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.baseNode, this.pathElements, this.callbackFunction);
                 newPathTask.run();
             } else {
                 if (this.callbackFunction != null) {
@@ -120,14 +120,15 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         // lokalisieren und dann laden
         // TODO wenn schon geladen ist, dann einfach mit Suceed weitermachen
         //final TreeItem<Note> subPathItem = ...;
-        if (this.subPathItem == null) {
+        if (this.baseNode == null) {
             throw new UnknownNoteException();
         }
 
-        if (this.subPathItem.getChildren().size() == 1) {
-            var childchild = this.subPathItem.getChildren().get(0);
+        if (this.baseNode.getChildren().size() == 1) {
+            // make sure, the folder wasn't opened before
+            var childchild = this.baseNode.getChildren().get(0);
             if (childchild.getValue() == null) {
-                final Note folderToOpen = subPathItem.getValue();
+                final Note folderToOpen = baseNode.getValue();
 
                 final List<Note> messages = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
 

@@ -29,9 +29,6 @@ public class MoveNoteTask extends AbstractNoteTask<Void> {
     protected void succeeded() {
         super.succeeded();
         Platform.runLater(() -> {
-            // TODO Überarbeiten!
-            // WIr müssen ja nicht entfernen, sondern nur verschieben...
-            
             mainViewController.removeTreeItem(this.moveItem);
             target.getChildren().add(this.moveItem);
             outlinerWidget.refresh();

@@ -11,7 +11,6 @@ import de.wesim.imapnotes.services.I18NService;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.DragEvent;
@@ -44,17 +43,14 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
         moveNoteItem.setOnAction(e -> {
             caller.move(getItem());
         });
-        // TODO Übersetzen!
-        final MenuItem moveNoteToRootItem = new MenuItem("Move to root");
-        moveNoteToRootItem.setOnAction(e-> {
+        final MenuItem moveNoteToRootItem = new MenuItem(i18N.getTranslation("move_to_root_context_menu_item"));
+        moveNoteToRootItem.setOnAction(e -> {
             caller.move(getItem(), getTreeView().getRoot());
         });
-        
         final MenuItem deleteItem = new MenuItem(i18N.getTranslation("delete_context_menu_item"));
         deleteItem.setOnAction(e -> {
             caller.deleteNote(getTreeItem(), false);
         });
-
         final MenuItem renameItem = new MenuItem(i18N.getTranslation("rename_context_menu_item"));
         renameItem.setOnAction(e -> {
             caller.renameCurrentMessage(getItem());
@@ -147,11 +143,11 @@ public class OutlinerTreeCell extends TreeCell<Note> implements HasLogger {
             event.setDropCompleted(true);
             event.consume();
         });
-        this.setOnMouseClicked( e-> {
+        this.setOnMouseClicked(e -> {
             //getLogger().info("Maus geklickt: {} auf {}", e.getClickCount(), getItem().getSubject());
             if (e.getClickCount() == 2 && getItem().isFolder()) {
                 caller.openFolder(getTreeItem());
-            } 
+            }
         });
     }
 

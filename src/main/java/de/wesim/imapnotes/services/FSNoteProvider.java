@@ -19,7 +19,6 @@ import com.google.gson.JsonSyntaxException;
 import de.wesim.imapnotes.HasLogger;
 import de.wesim.imapnotes.models.Account;
 import de.wesim.imapnotes.models.Note;
-import java.util.Collections;
 
 @Component
 @Scope("prototype")
@@ -32,8 +31,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
     private Path rootDirectory;
 
     private final Map<String, Path> uuid2Path = new HashMap<>();
-    
-    private final Map<Note, List<Note>> loadedNotes = new HashMap<>();
 
     public FSNoteProvider() {
     }
@@ -89,9 +86,6 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
     public List<Note> getNotes() throws Exception {
         this.uuid2Path.clear();
         var notes = loadNotesFromFSDirectory(rootDirectory);
-        for (Note n : notes) {
-            loadedNotes.put(n, Collections.emptyList());
-        }
         return notes;
     }
 
@@ -170,7 +164,9 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
     @Override
     public Note move(Note msg, Note folder) throws Exception {
         // not supported, yet
-        if (msg.isFolder()) return null;
+        if (msg.isFolder()) {
+            return null;
+        }
         final Path itemPath = uuid2Path.get(msg.getUuid());
         final Path targetFolder;
         if (folder != null) {
@@ -187,17 +183,10 @@ public class FSNoteProvider implements INoteProvider, HasLogger {
 
     @Override
     public List<Note> getNotesFromFolder(Note folder) throws Exception {
-        // TODO Ausbauen
         getLogger().info("getNotesFromFolder: {}", folder.toString());
         final Path jsonFile = uuid2Path.get(folder.getUuid());
         final Path directory = jsonFile.getParent().resolve(folder.getUuid());
         var notes = loadNotesFromFSDirectory(directory);
-        this.loadedNotes.put(folder, notes);
         return notes;
     }
-
-    public Map<Note, List<Note>> getLoadedNotes() {
-        return loadedNotes;
-    }
-    
 }
