@@ -16,7 +16,6 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.TreeItem;
 import org.springframework.context.ApplicationContext;
 
-// TODO Überarbeiten!!!
 @Component
 @Scope("prototype")
 public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
@@ -32,8 +31,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     private OutlinerWidget outlinerWidget;
 
     private Runnable callbackFunction;
-    private TreeItem<Note> baseNode;
-    private final Deque<String> pathElements;
+    private TreeItem<Note> nodeToOpen;
+    private final Deque<String> remainingPath;
 
     // TODO Besser dokumentieren
     // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
@@ -42,9 +41,11 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     }
 
     private static Deque<String> getPathElements(String path) {
-        var pathItems = path.split("/");
         var paths = new ArrayDeque<String>();
-        for (String p : pathItems) {
+        if (path == null) {
+            return paths;
+        }
+        for (String p : path.split("/")) {
             if (p.isEmpty()) {
                 continue;
             }
@@ -53,20 +54,18 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         return paths;
     }
 
-    public OpenPathTask(TreeItem<Note> baseNode, Deque<String> pathElements, Runnable callback) {
+    public OpenPathTask(TreeItem<Note> nodeToOpen, Deque<String> remainingPath, Runnable callback) {
         super();
-        this.pathElements = pathElements;
-        this.baseNode = baseNode;
+        getLogger().info("Incoming: {}, {}", nodeToOpen.getValue() != null ? nodeToOpen.getValue().getSubject() : "root", remainingPath);
+        this.remainingPath = remainingPath;
+        this.nodeToOpen = nodeToOpen;
         this.callbackFunction = callback;
-        if (!pathElements.isEmpty()) {
-            var first = pathElements.removeFirst();
-            var next = new Note(first);
-            this.baseNode = findSubpathItem(baseNode, next);            
-        }
     }
 
     private TreeItem<Note> findSubpathItem(TreeItem<Note> baseNode, Note searchNote) {
-        if (searchNote == null) return null;
+        if (searchNote == null) {
+            return null;
+        }
         // suchen ...
         for (TreeItem<Note> child : baseNode.getChildren()) {
             Note childNote = child.getValue();
@@ -83,20 +82,22 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
         final ObservableList<Note> loadedItems = getValue();
         Platform.runLater(() -> {
             if (loadedItems != null) {
-                this.outlinerWidget.addChildrenToNode(loadedItems, baseNode);
+                this.outlinerWidget.addChildrenToNode(loadedItems, nodeToOpen);
             }
-            baseNode.setExpanded(true);
-            // TODO Rekursive Aufrufe mit dem restlichen Subpath
-            if (!this.pathElements.isEmpty()) {
-                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, this.baseNode, this.pathElements, this.callbackFunction);
+            nodeToOpen.setExpanded(true);
+            if (!remainingPath.isEmpty()) {
+                var nextPathElement = remainingPath.removeFirst();
+                var nextNoteFolder = new Note(nextPathElement);
+                var nextTreeNode = findSubpathItem(nodeToOpen, nextNoteFolder);
+
+                OpenPathTask newPathTask = context.getBean(OpenPathTask.class, nextTreeNode, this.remainingPath, this.callbackFunction);
                 newPathTask.run();
             } else {
                 if (this.callbackFunction != null) {
                     this.callbackFunction.run();
                 }
             }
-        }
-        );
+        });
     }
 
     @Override
@@ -106,36 +107,38 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
 
     @Override
     public String getSuccessMessage() {
-        return i18N.getMessageAndTranslation("user_folder_finished_opening", "BLA");
+        return i18N.getMessageAndTranslation("user_folder_finished_opening",
+                this.nodeToOpen.getValue() != null ? this.nodeToOpen.getValue().getSubject() : "ROOT");
     }
 
     @Override
     public String getRunningMessage() {
-        return i18N.getMessageAndTranslation("user_folder_start_opening", "BLA");
+        return i18N.getMessageAndTranslation("user_folder_start_opening",
+                this.nodeToOpen.getValue() != null ? this.nodeToOpen.getValue().getSubject() : "ROOT");
     }
 
     @Override
     protected ObservableList<Note> call() throws Exception {
-        // TODO UNter root das TreeItem für den SUbpath
-        // lokalisieren und dann laden
-        // TODO wenn schon geladen ist, dann einfach mit Suceed weitermachen
-        //final TreeItem<Note> subPathItem = ...;
-        if (this.baseNode == null) {
+        if (this.nodeToOpen == null) {
             throw new UnknownNoteException();
         }
 
-        if (this.baseNode.getChildren().size() == 1) {
-            // make sure, the folder wasn't opened before
-            var childchild = this.baseNode.getChildren().get(0);
-            if (childchild.getValue() == null) {
-                final Note folderToOpen = baseNode.getValue();
-
-                final List<Note> messages = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
-
-                return FXCollections.observableArrayList(messages);
-            }
+        if (this.nodeToOpen.getChildren().size() > 1) {
+            return null;
         }
-        return null;
-    }
+        // make sure, the folder wasn't opened before
+        if (!this.nodeToOpen.getChildren().isEmpty()
+                && this.nodeToOpen.getChildren().get(0).getValue() != null) {
+            return null;
+        }
+        final Note folderToOpen = nodeToOpen.getValue();
 
+        final List<Note> messages;
+        if (folderToOpen != null) {
+            messages = mainViewController.getBackend().getNotesFromFolder(folderToOpen);
+        } else {
+            messages = mainViewController.getBackend().getNotes();
+        }
+        return FXCollections.observableArrayList(messages);
+    }
 }

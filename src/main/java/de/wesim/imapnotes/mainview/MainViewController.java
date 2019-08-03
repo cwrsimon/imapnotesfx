@@ -17,10 +17,8 @@ import de.wesim.imapnotes.mainview.components.PrefixedAlertBox;
 import de.wesim.imapnotes.mainview.components.PrefixedTextInputDialog;
 import de.wesim.imapnotes.mainview.components.outliner.OutlinerWidget;
 import de.wesim.imapnotes.mainview.services.DeleteNoteTask;
-import de.wesim.imapnotes.mainview.services.LoadNotesTask;
 import de.wesim.imapnotes.mainview.services.MoveNoteTask;
 import de.wesim.imapnotes.mainview.services.NewNoteTask;
-import de.wesim.imapnotes.mainview.services.OpenFolderTask;
 import de.wesim.imapnotes.mainview.services.OpenNoteTask;
 import de.wesim.imapnotes.mainview.services.OpenPathTask;
 import de.wesim.imapnotes.mainview.services.RenameNoteTask;
@@ -218,7 +216,7 @@ public class MainViewController implements HasLogger {
                 }
                 
             };        
-                
+            getLogger().info("Opening: {}", matchingNote.getPath());
             OpenPathTask opt = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(),
                     matchingNote.getPath(), callback);
             opt.run();
@@ -363,7 +361,8 @@ public class MainViewController implements HasLogger {
 
     public void loadNotes() {
         getLogger().info("Loading notes ...");
-        LoadNotesTask newLoadTask = context.getBean(LoadNotesTask.class);
+        this.outlinerWidget.getRoot().getChildren().clear();
+        OpenPathTask newLoadTask = context.getBean(OpenPathTask.class, outlinerWidget.getRoot(), "", null);
         newLoadTask.run();
     }
 
@@ -405,8 +404,8 @@ public class MainViewController implements HasLogger {
         }
         getLogger().debug("Opening Folder {}", m.getValue().getSubject());
 
-        final OpenFolderTask openFolderTask = context.getBean(OpenFolderTask.class, m);
-        openFolderTask.run();
+        final OpenPathTask openPathTask = context.getBean(OpenPathTask.class, m, "", null);
+        openPathTask.run();
 
     }
 
@@ -482,14 +481,6 @@ public class MainViewController implements HasLogger {
         final int index = parentNote.getChildren().indexOf(treeItem);
 
         parentNote.getChildren().remove(treeItem);
-        // TODO Check, whether this makes sense
-
-//        final int previousItem = Math.max(0, index - 1);
-//        if (parentNote.getChildren().isEmpty()) {
-//            return;
-//        }
-        //final TreeItem<Note> previous = parentNote.getChildren().get(previousItem);
-        // openNote(previous.getValue());
     }
 
     public void move(Note item) {
@@ -513,7 +504,7 @@ public class MainViewController implements HasLogger {
             var assignedNote = nodes.get(chosenPath).getValue() ;
             pathOfTarget = OutlinerWidget.determinePath(assignedNote, this.outlinerWidget.getRoot(), "")
                 + assignedNote.getUuid() + "/";
-            getLogger().info("DEtermined path: {}", pathOfTarget);
+            getLogger().info("Determined path: {}", pathOfTarget);
         }
 
         Runnable callback = () -> move(item, nodes.get(chosenPath));        
