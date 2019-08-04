@@ -5,6 +5,8 @@ import java.io.IOException;
 // Run this class from within your IDE.
 public class MainApp {
 
+    // TODO About überarbeiten
+    // TODO ICon überarbeiten
     public static void main(String[] args) throws IOException {
         // improved font rendering with anti aliasing under Linux
         //System.setProperty("prism.lcdtext", "false");

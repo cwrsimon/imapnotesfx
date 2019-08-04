@@ -34,8 +34,8 @@ public class OpenPathTask extends AbstractNoteTask<ObservableList<Note>> {
     private TreeItem<Note> nodeToOpen;
     private final Deque<String> remainingPath;
 
-    // TODO Besser dokumentieren
-    // z.B: /Notes.Papa/Notes.Papa.Bastelprojekte/ 
+    // Opens a path like these:
+    // /Notes.Papa/Notes.Papa.Bastelprojekte/ 
     public OpenPathTask(TreeItem<Note> baseNode, String path, Runnable callback) {
         this(baseNode, getPathElements(path), callback);
     }

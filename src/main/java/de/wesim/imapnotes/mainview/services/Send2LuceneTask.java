@@ -37,27 +37,21 @@ public class Send2LuceneTask extends AbstractNoteTask<Void> {
 
     @Override
     public String getSuccessMessage() {
-        // TODO
-        return i18N.getMessageAndTranslation("user_message_finished_saving",
+        return i18N.getMessageAndTranslation("user_message_finished_indexing",
                 this.note.getSubject());
     }
 
     @Override
     public String getRunningMessage() {
-        // TODO
-        return i18N.getMessageAndTranslation("user_message_start_saving",
+        return i18N.getMessageAndTranslation("user_message_start_indexing",
                 this.note.getSubject());
     }
 
     @Override
     protected Void call() throws Exception {
-                     // TODO Lieber woanders hin
         var path = OutlinerWidget.determinePath(this.note, this.outlinerWidget.getRoot(), "");
-        getLogger().info("path: {}", path);
-//        String path = mainViewController.getBackend().getPathForNote(this.note);
         String account = mainViewController.getCurrentAccount();
         this.luceneService.indexNote(this.note, account, path);
-        
         return null;
     }
 }
