@@ -20,6 +20,7 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
+// TODO Ersetzen durch Spring-SOLR-Lösung
 // http://lucene.apache.org/core/8_0_0/demo/overview-summary.html#overview_description
 public class SearchFiles {
 
