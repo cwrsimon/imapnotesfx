@@ -34,9 +34,6 @@ public class JFXMain extends Application {
     @Value("${userconfig.file}")
     private String userconfigFile;
 
-    @Value("${keystore.file}")
-    private String keyStoreFile;
-
     @Value("${font_families}")
     private String fontFamilies;
     
@@ -163,12 +160,7 @@ public class JFXMain extends Application {
     public Path jsonConfigFile() {
         return Paths.get(userconfigFile);
     }
-
-    @Bean
-    public Path keyStorePath() {
-        return Paths.get(keyStoreFile);
-    }
-    
+  
     @Bean
     public Path indexesDir() {
         return Paths.get(indexesDir);

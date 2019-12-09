@@ -1,6 +1,5 @@
 package de.wesim.imapnotes.services;
 
-import com.github.javakeyring.PasswordSaveException;
 import java.util.Optional;
 
 import javax.mail.Authenticator;
@@ -51,12 +50,12 @@ public class MyAuthenticator extends Authenticator implements HasLogger {
         final Optional<String> result = dialog.showAndWait();
         if (!result.isPresent()) return null;
         final String entered = result.get();
-            try {
+          //  try {
             	getLogger().info("Storing password in default keyring ...");
                 this.passwordProvider.storePassword(this.account.getAccount_name(), entered);
-            } catch (PasswordSaveException ex) {
-                getLogger().error("Storing password failed.", ex);
-            }
+//            } catch (PasswordSaveException ex) {
+//                getLogger().error("Storing password failed.", ex);
+//            }
         return new PasswordAuthentication(this.account.getLogin(), entered);
     }
 

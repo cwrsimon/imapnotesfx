@@ -2,9 +2,7 @@ package de.wesim.imapnotes.services;
 
 import com.github.javakeyring.BackendNotSupportedException;
 import com.github.javakeyring.Keyring;
-import com.github.javakeyring.PasswordRetrievalException;
-import com.github.javakeyring.PasswordSaveException;
-import com.github.javakeyring.util.LockException;
+import com.github.javakeyring.PasswordAccessException;
 import de.wesim.imapnotes.HasLogger;
 import java.nio.file.Path;
 import javax.annotation.PostConstruct;
@@ -17,9 +15,6 @@ import org.springframework.stereotype.Component;
 public class PasswordProvider implements HasLogger {
 
     private Keyring keyring;
-
-    @Autowired
-    private Path keyStorePath;
             
     private static final String KEYSTORE_SERVICE_NAME = "imapnotesfx";
  
@@ -29,15 +24,11 @@ public class PasswordProvider implements HasLogger {
     }
 
     @PostConstruct
-    private void init() {
+    void init() {
         try {
             keyring = Keyring.create();
-            if (keyring.isKeyStorePathRequired()) {
-            	keyring.setKeyStorePath(keyStorePath.toAbsolutePath().toString());
-            }
         } catch (BackendNotSupportedException ex) {
         	getLogger().error("Initializing keyring backend has failed.", ex);
-            return;
         }
     }
 
@@ -45,16 +36,16 @@ public class PasswordProvider implements HasLogger {
         try {
             String password = keyring.getPassword(KEYSTORE_SERVICE_NAME, accountName);
             return password;
-        } catch (LockException | PasswordRetrievalException ex) {
+        } catch (PasswordAccessException  ex) {
             getLogger().error("Retrieving password for account {} has failed.", accountName, ex);
         }
         return null;
     }
 
-    public void storePassword(String accountName, String pw) throws PasswordSaveException {
+    public void storePassword(String accountName, String pw) {
         try {
             keyring.setPassword(KEYSTORE_SERVICE_NAME, accountName, pw);
-        } catch (LockException ex) {
+        } catch (PasswordAccessException ex) {
             getLogger().error("Storing password for account {} has failed.", accountName, ex);
         }
        

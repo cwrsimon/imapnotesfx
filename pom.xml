@@ -35,12 +35,12 @@
         <dependency>
             <groupId>de.wesim</groupId>
             <artifactId>summernotefx</artifactId>
-            <version>0.1.1</version>
+            <version>0.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.github.javakeyring</groupId>
             <artifactId>java-keyring</artifactId>
-            <version>0.1</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
@@ -66,12 +66,13 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>8.0.0</version>
         </dependency>
-        <!-- unfortunately necessary for java-keyring -->
+        <!-- unfortunately necessary for java-keyring
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.3.1</version>
         </dependency>
+                 -->
     </dependencies>
 
     <build>
