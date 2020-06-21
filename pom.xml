@@ -35,7 +35,7 @@
         <dependency>
             <groupId>de.wesim</groupId>
             <artifactId>summernotefx</artifactId>
-            <version>0.1.2</version>
+            <version>0.1.3</version>
         </dependency>
         <dependency>
             <groupId>com.github.javakeyring</groupId>
@@ -45,7 +45,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13.0.1</version>
+            <version>14.0.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
@@ -66,13 +66,13 @@
             <artifactId>lucene-queryparser</artifactId>
             <version>8.0.0</version>
         </dependency>
-        <!-- unfortunately necessary for java-keyring
+        <!-- unfortunately necessary for java-keyring -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.3.1</version>
         </dependency>
-                 -->
+               
     </dependencies>
 
     <build>
