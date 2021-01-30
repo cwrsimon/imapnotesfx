@@ -34,8 +34,8 @@
         </dependency>
         <dependency>
             <groupId>de.wesim</groupId>
-            <artifactId>summernotefx</artifactId>
-            <version>0.1.3</version>
+            <artifactId>joditfx</artifactId>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.github.javakeyring</groupId>

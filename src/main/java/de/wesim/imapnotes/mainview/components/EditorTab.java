@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import de.wesim.imapnotes.mainview.MainViewController;
 import de.wesim.imapnotes.models.Note;
 import de.wesim.imapnotes.services.ConfigurationService;
-import de.wesim.summernotefx.SummerNoteEditor;
+import de.wesim.joditfx.JoditFx;
 import java.util.HashMap;
 import java.util.Map;
 import javafx.beans.binding.Bindings;
@@ -31,7 +31,7 @@ public class EditorTab extends Tab {
     @Autowired
     private ConfigurationService configurationService;
 
-    private SummerNoteEditor qe;
+    private JoditFx qe;
 
     private final Note note;
 
@@ -53,7 +53,7 @@ public class EditorTab extends Tab {
         cssProps.put("font-size", configurationService.getConfig().getFontSize());
 
         // this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), configurationService.getConfig());
-        this.qe = new SummerNoteEditor(mainViewController.getHostServices(), note.getContent(), cssProps);
+        this.qe = new JoditFx(mainViewController.getHostServices(), note.getContent(), cssProps);
         setContent(this.qe);
         setOnCloseRequest(e -> {
             if (!this.qe.getContentUpdate()) {
@@ -78,7 +78,7 @@ public class EditorTab extends Tab {
         );
     }
 
-    public SummerNoteEditor getQe() {
+    public JoditFx getQe() {
         return qe;
     }
 
@@ -86,7 +86,7 @@ public class EditorTab extends Tab {
         return note;
     }
 
-    public void markSearchItems(String entered) {
-        getQe().findItems(entered);
-    }
+//    public void markSearchItems(String entered) {
+//        getQe().findItems(entered);
+//    }
 }

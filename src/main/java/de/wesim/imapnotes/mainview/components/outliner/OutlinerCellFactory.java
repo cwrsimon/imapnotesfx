@@ -12,22 +12,21 @@ import javafx.scene.control.TreeView;
 import javafx.util.Callback;
 
 @Component
-public class OutlinerCellFactory implements Callback<TreeView<Note>, TreeCell<Note>>{
+public class OutlinerCellFactory implements Callback<TreeView<Note>, TreeCell<Note>> {
 
-	@Autowired
-	@Qualifier("mainViewController")
+    @Autowired
+    @Qualifier("mainViewController")
     private MainViewController caller;
-	
-	@Autowired
+
+    @Autowired
     private ApplicationContext context;
-    
-	public OutlinerCellFactory() {
+
+    public OutlinerCellFactory() {
     }
 
-
-	@Override
-	public TreeCell<Note> call(TreeView<Note> param) {
-		return context.getBean(OutlinerTreeCell.class, caller);
-	}
+    @Override
+    public TreeCell<Note> call(TreeView<Note> param) {
+        return context.getBean(OutlinerTreeCell.class, caller);
+    }
 
 }

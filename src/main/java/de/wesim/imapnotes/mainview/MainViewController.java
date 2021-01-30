@@ -170,17 +170,17 @@ public class MainViewController implements HasLogger {
             }
         });
 
-        find.setOnAction(e -> {
-            final PrefixedTextInputDialog dialog
-                    = this.context.getBean(PrefixedTextInputDialog.class, "find");
-            final Optional<String> result = dialog.showAndWait();
-            if (!result.isPresent()) {
-                return;
-            }
-            final String entered = result.get();
-            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
-            et.markSearchItems(entered);
-        });
+//        find.setOnAction(e -> {
+//            final PrefixedTextInputDialog dialog
+//                    = this.context.getBean(PrefixedTextInputDialog.class, "find");
+//            final Optional<String> result = dialog.showAndWait();
+//            if (!result.isPresent()) {
+//                return;
+//            }
+//            final String entered = result.get();
+//            final EditorTab et = (EditorTab) this.tp.getSelectionModel().getSelectedItem();
+//            et.markSearchItems(entered);
+//        });
         findGlobal.setOnAction(e -> {
             final PrefixedTextInputDialog dialog
                     = this.context.getBean(PrefixedTextInputDialog.class, "find");
