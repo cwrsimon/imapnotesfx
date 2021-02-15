@@ -17,7 +17,18 @@
     <properties>
         <java.version>11</java.version>
     </properties>
-
+    <repositories>
+        <repository>
+            <id>mvn-repo</id>
+            <url>https://github.com/cwrsimon/artifacts/raw/master</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -35,7 +46,7 @@
         <dependency>
             <groupId>de.wesim</groupId>
             <artifactId>joditfx</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>0.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.github.javakeyring</groupId>
@@ -72,7 +83,6 @@
             <artifactId>jna</artifactId>
             <version>5.3.1</version>
         </dependency>
-               
     </dependencies>
 
     <build>

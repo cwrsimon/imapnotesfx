@@ -88,7 +88,7 @@ public class MainView extends BorderPane implements HasLogger {
         //
 
         // Redo, Undo
-        // no actions necessary, see summernote.html
+        // no actions necessary, see joditfx.html
         final MenuBar menuBar = new MenuBar();
         final Menu menu = new Menu(i18N.getTranslation("file_menu"));
         final Menu editMenu = new Menu(i18N.getTranslation("edit_menu"));
